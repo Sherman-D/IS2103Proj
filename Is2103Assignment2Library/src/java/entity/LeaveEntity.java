@@ -36,6 +36,8 @@ public class LeaveEntity implements Serializable {
     public Long getLeaveId() {
         return leaveId;
     }
+
+    public void setLeaveId(Long leaveId){ this.leaveId = leaveId; }
     
     public Long getDoctorId() {
         return doctorId;
