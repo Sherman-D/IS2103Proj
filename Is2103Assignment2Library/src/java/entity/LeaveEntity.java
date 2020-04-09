@@ -1,7 +1,7 @@
 package entity;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -23,12 +23,12 @@ public class LeaveEntity implements Serializable {
     private Long doctorId;
     
     @Column(nullable = false)
-    private Timestamp leaveDate;
+    private LocalDateTime leaveDate;
 
     public LeaveEntity() {
     }
 
-    public LeaveEntity(Long doctorId, Timestamp leaveDate) {
+    public LeaveEntity(Long doctorId, LocalDateTime leaveDate) {
         this.doctorId = doctorId;
         this.leaveDate = leaveDate;
     }
@@ -45,11 +45,11 @@ public class LeaveEntity implements Serializable {
         this.doctorId = doctorId;
     }
 
-    public Timestamp getLeaveDate() {
+    public LocalDateTime getLeaveDate() {
         return leaveDate;
     }
 
-    public void setLeaveDate(Timestamp leaveDate) {
+    public void setLeaveDate(LocalDateTime leaveDate) {
         this.leaveDate = leaveDate;
     }
     
