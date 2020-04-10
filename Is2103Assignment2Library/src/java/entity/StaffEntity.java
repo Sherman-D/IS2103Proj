@@ -31,6 +31,14 @@ public class StaffEntity implements Serializable {
         this.password = password;
     }
     
+    public StaffEntity(String firstName, String lastName, String userName, String password) {
+//        this.staffId = staffId;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.userName = userName;
+        this.password = password;
+    }
+    
     
     @Override
     public int hashCode()

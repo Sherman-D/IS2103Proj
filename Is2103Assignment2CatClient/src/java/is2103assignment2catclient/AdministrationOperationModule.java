@@ -77,7 +77,7 @@ public class AdministrationOperationModule {
         }
     }
 
-    private void doManagePatients()
+    private void doManagePatients() throws EntityMismatchException
     {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
@@ -196,7 +196,7 @@ public class AdministrationOperationModule {
         }
     }
 
-    private void doUpdatePatient() throws EntityMismatchException
+    private void doUpdatePatient() 
     {
         Scanner scanner = new Scanner(System.in);
 
@@ -235,6 +235,10 @@ public class AdministrationOperationModule {
         {
             System.out.println("An error has occurred while updating the patient details: " + ex.getMessage() + "\n");
 
+        }
+        catch(EntityMismatchException ex)
+        {
+            System.out.println("An error has occurred while updating the patient details: " + ex.getMessage() + "\n");
         }
 
     }
@@ -400,7 +404,7 @@ public class AdministrationOperationModule {
 
     }
 
-    private void doUpdateDoctor() throws EntityMismatchException
+    private void doUpdateDoctor()
     {
         Scanner scanner = new Scanner(System.in);
 
@@ -434,6 +438,10 @@ public class AdministrationOperationModule {
         {
             System.out.println("An error has occurred while updating the doctor details: " + ex.getMessage() + "\n");
 
+        }
+        catch(EntityMismatchException ex)
+        {
+            System.out.println("An error has occurred while updating the doctor details: " + ex.getMessage() + "\n");
         }
     }
 
@@ -586,7 +594,7 @@ public class AdministrationOperationModule {
         }
     }
 
-    private void doUpdateStaff() throws EntityMismatchException
+    private void doUpdateStaff()
     {
         Scanner scanner = new Scanner(System.in);
 
@@ -617,6 +625,10 @@ public class AdministrationOperationModule {
         {
             System.out.println("An error has occurred while updating the staff details: " + ex.getMessage() + "\n");
 
+        }
+        catch(EntityMismatchException ex)
+        {
+            System.out.println("An error has occurred while updating the staff details: " + ex.getMessage() + "\n");
         }
     }
 
@@ -656,7 +668,7 @@ public class AdministrationOperationModule {
         }
     }
 
-    private void doManageLeaves() throws DoctorNotFoundException, LeaveNotFoundException
+    private void doManageLeaves()
     {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
@@ -710,7 +722,7 @@ public class AdministrationOperationModule {
         }
     }
 
-    private void doAddLeave() throws DoctorNotFoundException
+    private void doAddLeave()
     {
         Scanner scanner = new Scanner(System.in);
 
@@ -736,9 +748,13 @@ public class AdministrationOperationModule {
         {
             System.out.println("An error has occurred while adding the new staff: " + ex.getMessage() + "\n");
         }
+        catch(DoctorNotFoundException ex)
+        {
+            System.out.println("An error has occurred while adding the new staff: " + ex.getMessage() + "\n");
+        }
     }
 
-    private void  doViewLeave() throws DoctorNotFoundException
+    private void  doViewLeave()
     {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
@@ -769,7 +785,7 @@ public class AdministrationOperationModule {
     }
 
 
-    private void  doDeleteLeave() throws LeaveNotFoundException, DoctorNotFoundException
+    private void  doDeleteLeave()
     {
         Scanner scanner = new Scanner(System.in);
 
@@ -805,6 +821,14 @@ public class AdministrationOperationModule {
         {
             System.out.println("An error has occurred while cancelling the leave: " + ex.getMessage() + "\n");
         }
+        catch(DoctorNotFoundException ex)
+        {
+            System.out.println("An error has occurred while cancelling the leave: " + ex.getMessage() + "\n");
+        }
+        catch(LeaveNotFoundException ex)
+        {
+            System.out.println("An error has occurred while cancelling the leave: " + ex.getMessage() + "\n");
+        }
     }
 
     private void doViewAllLeaves()
@@ -812,7 +836,7 @@ public class AdministrationOperationModule {
 
     }
 
-    private void doViewLeaveByDoctor() throws DoctorNotFoundException
+    private void doViewLeaveByDoctor()
     {
         Scanner scanner = new Scanner(System.in);
         System.out.println("*** CARS :: Administartion Operation :: Doctor Management :: Leave Management :: View Leave Details ***\n");
@@ -835,6 +859,10 @@ public class AdministrationOperationModule {
             }
         }
         catch(LeaveNotFoundException ex)
+        {
+            System.out.println("An error has occurred while viewing the leave: " + ex.getMessage() + "\n");
+        }
+        catch(DoctorNotFoundException ex)
         {
             System.out.println("An error has occurred while viewing the leave: " + ex.getMessage() + "\n");
         }
