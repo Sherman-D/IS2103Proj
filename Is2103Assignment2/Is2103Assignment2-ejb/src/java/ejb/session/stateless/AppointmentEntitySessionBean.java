@@ -2,6 +2,7 @@ package ejb.session.stateless;
 
 import entity.AppointmentEntity;
 import entity.DoctorEntity;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -88,6 +89,28 @@ public class AppointmentEntitySessionBean implements AppointmentEntitySessionBea
         }
         return appointmentDetails;
         
+    }
+    
+    @Override
+    public boolean hasAppointment(DoctorEntity doctorEntity, LocalDateTime appointmentTime)
+    {
+        Query query = entityManager.createQuery("SELECT a FROM AppointmentEntity a WHERE a.doctorId = ? AND a.appointmentTime = ? ");
+        query.setParameter(1, doctorEntity.getDoctorId());
+        query.setParameter(2, appointmentTime);
+        
+        AppointmentEntity ae = query.getResultList();
+        
+        return ae!=null; //this time already has appt
+    }
+    
+    @Override
+    public void confirmAppointment(Long patientId,Long appointmentId) throws AppointmentNotFoundException
+    {
+        AppointmentEntity ae = retrieveAppointmentByAppointmentId(appointmentId);
+        if(ae.getPatientId().equals(patientId)){
+            ae.setIsConfirmed(true);
+        }
+
     }
     
     

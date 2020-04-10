@@ -11,6 +11,7 @@ import javax.persistence.OneToOne;
 
 @Entity
 public class AppointmentEntity implements Serializable {
+
     private static final long serialVersionUID = 1L;
     
     @Id
@@ -28,6 +29,7 @@ public class AppointmentEntity implements Serializable {
     @Column(nullable = false)
     private LocalDateTime appointmentTime;
     private Boolean isCancelled = false;
+    private Boolean isConfirmed = false;
     
 
     public AppointmentEntity() {
@@ -92,5 +94,13 @@ public class AppointmentEntity implements Serializable {
 
     public Boolean getIsCancelled() {
         return isCancelled;
+    }
+    
+    public Boolean getIsConfirmed() {
+        return isConfirmed;
+    }
+
+    public void setIsConfirmed(Boolean isConfirmed) {
+        this.isConfirmed = isConfirmed;
     }
 }
