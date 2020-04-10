@@ -16,6 +16,8 @@ public interface PatientEntitySessionBeanRemote
     
     PatientEntity retrievePatientByPatientId(Long patientId) throws PatientNotFoundException;
 
+    PatientEntity retrievePatientByPatientIdentityNumber(String identityNumber) throws PatientNotFoundException;
+
     void updatePatient(PatientEntity patientEntity) throws EntityMismatchException;
     
     void deletePatient(Long patientId) throws PatientNotFoundException;

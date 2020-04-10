@@ -73,6 +73,21 @@ public class PatientEntitySessionBean implements PatientEntitySessionBeanLocal, 
             throw new PatientNotFoundException("Patient ID " + patientId + " does not exist!");
         }
     }
+
+    @Override
+    public PatientEntity retrievePatientByPatientIdentityNumber(String identityNumber) throws PatientNotFoundException
+    {
+        PatientEntity patientEntity = entityManager.find(PatientEntity.class, identityNumber);
+
+        if(patientEntity != null)
+        {
+            return patientEntity;
+        }
+        else
+        {
+            throw new PatientNotFoundException("Patient ID " + identityNumber + " does not exist!");
+        }
+    }
     
     
     @Override

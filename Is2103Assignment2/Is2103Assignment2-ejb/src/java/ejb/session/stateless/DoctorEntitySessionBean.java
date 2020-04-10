@@ -67,6 +67,22 @@ public class DoctorEntitySessionBean implements DoctorEntitySessionBeanLocal, Do
             throw new DoctorNotFoundException("Doctor ID " + doctorId + " does not exist!");
         }
     }
+
+    @Override
+    public DoctorEntity retrieveDoctorByDoctorName(String firstName, String lastName) throws DoctorNotFoundException
+    {
+        DoctorEntity doctorEntity = entityManager.find(DoctorEntity.class, firstName);
+        DoctorEntity doctorEntity1 = entityManager.find(DoctorEntity.class, lastName);
+
+        if(doctorEntity != null && doctorEntity1.equals(doctorEntity))
+        {
+            return doctorEntity;
+        }
+        else
+        {
+            throw new DoctorNotFoundException("Doctor Name " + firstName+" "+lastName + " does not exist!");
+        }
+    }
     
     @Override
     public List<DoctorEntity> retrieveDoctorsAvailableOnDate(LocalDateTime searchDate) throws DoctorNotFoundException
