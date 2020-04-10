@@ -1,17 +1,34 @@
 package is2103assignment2catclient;
 
+
+import ejb.session.stateless.AppointmentEntitySessionBeanRemote;
+import ejb.session.stateless.DoctorEntitySessionBeanRemote;
+import ejb.session.stateless.PatientEntitySessionBeanRemote;
 import java.util.Scanner;
+import ejb.session.stateless.StaffEntitySessionBeanRemote;
+import entity.StaffEntity;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.EntityManagerException;
 
 public class MainApp {
     
-    private RegistrationOperationModule registrationOperationModule;
-    private AppointmentOperationModule appointmentOperationModule;
     private AdministrationOperationModule administrationOperationModule;
+    private AppointmentOperationModule appointmentOperationModule;
+    private RegistrationOperationModule registrationOperationModule;
     
-    public MainApp() 
+    private AppointmentEntitySessionBeanRemote appointmentEntitySessionBeanRemote;
+    private DoctorEntitySessionBeanRemote doctorEntitySessionBeanRemote;
+    private PatientEntitySessionBeanRemote patientEntitySessionBeanRemote;
+    private StaffEntitySessionBeanRemote staffEntitySessionBeanRemote;
+
+    private StaffEntity currentStaffEntity;
+    
+    public MainApp(AppointmentEntitySessionBeanRemote appointmentEntitySessionBeanRemote, DoctorEntitySessionBeanRemote doctorEntitySessionBeanRemote,  PatientEntitySessionBeanRemote patientEntitySessionBeanRemote, StaffEntitySessionBeanRemote staffEntitySessionBeanRemote) 
     {        
+        this.appointmentEntitySessionBeanRemote = appointmentEntitySessionBeanRemote;
+        this.doctorEntitySessionBeanRemote = doctorEntitySessionBeanRemote;
+        this.patientEntitySessionBeanRemote = patientEntitySessionBeanRemote;
+        this.staffEntitySessionBeanRemote = staffEntitySessionBeanRemote;
     }
     
     public void runApp(){
@@ -78,7 +95,7 @@ public class MainApp {
         
         if(username.length() > 0 && password.length() > 0)
         {
-            //currentStaffEntity = staffEntitySessionBeanRemote.staffLogin(username, password);      
+            currentStaffEntity = staffEntitySessionBeanRemote.staffLogin(username, password);      
         }
         else
         {
@@ -94,6 +111,8 @@ public class MainApp {
         while(true)
         {
             System.out.println("*** CARS :: Main ***\n");
+            
+            System.out.printf("You are login as %s %s", currentStaffEntity.getFirstName(), currentStaffEntity.getLastName());
       
             System.out.println("1: Registration Operation");
             System.out.println("2: Appointment Operation");
@@ -113,14 +132,9 @@ public class MainApp {
                 }
                 else if(response == 2)
                 {
-                    try
-                    {
-                        appointmentOperationModule.menuAppointmentOperation();
-                    }
-                    catch (InvalidAccessRightException ex)
-                    {
-                        System.out.println("Invalid option, please try again!: " + ex.getMessage() + "\n");
-                    }
+                    
+                    appointmentOperationModule.menuAppointmentOperation();
+                    
                 }
                 else if (response == 3)
                 {

@@ -1,8 +1,32 @@
 package is2103assignment2catclient;
 
+import ejb.session.stateless.AppointmentEntitySessionBeanRemote;
+import ejb.session.stateless.DoctorEntitySessionBeanRemote;
+import ejb.session.stateless.PatientEntitySessionBeanRemote;
+import entity.PatientEntity;
+import java.util.List;
 import java.util.Scanner;
+import util.exception.AppointmentNotFoundException;
+import util.exception.EntityInstanceExistsInCollectionException;
 
-public class RegistrationOperationModule {
+public class RegistrationOperationModule 
+{
+    private AppointmentEntitySessionBeanRemote appointmentEntitySessionBeanRemote;
+    private DoctorEntitySessionBeanRemote doctorEntitySessionBeanRemote;
+    private PatientEntitySessionBeanRemote patientEntitySessionBeanRemote;
+
+    public RegistrationOperationModule() 
+    {
+    }
+
+    public RegistrationOperationModule(AppointmentEntitySessionBeanRemote appointmentEntitySessionBeanRemote, DoctorEntitySessionBeanRemote doctorEntitySessionBeanRemote, PatientEntitySessionBeanRemote patientEntitySessionBeanRemote) 
+    {
+        this();
+        this.appointmentEntitySessionBeanRemote = appointmentEntitySessionBeanRemote;
+        this.doctorEntitySessionBeanRemote = doctorEntitySessionBeanRemote;
+        this.patientEntitySessionBeanRemote = patientEntitySessionBeanRemote;
+    }
+    
     
     public void menuRegistrationOperation() 
     {
@@ -58,7 +82,7 @@ public class RegistrationOperationModule {
         System.out.println("*** *** CARS :: Registration Operation :: Register New Patient *** ***\n");
         
         System.out.println("Enter Identity Number> ");
-        String patientId = scanner.nextLine().trim();
+        String identityNumber = scanner.nextLine().trim();
         System.out.println("Enter Password> ");
         String password = scanner.nextLine().trim();
         System.out.println("Enter First Name> ");
@@ -74,14 +98,16 @@ public class RegistrationOperationModule {
         System.out.println("Enter Address> ");
         String address = scanner.nextLine().trim();
         
-        //Insert Patient Entity Creation
+        PatientEntity newPatientEntity = new PatientEntity(identityNumber, password, firstName, lastName, gender, age, phone, address);
         try 
         {
+            patientEntitySessionBeanRemote.createNewPatient(newPatientEntity);
             System.out.println("Patient has been registered successfully!");
        
-        //Catch entity manager exceptions, and if the patient already exists in system
-        } catch () 
-        {}
+        } catch (EntityInstanceExistsInCollectionException ex) 
+        { 
+            System.out.println("An error has occurred while creating the new patient: " + ex.getMessage() + "\n");
+        }
     }
     
     //This will register a patient at the first available slot that the doctor has in the day. 
@@ -116,12 +142,26 @@ public class RegistrationOperationModule {
          
          System.out.println("Enter Patient Identity Number> ");
          String patientId = scanner.nextLine().trim();
+         List<String> patientAppointments  = appointmentEntitySessionBeanRemote.retrieveAppointmentByPatientIdentityNo(patientId);
          
-         System.out.println("Appointments: ");
+         if (patientAppointments.isEmpty()) {
+             System.out.println("There are no appointments associated with this identity number.");
+             return;
+         }
          //Fetch list of appointments. Throw error message if no appointments are logged with the ID number
+         System.out.println("Appointments: ");
+         System.out.printf("%s-1|%s-7|%s-3|%s", "Id", "Date", "Time", "Doctor");
+         
+         for (String appointmentDetails : patientAppointments) 
+         {
+             System.out.println(appointmentDetails);
+         }
+                 
          
          System.out.println("Enter Appointment Id> ");
          Integer appointmentId = Integer.parseInt(scanner.nextLine().trim());
+         
+         //appointmentEntitySessionBeanRemote.confirmAppointment(patientId, appointmentId);
          //Throw error if the appointment is not today?
          //Parse doctorId,
          //System.out.printf(%s%s appointment is confirmed with Dr. %s%s at %tH:%tM, patientFirstName, patientLastName, doctorFirstName, doctorLastName, appointmentTIme, appointmentTIme);

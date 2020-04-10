@@ -33,8 +33,7 @@ public class PatientEntity implements Serializable
     {
     }
 
-    public PatientEntity(Long patientId, String identityNumber, String firstName, String lastName, String gender, Integer age, String phone, String address, String password) {
-        this.patientId = patientId;
+    public PatientEntity(String identityNumber, String password, String firstName, String lastName, String gender, Integer age, String phone, String address) {
         this.identityNumber = identityNumber;
         this.firstName = firstName;
         this.lastName = lastName;

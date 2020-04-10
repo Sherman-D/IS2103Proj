@@ -1,7 +1,7 @@
 package entity;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -26,14 +26,14 @@ public class AppointmentEntity implements Serializable {
     private Long doctorId; 
     
     @Column(nullable = false)
-    private Timestamp appointmentTime;
+    private LocalDateTime appointmentTime;
     private Boolean isCancelled = false;
     
 
     public AppointmentEntity() {
     }
 
-    public AppointmentEntity(Long patientId, Long doctorId, Timestamp appointmentTime) {
+    public AppointmentEntity(Long patientId, Long doctorId, LocalDateTime appointmentTime) {
         this.patientId = patientId;
         this.doctorId = doctorId;
         this.appointmentTime = appointmentTime;
@@ -86,7 +86,7 @@ public class AppointmentEntity implements Serializable {
         return doctorId;
     }
 
-    public Timestamp getAppointmentTime() {
+    public LocalDateTime getAppointmentTime() {
         return appointmentTime;
     }
 

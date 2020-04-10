@@ -32,6 +32,13 @@ public class DoctorEntity implements Serializable
         this.registration = registration;
         this.qualification = qualification;
     }
+
+    public DoctorEntity(String firstName, String lastName, String registration, String qualification) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.registration = registration;
+        this.qualification = qualification;
+    }
     
     @Override
     public int hashCode()
@@ -91,6 +98,10 @@ public class DoctorEntity implements Serializable
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+    
+    public String getFullName() {
+        return firstName + " " + lastName;
     }
 
     public String getRegistration() {
