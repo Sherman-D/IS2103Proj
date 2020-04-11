@@ -5,6 +5,7 @@ import java.util.List;
 import util.exception.EntityInstanceExistsInCollectionException;
 import util.exception.PatientNotFoundException;
 import util.exception.EntityMismatchException;
+import util.exception.InvalidLoginCredentialException;
 
 
 public interface PatientEntitySessionBeanRemote
@@ -17,6 +18,9 @@ public interface PatientEntitySessionBeanRemote
     PatientEntity retrievePatientByPatientId(Long patientId) throws PatientNotFoundException;
 
     PatientEntity retrievePatientByPatientIdentityNumber(String identityNumber) throws PatientNotFoundException;
+    
+    PatientEntity patientLogin(String identityNumber, String password) throws InvalidLoginCredentialException;
+
 
     void updatePatient(PatientEntity patientEntity) throws EntityMismatchException;
     
