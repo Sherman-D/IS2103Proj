@@ -183,7 +183,7 @@ public class AdministrationOperationModule {
         String identityNumber = scanner.nextLine().trim();
         try
         {
-            PatientEntity pe = patientEntitySessionBeanRemote.retrievePatientByPatientIdentityNumber(identityNumber);
+            PatientEntity pe = patientEntitySessionBeanRemote.retrievePatientByIdentityNumber(identityNumber);
             String header = String.format("%s-10|%s-10|%s-1|%s-1|%s-4|%s", "First Name", "Last Name", "Gender", "Age", "Phone", "Address");
             System.out.println(header);
             String patientDetails = String.format("%s-10|%s-10|%s-1|%s-1|%s-4|%s", pe.getFirstName(), pe.getLastName(), pe.getGender(), pe.getAge(), pe.getPhone(), pe.getAddress());
@@ -207,7 +207,7 @@ public class AdministrationOperationModule {
 
         try
         {
-            PatientEntity pe = patientEntitySessionBeanRemote.retrievePatientByPatientIdentityNumber(identityNumber);
+            PatientEntity pe = patientEntitySessionBeanRemote.retrievePatientByIdentityNumber(identityNumber);
             Long patientId = pe.getPatientId();
             String password = pe.getPassword();
 //            System.out.println("Enter Password> ");
@@ -250,7 +250,7 @@ public class AdministrationOperationModule {
 
         try
         {
-            PatientEntity pe = patientEntitySessionBeanRemote.retrievePatientByPatientIdentityNumber(identityNumber);
+            PatientEntity pe = patientEntitySessionBeanRemote.retrievePatientByIdentityNumber(identityNumber);
             Long patientId = pe.getPatientId();
             patientEntitySessionBeanRemote.deletePatient(patientId);
         }

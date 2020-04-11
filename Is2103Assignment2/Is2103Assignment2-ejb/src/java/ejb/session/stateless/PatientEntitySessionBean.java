@@ -6,11 +6,14 @@ import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import util.exception.EntityInstanceExistsInCollectionException;
 import util.exception.PatientNotFoundException;
 import util.exception.EntityMismatchException;
+import util.exception.InvalidLoginCredentialException;
 
 
 
@@ -71,6 +74,46 @@ public class PatientEntitySessionBean implements PatientEntitySessionBeanLocal, 
         else
         {
             throw new PatientNotFoundException("Patient ID " + patientId + " does not exist!");
+        }
+    }
+    
+    
+    @Override
+    public PatientEntity retrievePatientByIdentityNumber(String identityNo) throws PatientNotFoundException
+    {
+        Query query = entityManager.createQuery("SELECT p FROM PatientEntity p WHERE p.identityNumber = :identityNo");
+        query.setParameter("identityNo",  identityNo);
+        
+        try
+        {
+            return (PatientEntity)query.getSingleResult();
+        }
+        catch(NoResultException | NonUniqueResultException ex)
+        {
+            throw new PatientNotFoundException("No patient record with given identity number exists!");
+        }
+    }
+    
+    
+    @Override
+    public PatientEntity patientLogin(String identityNo, String password) throws InvalidLoginCredentialException, PatientNotFoundException
+    {
+        try
+        {
+            PatientEntity patientEntity = retrievePatientByIdentityNumber(identityNo);
+            
+            if(patientEntity.getPassword().equals(password))
+            {        
+                return patientEntity;
+            }
+            else
+            {
+                throw new InvalidLoginCredentialException("The login details provided are incorrect!");
+            }
+        }
+        catch(PatientNotFoundException ex)
+        {
+            throw new PatientNotFoundException("No patient record found with the given details!");
         }
     }
     
