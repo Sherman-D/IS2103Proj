@@ -103,4 +103,6 @@ public class AppointmentEntity implements Serializable {
     public void setIsConfirmed(Boolean isConfirmed) {
         this.isConfirmed = isConfirmed;
     }
+    
 }
+

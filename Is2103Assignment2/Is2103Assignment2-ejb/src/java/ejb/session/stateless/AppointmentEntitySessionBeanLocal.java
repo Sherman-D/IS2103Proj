@@ -21,7 +21,7 @@ public interface AppointmentEntitySessionBeanLocal
     
     List<String> retrieveAppointmentByPatientIdentityNo(String patientId);
     
-    boolean hasAppointment(DoctorEntity doctorEntity, LocalDateTime appointmentTime);
+    String hasAppointment(DoctorEntity doctorEntity, LocalDateTime appointmentTime);
     
     void confirmAppointment(Long patientId,Long appointmentId) throws AppointmentNotFoundException;
 

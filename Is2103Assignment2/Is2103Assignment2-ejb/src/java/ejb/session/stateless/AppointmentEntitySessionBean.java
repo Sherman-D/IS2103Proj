@@ -92,7 +92,7 @@ public class AppointmentEntitySessionBean implements AppointmentEntitySessionBea
     }
     
     @Override
-    public boolean hasAppointment(DoctorEntity doctorEntity, LocalDateTime appointmentTime)
+    public String hasAppointment(DoctorEntity doctorEntity, LocalDateTime appointmentTime)
     {
         Query query = entityManager.createQuery("SELECT a FROM AppointmentEntity a WHERE a.doctorId = ? AND a.appointmentTime = ? ");
         query.setParameter(1, doctorEntity.getDoctorId());
@@ -100,7 +100,9 @@ public class AppointmentEntitySessionBean implements AppointmentEntitySessionBea
         
         AppointmentEntity ae = query.getResultList();
         
-        return ae!=null; //this time already has appt
+        if(ae!=null){
+        return "X";
+        }//this time already has appt
     }
     
     @Override
@@ -133,5 +135,6 @@ public class AppointmentEntitySessionBean implements AppointmentEntitySessionBea
             throw new EntityMismatchException("The appointment record being cancelled does not match the one stored!");
         }
     }
+
     
 }
