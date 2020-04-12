@@ -2,6 +2,7 @@ package ejb.session.stateless;
 
 import entity.AppointmentEntity;
 import entity.DoctorEntity;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -90,6 +91,30 @@ public class AppointmentEntitySessionBean implements AppointmentEntitySessionBea
         
     }
     
+    @Override
+    public String hasAppointment(DoctorEntity doctorEntity, LocalDateTime appointmentTime)
+    {
+        Query query = entityManager.createQuery("SELECT a FROM AppointmentEntity a WHERE a.doctorId = ? AND a.appointmentTime = ? ");
+        query.setParameter(1, doctorEntity.getDoctorId());
+        query.setParameter(2, appointmentTime);
+        
+        AppointmentEntity ae = query.getResultList();
+        
+        if(ae!=null){
+        return "X";
+        }//this time already has appt
+    }
+    
+    @Override
+    public void confirmAppointment(Long patientId,Long appointmentId) throws AppointmentNotFoundException
+    {
+        AppointmentEntity ae = retrieveAppointmentByAppointmentId(appointmentId);
+        if(ae.getPatientId().equals(patientId)){
+            ae.setIsConfirmed(true);
+        }
+
+    }
+    
     
     @Override
     public void cancelAppointment(AppointmentEntity appointmentEntity) throws EntityMismatchException, AppointmentAlreadyCancelledException
@@ -110,5 +135,6 @@ public class AppointmentEntitySessionBean implements AppointmentEntitySessionBea
             throw new EntityMismatchException("The appointment record being cancelled does not match the one stored!");
         }
     }
+
     
 }

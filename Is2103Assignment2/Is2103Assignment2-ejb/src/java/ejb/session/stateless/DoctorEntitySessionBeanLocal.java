@@ -16,6 +16,8 @@ public interface DoctorEntitySessionBeanLocal
     List<DoctorEntity> retrieveAllDoctors();
     
     DoctorEntity retrieveDoctorByDoctorId(Long doctorId) throws DoctorNotFoundException;
+
+    DoctorEntity retrieveDoctorByDoctorName(String firstName, String lastName) throws DoctorNotFoundException;
     
     List<DoctorEntity> retrieveDoctorsAvailableOnDate(LocalDateTime searchDate) throws DoctorNotFoundException;
 

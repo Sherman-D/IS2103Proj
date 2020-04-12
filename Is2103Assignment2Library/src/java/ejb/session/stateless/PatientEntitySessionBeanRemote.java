@@ -21,6 +21,11 @@ public interface PatientEntitySessionBeanRemote
     
     PatientEntity patientLogin(String identityNo, String password) throws InvalidLoginCredentialException, PatientNotFoundException;
 
+    PatientEntity retrievePatientByPatientIdentityNumber(String identityNumber) throws PatientNotFoundException;
+    
+    PatientEntity patientLogin(String identityNumber, String password) throws InvalidLoginCredentialException;
+
+
     void updatePatient(PatientEntity patientEntity) throws EntityMismatchException;
     
     void deletePatient(Long patientId) throws PatientNotFoundException;

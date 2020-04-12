@@ -2,6 +2,8 @@ package ejb.session.stateless;
 
 import entity.PatientEntity;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
@@ -50,6 +52,28 @@ public class PatientEntitySessionBean implements PatientEntitySessionBeanLocal, 
         return newPatientEntity.getPatientId();
     }
     
+    @Override
+    public PatientEntity patientLogin(String identityNumber, String password) throws InvalidLoginCredentialException
+    {
+        try
+        {
+            PatientEntity patientEntity = retrievePatientByPatientIdentityNumber(identityNumber);
+            
+            if(patientEntity.getPassword().equals(password))
+            {        
+                return patientEntity;
+            }
+            else
+            {
+                throw new InvalidLoginCredentialException("Username or password is incorrect!");
+            }
+        }
+        catch(PatientNotFoundException ex)
+        {
+            throw new InvalidLoginCredentialException("Identity Number or password is incorrect!");
+        }
+    }
+    
     
     
     @Override
@@ -74,6 +98,21 @@ public class PatientEntitySessionBean implements PatientEntitySessionBeanLocal, 
         else
         {
             throw new PatientNotFoundException("Patient ID " + patientId + " does not exist!");
+        }
+    }
+
+    @Override
+    public PatientEntity retrievePatientByPatientIdentityNumber(String identityNumber) throws PatientNotFoundException
+    {
+        PatientEntity patientEntity = entityManager.find(PatientEntity.class, identityNumber);
+
+        if(patientEntity != null)
+        {
+            return patientEntity;
+        }
+        else
+        {
+            throw new PatientNotFoundException("Patient ID " + identityNumber + " does not exist!");
         }
     }
     
