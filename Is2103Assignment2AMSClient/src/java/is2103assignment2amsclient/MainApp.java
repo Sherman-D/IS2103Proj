@@ -10,30 +10,19 @@ import ejb.session.stateless.DoctorEntitySessionBeanRemote;
 import ejb.session.stateless.LeaveEntitySessionBeanRemote;
 import ejb.session.stateless.PatientEntitySessionBeanRemote;
 import ejb.session.stateless.StaffEntitySessionBeanRemote;
-import entity.AppointmentEntity;
 import entity.DoctorEntity;
-import entity.LeaveEntity;
 import entity.PatientEntity;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.persistence.EntityExistsException;
-import util.exception.AppointmentAlreadyCancelledException;
-import util.exception.AppointmentNotFoundException;
-import util.exception.DoctorNotFoundException;
 import util.exception.EntityInstanceExistsInCollectionException;
 import util.exception.EntityManagerException;
 import util.exception.InvalidLoginCredentialException;
-import util.exception.LeaveNotFoundException;
 
 public class MainApp {
     
+    private AppointmentOperationModule appointmentOperationModule;
     
     private AppointmentEntitySessionBeanRemote appointmentEntitySessionBeanRemote;
     private DoctorEntitySessionBeanRemote doctorEntitySessionBeanRemote;
@@ -73,7 +62,7 @@ public class MainApp {
                 {
                         doRegister();
                         System.out.println("Register successful!\n");
-                        menuMain();
+//                        menuMain();
                 }
                 else if(response == 2)
                 {
@@ -105,3 +94,189 @@ public class MainApp {
             }
         }
     }
+    
+    private void doRegister()
+    {
+        Scanner scanner = new Scanner(System.in);
+        PatientEntity pe = new PatientEntity();
+
+        System.out.println("*** Self-Service Kiosk :: Register ***\n");
+
+        System.out.println("Enter Identity Number> ");
+        String identityNumber = scanner.nextLine().trim();
+        System.out.println("Enter Password> ");
+        String password = scanner.nextLine().trim();
+        System.out.println("Enter First Name> ");
+        String firstName = scanner.nextLine().trim();
+        System.out.println("Enter Last Name> ");
+        String lastName = scanner.nextLine().trim();
+        System.out.println("Enter Gender> ");
+        String gender = scanner.nextLine().trim();
+        
+        boolean isValid = true;
+        Integer age = 0;
+        while (isValid)
+        {
+            System.out.println("Enter Age> ");
+            String ageInput = scanner.nextLine().trim();
+            
+            try {
+               age = Integer.parseInt(ageInput);
+               isValid = false;
+            } 
+            catch (NumberFormatException ex)
+            {
+                System.out.println("Please enter your age in digits (1-99)!");
+                
+            }
+        }
+        
+        System.out.println("Enter Phone> ");
+        String phone = scanner.nextLine().trim();
+        System.out.println("Enter Address> ");
+        String address = scanner.nextLine();
+
+        try
+        {
+            patientEntitySessionBeanRemote.createNewPatient(new PatientEntity(identityNumber, password, firstName, lastName, gender, age, phone, address));
+//            System.out.println("Patient has been registered successfully!");
+            
+        }
+        catch (EntityInstanceExistsInCollectionException ex)
+        {
+            System.out.println("An error has occurred while creating your account: " + ex.getMessage() + "\n");
+        }
+    }
+    
+    
+    private void doLogin() throws InvalidLoginCredentialException,  EntityManagerException
+    {
+        Scanner scanner = new Scanner(System.in);
+        String iN = "";
+        String password = "";
+        
+        System.out.println("*** AMS Client :: Login ***\n");
+        System.out.print("Enter Identity Number> ");
+        iN = scanner.nextLine().trim();
+        System.out.print("Enter password> ");
+        password = scanner.nextLine().trim();
+        
+        if(iN.length() > 0 && password.length() > 0)
+        {
+            currentPatientEntity = patientEntitySessionBeanRemote.patientLogin(iN, password);      
+        }
+        else
+        {
+            throw new InvalidLoginCredentialException("Missing login credential!");
+        }
+    }
+    
+        private void menuMain() 
+    {
+        Scanner scanner = new Scanner(System.in);
+        Integer response = 0;
+        
+        while(true)
+        {
+            System.out.println("*** AMS Client :: Main ***\n");
+            
+            System.out.printf("You are login as %s %s", currentPatientEntity.getFirstName(), currentPatientEntity.getLastName());
+      
+            System.out.println("1: View Appointments");
+            System.out.println("2: Add Appointment");
+            System.out.println("3: Cancel Appointment");
+            System.out.println("4: Logout \n");
+            response = 0;
+            
+            while(response < 1 || response > 4)
+            {
+                System.out.print("> ");
+
+                response = scanner.nextInt();
+
+                if(response == 1)
+                {
+                    doViewAppointments();
+//                    appointmentOperationModule.menuRegistrationOperation();
+                }
+                else if(response == 2)
+                {
+                    
+                    doAddAppointment();
+//                    appointmentOperationModule.menuAppointmentOperation();
+                    
+                }
+                else if (response == 3)
+                {
+                    doCancelAppointment();
+//                    appointmentOperationModule.menuRegistrationOperation();
+                }
+                else if (response == 4)
+                {
+                    break;
+                }
+                else
+                {
+                    System.out.println("Invalid option, please try again!\n");                
+                }
+            }
+            
+            if(response == 4)
+            {
+                break;
+            }
+        }
+    }
+
+  
+        
+        private void doViewAppointments(){
+
+//            Scanner scanner = new Scanner(System.in);
+
+            System.out.println("*** AMS Client :: View Appointments ***\n");
+            System.out.println("Appointments:");
+            List<String> appts = appointmentEntitySessionBeanRemote.retrieveAppointmentByPatientIdentityNo(currentPatientEntity.getIdentityNumber());
+            for(String a :appts){
+                System.out.println(a);
+            }
+        }
+        
+        private void doAddAppointment(){
+            Scanner scanner = new Scanner(System.in);
+
+            System.out.println("*** AMS Client :: Add Appointment ***\n");
+            System.out.println("Doctor:");
+            System.out.println("Id |Name");
+            LocalDateTime now = LocalDateTime.now();
+            List<DoctorEntity> deList = doctorEntitySessionBeanRemote.retrieveDoctorsAvailableOnDate(now);
+            for(DoctorEntity de : deList){ //print list of doctors
+                System.out.println(de.getDoctorId()+" |"+de.getFullName());
+            }
+            System.out.println("");
+            System.out.println("Enter Doctor Id> ");
+            String di = scanner.nextLine().trim();
+            Long doctorId = Long.valueOf(di);
+            System.out.println("Enter Date> ");
+            String d = scanner.nextLine().trim();
+            DateFormatter formatter = DateFormatter.ofPattern("yyyy-MM-dd");
+            LocalDate date = LocalDateTime.parse(d,  formatter);
+            
+            try
+            {
+                DoctorEntity de = doctorEntitySessionBeanRemote.retrieveDoctorByDoctorId(doctorId);
+               System.out.println("Availability for "+de.getFullName()+" a=")
+            }
+            catch()
+            {
+                
+            }
+        }
+        
+        private void doCancelAppointment(){
+            
+        }
+
+    
+    
+}

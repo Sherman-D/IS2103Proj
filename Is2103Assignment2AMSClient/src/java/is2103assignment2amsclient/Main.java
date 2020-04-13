@@ -5,17 +5,30 @@
  */
 package is2103assignment2amsclient;
 
-/**
- *
- * @author User
- */
-public class Main {
+import ejb.session.stateless.AppointmentEntitySessionBeanRemote;
+import ejb.session.stateless.DoctorEntitySessionBeanRemote;
+import ejb.session.stateless.PatientEntitySessionBeanRemote;
+import javax.ejb.EJB;
+import ejb.session.stateless.StaffEntitySessionBeanRemote;
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        // TODO code application logic here
-    }
-    
+
+public class Main {
+        
+    @EJB
+    private static AppointmentEntitySessionBeanRemote appointmentEntitySessionBeanRemote;
+    @EJB
+    private static DoctorEntitySessionBeanRemote doctorEntitySessionBeanRemote;
+    @EJB
+    private static PatientEntitySessionBeanRemote patientEntitySessionBeanRemote;
+    @EJB
+    private static StaffEntitySessionBeanRemote staffEntitySessionBeanRemote; 
+        
+
+        public static void main(String[] args) 
+        {
+
+            MainApp mainApp = new MainApp(appointmentEntitySessionBeanRemote, doctorEntitySessionBeanRemote, patientEntitySessionBeanRemote, staffEntitySessionBeanRemote);
+            mainApp.runApp();     
+        }
+
 }
