@@ -772,15 +772,18 @@ exists or setup the property manually. For example like this:
     </target>
     <target depends="compile" if="is.server.weblogic" name="library-inclusion-in-archive">
         <basename file="${reference.Is2103Assignment2Library.dist}" property="manifest.reference.Is2103Assignment2Library.dist"/>
+        <basename file="${file.reference.javaee-api-7.0.jar}" property="manifest.file.reference.javaee-api-7.0.jar"/>
         <manifest file="${build.ear.classes.dir}/META-INF/MANIFEST.MF" mode="update">
-            <attribute name="Extension-List" value="jar-1 "/>
+            <attribute name="Extension-List" value="jar-1 jar-2 "/>
             <attribute name="jar-1-Extension-Name" value="${manifest.reference.Is2103Assignment2Library.dist}"/>
+            <attribute name="jar-2-Extension-Name" value="${manifest.file.reference.javaee-api-7.0.jar}"/>
         </manifest>
     </target>
     <target depends="compile" if="dist.ear.dir" name="library-inclusion-in-manifest">
         <copyfiles files="${reference.Is2103Assignment2Library.dist}" manifestproperty="manifest.reference.Is2103Assignment2Library.dist" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.javaee-api-7.0.jar}" manifestproperty="manifest.file.reference.javaee-api-7.0.jar" todir="${dist.ear.dir}/lib"/>
         <manifest file="${build.ear.classes.dir}/META-INF/MANIFEST.MF" mode="update">
-            <attribute name="Class-Path" value="${manifest.reference.Is2103Assignment2Library.dist} "/>
+            <attribute name="Class-Path" value="${manifest.reference.Is2103Assignment2Library.dist} ${manifest.file.reference.javaee-api-7.0.jar} lib/${manifest.file.reference.javaee-api-7.0.jar} "/>
         </manifest>
     </target>
     <target name="-copy-meta-inf">

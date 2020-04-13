@@ -345,7 +345,7 @@ public class MainApp {
             
             
             
-        } catch (LeaveNotFoundException ex) 
+        } catch (LeaveNotFoundException | DoctorNotFoundException ex) 
         {
             System.out.println("Error in walk-in registration"+ ex.getMessage()+"\n");
         }

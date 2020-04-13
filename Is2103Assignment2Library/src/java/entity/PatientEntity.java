@@ -8,7 +8,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
-public class PatientEntity implements Serializable 
+public class PatientEntity implements Serializable, Comparable<PatientEntity>
 {
 
     private static final long serialVersionUID = 1L;
@@ -153,5 +153,9 @@ public class PatientEntity implements Serializable
         this.password = password;
     }
 
+    @Override
+    public int compareTo(PatientEntity anotherPatient) {
+        return this.patientId.compareTo(anotherPatient.getPatientId());
+    }
 }
 

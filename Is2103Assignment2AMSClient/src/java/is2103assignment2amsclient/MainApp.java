@@ -159,9 +159,10 @@ public class MainApp {
         String password = "";
         
         System.out.println("*** AMS Client :: Login ***\n");
+        
         System.out.print("Enter Identity Number> ");
         iN = scanner.nextLine().trim();
-        System.out.print("Enter password> ");
+        System.out.print("Enter Password> ");
         password = scanner.nextLine().trim();
         
         if(iN.length() > 0 && password.length() > 0)
@@ -237,10 +238,13 @@ public class MainApp {
 //            Scanner scanner = new Scanner(System.in);
 
             System.out.println("*** AMS Client :: View Appointments ***\n");
+           
             System.out.println("Appointments:");
+            
             List<String> appts = appointmentEntitySessionBeanRemote.retrieveAppointmentByPatientIdentityNo(currentPatientEntity.getIdentityNumber());
-            for(String a :appts){
-                System.out.println(a);
+            for (String appointment : appts)
+            {
+                System.out.println(appointment);
             }
         }
         
@@ -248,17 +252,20 @@ public class MainApp {
             Scanner scanner = new Scanner(System.in);
 
             System.out.println("*** AMS Client :: Add Appointment ***\n");
+            
             System.out.println("Doctor:");
             System.out.println("Id |Name");
             LocalDateTime now = LocalDateTime.now();
             List<DoctorEntity> deList = doctorEntitySessionBeanRemote.retrieveDoctorsAvailableOnDate(now);
+            
             for(DoctorEntity de : deList){ //print list of doctors
                 System.out.println(de.getDoctorId()+" |"+de.getFullName());
             }
-            System.out.println("");
+            System.out.println();
+            
             System.out.println("Enter Doctor Id> ");
-            String di = scanner.nextLine().trim();
-            Long doctorId = Long.valueOf(di);
+            Long doctorId = Long.valueOf(scanner.nextLine().trim());
+            
             System.out.println("Enter Date> ");
             String d = scanner.nextLine().trim();
 //            DateFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -267,16 +274,17 @@ public class MainApp {
             try
             {
                 DoctorEntity de = doctorEntitySessionBeanRemote.retrieveDoctorByDoctorId(doctorId);
-                System.out.println("Availability for "+de.getFullName()+" on "+d+":");
+                System.out.println("Availability for " + de.getFullName() + " on " + d + ":");
                 //not sure how to print
                 System.out.println("EDIT AMS CLIENT MAINAPP DOADDAPPT");
                 System.out.println("");
+               
                 System.out.println("Enter Time> ");
                 String t = scanner.nextLine().trim();
 //                TimeFormatter formatter1 = DateTimeFormatter.ofPattern("HH:mm");
                 LocalTime time = LocalTime.parse(t);
                 //check if this time is avail
-                System.out.println(currentPatientEntity.getFirstName()+" "+currentPatientEntity.getLastName());
+                System.out.println(currentPatientEntity.getFirstName() + " " + currentPatientEntity.getLastName());
             }
             catch(DoctorNotFoundException ex)
             {
@@ -291,10 +299,12 @@ public class MainApp {
             System.out.println("Appointments:");
             System.out.println("Id |Date       |Time  |Doctor");
             List<String> appts = appointmentEntitySessionBeanRemote.retrieveAppointmentByPatientIdentityNo(currentPatientEntity.getIdentityNumber());
-            for(String s:appts){
+            for(String s : appts)
+            {
                 System.out.println(s);
             }
-            System.out.println("");
+            System.out.println();
+            
             System.out.println("Enter Appointment Id> ");
             String in = scanner.nextLine().trim();
             Long appointmentId = Long.valueOf(in);
@@ -302,20 +312,13 @@ public class MainApp {
             try
             {
              AppointmentEntity ae = appointmentEntitySessionBeanRemote.retrieveAppointmentByAppointmentId(appointmentId);
-             DoctorEntity d = ae.getDoctorId();
-             System.out.println(currentPatientEntity.getFirstName()+" "+currentPatientEntity.getLastName()+" appointment with "+d.getFullName()+" at "+t+" on "+d+" has been cancelled");
+             DoctorEntity d = doctorEntitySessionBeanRemote.retrieveDoctorByDoctorId(ae.getDoctorId());
+             System.out.println(currentPatientEntity.getFirstName()+" "+currentPatientEntity.getLastName()+" appointment with " + d.getFullName() + " at "+ t +" on "+ d +" has been cancelled");
              appointmentEntitySessionBeanRemote.cancelAppointment(ae);
             }
-            catch(DoctorNotFoundException ex)
+            catch(AppointmentNotFoundException | DoctorNotFoundException  ex)
             {
                 System.out.println("Error cancelling appointment: "+ ex.getMessage());
             }
-            catch(AppointmentNotFoundException ex)
-            {
-                System.out.println("Error cancelling appointment: "+ ex.getMessage());
-            }
-
-            
         }
-  
 }

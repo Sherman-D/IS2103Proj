@@ -65,7 +65,7 @@ public class PatientEntitySessionBean implements PatientEntitySessionBeanLocal, 
             }
             else
             {
-                throw new InvalidLoginCredentialException("Username or password is incorrect!");
+                throw new InvalidLoginCredentialException("Identity Number or password is incorrect!");
             }
         }
         catch(PatientNotFoundException ex)

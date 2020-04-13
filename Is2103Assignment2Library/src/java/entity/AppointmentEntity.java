@@ -10,7 +10,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToOne;
 
 @Entity
-public class AppointmentEntity implements Serializable {
+public class AppointmentEntity implements Serializable, Comparable<AppointmentEntity>  
+{
 
     private static final long serialVersionUID = 1L;
     
@@ -103,6 +104,11 @@ public class AppointmentEntity implements Serializable {
     public void setIsConfirmed(Boolean isConfirmed) {
         this.isConfirmed = isConfirmed;
     }
+   
     
+    @Override
+    public int compareTo(AppointmentEntity anotherAppointment) {
+        return this.appointmentId.compareTo(anotherAppointment.getAppointmentId());
+    }
 }
 

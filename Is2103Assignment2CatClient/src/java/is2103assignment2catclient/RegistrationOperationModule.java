@@ -128,7 +128,7 @@ public class RegistrationOperationModule
         //Fetch list of doctors for the current day
         List<DoctorEntity> doctorList = doctorEntitySessionBeanRemote.retrieveAllDoctors();
         LocalDateTime now = LocalDateTime.now();
-        List<LeaveEntity> leaveList = leaveEntitySessionBeanRemote.retrieveLeaveByDate(now);
+        List<LeaveEntity> leaveList = leaveEntitySessionBeanRemote.retrieveLeaveByDate(now); //Problematic with using currentTime as variable, especially if we're using dummy data. 
         
         for(DoctorEntity de : doctorList){
             for(LeaveEntity le : leaveList){
@@ -164,11 +164,7 @@ public class RegistrationOperationModule
                 System.out.println(pe.getFirstName()+""+pe.getLastName()+" appointment with Dr."+de.getFullName()+" has been booked at "+/*next avail time*/);
             }
         }
-        catch(DoctorNotFoundException ex)
-        {
-            System.out.println("Error in booking appointment: "+ex.getMessage()+"\n");
-        }
-        catch(PatientNotFoundException ex)
+        catch(DoctorNotFoundException | PatientNotFoundException ex)
         {
             System.out.println("Error in booking appointment: "+ex.getMessage()+"\n");
         }
@@ -197,17 +193,22 @@ public class RegistrationOperationModule
              System.out.println(appointmentDetails);
          }
                  
-         
-         System.out.println("Enter Appointment Id> ");
-         Integer appointmentId1 = Integer.parseInt(scanner.nextLine().trim());
-         Long appointmentId = Long.valueOf(appointmentId1);
-         PatientEntity pe = patientEntitySessionBeanRemote.retrievePatientByPatientIdentityNumber(patientIn);
-         Long patientId = pe.getPatientId();
-         
-         appointmentEntitySessionBeanRemote.confirmAppointment(patientId, appointmentId);
-         //Throw error if the appointment is not today?
-         //Parse doctorId,
-         //System.out.printf(%s%s appointment is confirmed with Dr. %s%s at %tH:%tM, patientFirstName, patientLastName, doctorFirstName, doctorLastName, appointmentTIme, appointmentTIme);
+         try {
+            System.out.println("Enter Appointment Id> ");
+            Integer appointmentId1 = Integer.parseInt(scanner.nextLine().trim());
+            Long appointmentId = Long.valueOf(appointmentId1);
+            PatientEntity pe = patientEntitySessionBeanRemote.retrievePatientByPatientIdentityNumber(patientIn);
+            Long patientId = pe.getPatientId();
+
+            appointmentEntitySessionBeanRemote.confirmAppointment(patientId, appointmentId);
+            //Throw error if the appointment is not today?
+            //Parse doctorId,
+            //System.out.printf(%s%s appointment is confirmed with Dr. %s%s at %tH:%tM, patientFirstName, patientLastName, doctorFirstName, doctorLastName, appointmentTIme, appointmentTIme);
+         } 
+         catch (PatientNotFoundException | AppointmentNotFoundException ex) 
+         {
+             System.out.println("An error has occured while registering the appointment: " + ex.getMessage());
+         }
          
     }
 }

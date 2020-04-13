@@ -49,8 +49,7 @@ public class LeaveEntitySessionBean implements LeaveEntitySessionBeanLocal, Leav
         
         return query.getResultList();
     }
-    
-    
+   
     
     @Override
     public LeaveEntity retrieveLeaveByLeaveId(Long leaveId) throws LeaveNotFoundException
@@ -67,6 +66,7 @@ public class LeaveEntitySessionBean implements LeaveEntitySessionBeanLocal, Leav
         }
     }
     
+    
     @Override
     public List<LeaveEntity> retrieveLeaveByDoctorId(Long doctorId) throws LeaveNotFoundException
     {
@@ -82,6 +82,7 @@ public class LeaveEntitySessionBean implements LeaveEntitySessionBeanLocal, Leav
             throw new LeaveNotFoundException("The doctor associate with ID " + doctorId + " does not have any registered leaves!");
         }
     }
+    
     
     @Override
     public List<LeaveEntity> retrieveLeaveByDate(LocalDateTime searchDate) throws LeaveNotFoundException
