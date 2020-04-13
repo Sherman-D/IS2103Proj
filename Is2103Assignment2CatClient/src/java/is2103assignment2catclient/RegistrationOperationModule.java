@@ -129,6 +129,7 @@ public class RegistrationOperationModule
         List<DoctorEntity> doctorList = doctorEntitySessionBeanRemote.retrieveAllDoctors();
         LocalDateTime now = LocalDateTime.now();
         List<LeaveEntity> leaveList = leaveEntitySessionBeanRemote.retrieveLeaveByDate(now);
+        
         for(DoctorEntity de : doctorList){
             for(LeaveEntity le : leaveList){
                 if(!de.getDoctorId().equals(le.getDoctorId())){ // doctor is not on leave today

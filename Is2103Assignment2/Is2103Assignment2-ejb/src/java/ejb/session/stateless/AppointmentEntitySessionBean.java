@@ -94,15 +94,19 @@ public class AppointmentEntitySessionBean implements AppointmentEntitySessionBea
     @Override
     public String hasAppointment(DoctorEntity doctorEntity, LocalDateTime appointmentTime)
     {
-        Query query = entityManager.createQuery("SELECT a FROM AppointmentEntity a WHERE a.doctorId = ? AND a.appointmentTime = ? ");
+        Query query = entityManager.createQuery("SELECT a FROM AppointmentEntity a WHERE a.doctorId = ?1 AND a.appointmentTime = ?2 ");
         query.setParameter(1, doctorEntity.getDoctorId());
         query.setParameter(2, appointmentTime);
         
-        AppointmentEntity ae = query.getResultList();
+        AppointmentEntity ae = (AppointmentEntity) query.getSingleResult();
         
-        if(ae!=null){
-        return "X";
-        }//this time already has appt
+        if(ae != null)
+        {
+            return "X";
+        } else 
+        {
+            return "O";
+        }
     }
     
     @Override

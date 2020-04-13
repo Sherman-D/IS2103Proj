@@ -19,12 +19,9 @@ public interface PatientEntitySessionBeanRemote
     
     PatientEntity retrievePatientByIdentityNumber(String identityNo) throws PatientNotFoundException;
     
-    PatientEntity patientLogin(String identityNo, String password) throws InvalidLoginCredentialException, PatientNotFoundException;
-
     PatientEntity retrievePatientByPatientIdentityNumber(String identityNumber) throws PatientNotFoundException;
     
     PatientEntity patientLogin(String identityNumber, String password) throws InvalidLoginCredentialException;
-
 
     void updatePatient(PatientEntity patientEntity) throws EntityMismatchException;
     

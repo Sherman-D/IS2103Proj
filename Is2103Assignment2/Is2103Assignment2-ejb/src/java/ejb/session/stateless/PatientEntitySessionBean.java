@@ -133,30 +133,6 @@ public class PatientEntitySessionBean implements PatientEntitySessionBeanLocal, 
         }
     }
     
-    
-    @Override
-    public PatientEntity patientLogin(String identityNo, String password) throws InvalidLoginCredentialException, PatientNotFoundException
-    {
-        try
-        {
-            PatientEntity patientEntity = retrievePatientByIdentityNumber(identityNo);
-            
-            if(patientEntity.getPassword().equals(password))
-            {        
-                return patientEntity;
-            }
-            else
-            {
-                throw new InvalidLoginCredentialException("The login details provided are incorrect!");
-            }
-        }
-        catch(PatientNotFoundException ex)
-        {
-            throw new PatientNotFoundException("No patient record found with the given details!");
-        }
-    }
-    
-    
     @Override
     public void updatePatient(PatientEntity patientEntity) throws EntityMismatchException
     {
