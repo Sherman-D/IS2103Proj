@@ -10,12 +10,15 @@ import ejb.session.stateless.DoctorEntitySessionBeanRemote;
 import ejb.session.stateless.LeaveEntitySessionBeanRemote;
 import ejb.session.stateless.PatientEntitySessionBeanRemote;
 import ejb.session.stateless.StaffEntitySessionBeanRemote;
+import entity.AppointmentEntity;
 import entity.DoctorEntity;
 import entity.PatientEntity;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.*;
 import java.util.List;
 import java.util.Scanner;
+import util.exception.AppointmentNotFoundException;
+import util.exception.DoctorNotFoundException;
 import util.exception.EntityInstanceExistsInCollectionException;
 import util.exception.EntityManagerException;
 import util.exception.InvalidLoginCredentialException;
@@ -171,8 +174,7 @@ public class MainApp {
         }
     }
     
-        private void menuMain() 
-    {
+        private void menuMain() {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
         
@@ -259,24 +261,61 @@ public class MainApp {
             Long doctorId = Long.valueOf(di);
             System.out.println("Enter Date> ");
             String d = scanner.nextLine().trim();
-            DateFormatter formatter = DateFormatter.ofPattern("yyyy-MM-dd");
-            LocalDate date = LocalDateTime.parse(d,  formatter);
+//            DateFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDate date = LocalDate.parse(d);
             
             try
             {
                 DoctorEntity de = doctorEntitySessionBeanRemote.retrieveDoctorByDoctorId(doctorId);
-               System.out.println("Availability for "+de.getFullName()+" a=")
+                System.out.println("Availability for "+de.getFullName()+" on "+d+":");
+                //not sure how to print
+                System.out.println("EDIT AMS CLIENT MAINAPP DOADDAPPT");
+                System.out.println("");
+                System.out.println("Enter Time> ");
+                String t = scanner.nextLine().trim();
+//                TimeFormatter formatter1 = DateTimeFormatter.ofPattern("HH:mm");
+                LocalTime time = LocalTime.parse(t);
+                //check if this time is avail
+                System.out.println(currentPatientEntity.getFirstName()+" "+currentPatientEntity.getLastName());
             }
-            catch()
+            catch(DoctorNotFoundException ex)
             {
-                
+                System.out.println("Error in adding appointment: "+ex.getMessage());
             }
         }
         
         private void doCancelAppointment(){
+            Scanner scanner = new Scanner(System.in);
+
+            System.out.println("*** AMS Client :: Cancel Appointment ***\n");
+            System.out.println("Appointments:");
+            System.out.println("Id |Date       |Time  |Doctor");
+            List<String> appts = appointmentEntitySessionBeanRemote.retrieveAppointmentByPatientIdentityNo(currentPatientEntity.getIdentityNumber());
+            for(String s:appts){
+                System.out.println(s);
+            }
+            System.out.println("");
+            System.out.println("Enter Appointment Id> ");
+            String in = scanner.nextLine().trim();
+            Long appointmentId = Long.valueOf(in);
+         
+            try
+            {
+             AppointmentEntity ae = appointmentEntitySessionBeanRemote.retrieveAppointmentByAppointmentId(appointmentId);
+             DoctorEntity d = ae.getDoctorId();
+             System.out.println(currentPatientEntity.getFirstName()+" "+currentPatientEntity.getLastName()+" appointment with "+d.getFullName()+" at "+t+" on "+d+" has been cancelled");
+             appointmentEntitySessionBeanRemote.cancelAppointment(ae);
+            }
+            catch(DoctorNotFoundException ex)
+            {
+                System.out.println("Error cancelling appointment: "+ ex.getMessage());
+            }
+            catch(AppointmentNotFoundException ex)
+            {
+                System.out.println("Error cancelling appointment: "+ ex.getMessage());
+            }
+
             
         }
-
-    
-    
+  
 }

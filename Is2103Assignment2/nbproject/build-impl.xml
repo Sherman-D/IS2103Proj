@@ -205,6 +205,10 @@ exists or setup the property manually. For example like this:
             <property location="${build.dir}" name="dist.ear.dir"/>
             <property name="deploy.on.save" value="${build.deploy.on.save}"/>
         </ant>
+        <ant antfile="${project.IS2103Assignment2AMSClient}/build.xml" inheritall="false" target="dist-ear">
+            <property location="${build.dir}" name="dist.ear.dir"/>
+            <property name="deploy.on.save" value="${build.deploy.on.save}"/>
+        </ant>
         <ant antfile="${project.Is2103Assignment1-CARSClient}/build.xml" inheritall="false" target="dist-ear">
             <property location="${build.dir}" name="dist.ear.dir"/>
             <property name="deploy.on.save" value="${build.deploy.on.save}"/>
@@ -243,6 +247,7 @@ exists or setup the property manually. For example like this:
         <copyfiles files="${reference.IS2103Assignment1-SSKClient.j2ee-module-car}" todir="${build.dir}//"/>
         <copyfiles files="${reference.Is2103Assignment2CatClient.j2ee-module-car}" todir="${build.dir}//"/>
         <copyfiles files="${reference.Is2103Assignment2KioskClient.j2ee-module-car}" todir="${build.dir}//"/>
+        <copyfiles files="${reference.IS2103Assignment2AMSClient.j2ee-module-car}" todir="${build.dir}//"/>
     </target>
     <target name="post-compile">
         <!-- Empty placeholder for easier customization. -->
@@ -320,6 +325,7 @@ exists or setup the property manually. For example like this:
     <target name="-run-deploy-am" unless="no.deps">
         <!-- Task to deploy to the Access Manager runtime. -->
         <ant antfile="${project.IS2103Assignment1-SSKClient}/build.xml" inheritall="false" target="-run-deploy-am"/>
+        <ant antfile="${project.IS2103Assignment2AMSClient}/build.xml" inheritall="false" target="-run-deploy-am"/>
         <ant antfile="${project.Is2103Assignment1-CARSClient}/build.xml" inheritall="false" target="-run-deploy-am"/>
         <ant antfile="${project.Is2103Assignment2-ejb}/build.xml" inheritall="false" target="-run-deploy-am"/>
         <ant antfile="${project.Is2103Assignment2-war}/build.xml" inheritall="false" target="-run-deploy-am"/>
@@ -635,6 +641,10 @@ exists or setup the property manually. For example like this:
             </not>
         </condition>
         <ant antfile="${project.IS2103Assignment1-SSKClient}/build.xml" inheritall="false" target="clean-ear">
+            <property location="${build.dir}" name="dist.ear.dir"/>
+            <property name="deploy.on.save" value="${build.deploy.on.save}"/>
+        </ant>
+        <ant antfile="${project.IS2103Assignment2AMSClient}/build.xml" inheritall="false" target="clean-ear">
             <property location="${build.dir}" name="dist.ear.dir"/>
             <property name="deploy.on.save" value="${build.deploy.on.save}"/>
         </ant>
