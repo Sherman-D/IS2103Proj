@@ -677,13 +677,13 @@ public class AdministrationOperationModule {
         {
             System.out.println("*** CARS :: Administration Operation :: Doctor Management :: Leave Management ***\n");
             System.out.println("1: Enter Leave Application");
-            System.out.println("2: View Leave Details");
-            System.out.println("3: Cancel Leave");
-            System.out.println("4: View All Leaves");
-            System.out.println("5: Back\n");
+//            System.out.println("2: View Leave Details");
+//            System.out.println("3: Cancel Leave");
+//            System.out.println("4: View All Leaves");
+            System.out.println("2: Back\n");
             response = 0;
 
-            while(response < 1 || response > 5)
+            while(response < 1 || response > 2)
             {
                 System.out.print("> ");
 
@@ -695,27 +695,28 @@ public class AdministrationOperationModule {
                 }
                 else if(response == 2)
                 {
-                    doViewLeave();
-                }
-                else if (response == 3)
-                {
-                    doDeleteLeave();
-                }
-                else if (response == 4)
-                {
-                    doViewAllLeaves();
-                }
-                else if(response == 5)
-                {
+//                    doViewLeave();
                     break;
                 }
+//                else if (response == 3)
+//                {
+//                    doDeleteLeave();
+//                }
+//                else if (response == 4)
+//                {
+//                    doViewAllLeaves();
+//                }
+//                else if(response == 5)
+//                {
+//                    break;
+//                }
                 else
                 {
                     System.out.println("Invalid option, please try again!\n");
                 }
             }
 
-            if(response == 6)
+            if(response == 3)
             {
                 break;
             }
@@ -753,144 +754,146 @@ public class AdministrationOperationModule {
             System.out.println("An error has occurred while adding the new staff: " + ex.getMessage() + "\n");
         }
     }
-
-    private void  doViewLeave()
-    {
-        Scanner scanner = new Scanner(System.in);
-        Integer response = 0;
-
-        while(true)
-        {
-            System.out.println("1: View Leave By Doctor");
-            System.out.println("2: View Leave By Date");
-            response = 0;
-
-            while(response < 1 || response > 2)
-            {
-                System.out.print("> ");
-
-                response = scanner.nextInt();
-
-                if(response == 1)
-                {
-                    doViewLeaveByDoctor();
-                }
-                else if(response == 2)
-                {
-                    doViewLeaveByDate();
-                }
-            }
-
-        }
-    }
-
-
-    private void  doDeleteLeave()
-    {
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.println("*** CARS :: Administartion Operation :: Doctor Management :: Leave Management :: Delete Leaves ***\n");
-
-        System.out.println("Enter First Name> ");
-        String firstName = scanner.nextLine().trim();
-        System.out.println("Enter Last Name> ");
-        String lastName = scanner.nextLine().trim();
-        System.out.println("Enter Leave Date> ");
-        String leaveDate = scanner.nextLine().trim();
-
-        try
-        {
-            DoctorEntity de = doctorEntitySessionBeanRemote.retrieveDoctorByDoctorName(firstName, lastName);
-            Long doctorId = de.getDoctorId();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            LocalDateTime leaveDate1 = LocalDateTime.parse(leaveDate, formatter);
-            List<LeaveEntity> le1 = leaveEntitySessionBeanRemote.retrieveLeaveByDate(leaveDate1);
-            List<LeaveEntity> le2 = leaveEntitySessionBeanRemote.retrieveLeaveByDoctorId(doctorId);
-            LeaveEntity cur = null;
-            for(LeaveEntity fromDate : le1){
-                for(LeaveEntity fromDoc : le2){
-                    if(fromDate.equals(fromDoc)){
-                        cur = fromDate;
-                    }
-                }
-            }
-            leaveEntitySessionBeanRemote.cancelLeave(cur);
-            System.out.println("Leave cancelled successfully!");
-        }
-        catch(EntityMismatchException ex)
-        {
-            System.out.println("An error has occurred while cancelling the leave: " + ex.getMessage() + "\n");
-        }
-        catch(DoctorNotFoundException ex)
-        {
-            System.out.println("An error has occurred while cancelling the leave: " + ex.getMessage() + "\n");
-        }
-        catch(LeaveNotFoundException ex)
-        {
-            System.out.println("An error has occurred while cancelling the leave: " + ex.getMessage() + "\n");
-        }
-    }
-
-    private void doViewAllLeaves()
-    {
-
-    }
-
-    private void doViewLeaveByDoctor()
-    {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("*** CARS :: Administartion Operation :: Doctor Management :: Leave Management :: View Leave Details ***\n");
-
-        System.out.println("Enter First Name> ");
-        String firstName = scanner.nextLine().trim();
-        System.out.println("Enter Last Name> ");
-        String lastName = scanner.nextLine().trim();
-
-        try
-        {
-            DoctorEntity de = doctorEntitySessionBeanRemote.retrieveDoctorByDoctorName(firstName, lastName);
-            Long doctorId = de.getDoctorId();
-            System.out.println("Leaves:");
-            List<LeaveEntity> leaveList = leaveEntitySessionBeanRemote.retrieveLeaveByDoctorId(doctorId);
-            String header = String.format("%s-1|%s", "doctorId", "Leave Date");
-            System.out.println(header);
-            for(LeaveEntity each : leaveList){
-                String leaveDetails = String.format("%s-1|%s", each.getDoctorId(), each.getLeaveDate());
-            }
-        }
-        catch(LeaveNotFoundException ex)
-        {
-            System.out.println("An error has occurred while viewing the leave: " + ex.getMessage() + "\n");
-        }
-        catch(DoctorNotFoundException ex)
-        {
-            System.out.println("An error has occurred while viewing the leave: " + ex.getMessage() + "\n");
-        }
-    }
-    private void doViewLeaveByDate()
-    {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("*** CARS :: Administartion Operation :: Doctor Management :: Leave Management :: View Leave Details ***\n");
-
-        System.out.println("Enter Leave Date> ");
-        String leaveDate = scanner.nextLine().trim();
-
-        try
-        {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            LocalDateTime leaveDate1 = LocalDateTime.parse(leaveDate, formatter);
-            List<LeaveEntity> leaveList = leaveEntitySessionBeanRemote.retrieveLeaveByDate(leaveDate1);
-            System.out.println("Leaves:");
-            String header = String.format("%s-1|%s", "doctorId", "Leave Date");
-            System.out.println(header);
-            for(LeaveEntity each : leaveList){
-                String leaveDetails = String.format("%s-1|%s", each.getDoctorId(), each.getLeaveDate());
-            }
-        }
-        catch(LeaveNotFoundException ex)
-        {
-            System.out.println("An error has occurred while viewing the leave: " + ex.getMessage() + "\n");
-        }
-    }
+//
+//    private void  doViewLeave()
+//    {
+//        Scanner scanner = new Scanner(System.in);
+//        Integer response = 0;
+//
+//        while(true)
+//        {
+//            System.out.println("1: View Leave By Doctor");
+//            System.out.println("2: View Leave By Date");
+//            response = 0;
+//
+//            while(response < 1 || response > 2)
+//            {
+//                System.out.print("> ");
+//
+//                response = scanner.nextInt();
+//
+//                if(response == 1)
+//                {
+//                    doViewLeaveByDoctor();
+//                }
+//                else if(response == 2)
+//                {
+//                    doViewLeaveByDate();
+//                }
+//            }
+//
+//        }
+//    }
+//
+//
+//    private void  doDeleteLeave()
+//    {
+//        Scanner scanner = new Scanner(System.in);
+//
+//        System.out.println("*** CARS :: Administartion Operation :: Doctor Management :: Leave Management :: Delete Leaves ***\n");
+//
+//        System.out.println("Enter First Name> ");
+//        String firstName = scanner.nextLine().trim();
+//        System.out.println("Enter Last Name> ");
+//        String lastName = scanner.nextLine().trim();
+//        System.out.println("Enter Leave Date> ");
+//        String leaveDate = scanner.nextLine().trim();
+//
+//        try
+//        {
+//            DoctorEntity de = doctorEntitySessionBeanRemote.retrieveDoctorByDoctorName(firstName, lastName);
+//            Long doctorId = de.getDoctorId();
+//            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+//            LocalDateTime leaveDate1 = LocalDateTime.parse(leaveDate, formatter);
+//            List<LeaveEntity> le1 = leaveEntitySessionBeanRemote.retrieveLeaveByDate(leaveDate1);
+//            List<LeaveEntity> le2 = leaveEntitySessionBeanRemote.retrieveLeaveByDoctorId(doctorId);
+//            LeaveEntity cur = null;
+//            for(LeaveEntity fromDate : le1){
+//                for(LeaveEntity fromDoc : le2){
+//                    if(fromDate.equals(fromDoc)){
+//                        cur = fromDate;
+//                    }
+//                }
+//            }
+//            leaveEntitySessionBeanRemote.cancelLeave(cur);
+//            System.out.println("Leave cancelled successfully!");
+//        }
+//        catch(EntityMismatchException ex)
+//        {
+//            System.out.println("An error has occurred while cancelling the leave: " + ex.getMessage() + "\n");
+//        }
+//        catch(DoctorNotFoundException ex)
+//        {
+//            System.out.println("An error has occurred while cancelling the leave: " + ex.getMessage() + "\n");
+//        }
+//        catch(LeaveNotFoundException ex)
+//        {
+//            System.out.println("An error has occurred while cancelling the leave: " + ex.getMessage() + "\n");
+//        }
+//    }
+//
+//    private void doViewAllLeaves()
+//    {
+////        Scanner scanner = new Scanner(System.in);
+////        System.out.println("*** CARS :: Administartion Operation :: Doctor Management :: Leave Management :: View Leave Details ***\n");
+//
+//    }
+//
+//    private void doViewLeaveByDoctor()
+//    {
+//        Scanner scanner = new Scanner(System.in);
+//        System.out.println("*** CARS :: Administartion Operation :: Doctor Management :: Leave Management :: View Leave Details ***\n");
+//
+//        System.out.println("Enter First Name> ");
+//        String firstName = scanner.nextLine().trim();
+//        System.out.println("Enter Last Name> ");
+//        String lastName = scanner.nextLine().trim();
+//
+//        try
+//        {
+//            DoctorEntity de = doctorEntitySessionBeanRemote.retrieveDoctorByDoctorName(firstName, lastName);
+//            Long doctorId = de.getDoctorId();
+//            System.out.println("Leaves:");
+//            List<LeaveEntity> leaveList = leaveEntitySessionBeanRemote.retrieveLeaveByDoctorId(doctorId);
+//            String header = String.format("%s-1|%s", "doctorId", "Leave Date");
+//            System.out.println(header);
+//            for(LeaveEntity each : leaveList){
+//                String leaveDetails = String.format("%s-1|%s", each.getDoctorId(), each.getLeaveDate());
+//            }
+//        }
+//        catch(LeaveNotFoundException ex)
+//        {
+//            System.out.println("An error has occurred while viewing the leave: " + ex.getMessage() + "\n");
+//        }
+//        catch(DoctorNotFoundException ex)
+//        {
+//            System.out.println("An error has occurred while viewing the leave: " + ex.getMessage() + "\n");
+//        }
+//    }
+//    private void doViewLeaveByDate()
+//    {
+//        Scanner scanner = new Scanner(System.in);
+//        System.out.println("*** CARS :: Administartion Operation :: Doctor Management :: Leave Management :: View Leave Details ***\n");
+//
+//        System.out.println("Enter Leave Date> ");
+//        String leaveDate = scanner.nextLine().trim();
+//
+//        try
+//        {
+//            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+//            LocalDateTime leaveDate1 = LocalDateTime.parse(leaveDate, formatter);
+//            List<LeaveEntity> leaveList = leaveEntitySessionBeanRemote.retrieveLeaveByDate(leaveDate1);
+//            System.out.println("Leaves:");
+//            String header = String.format("%s-1|%s", "doctorId", "Leave Date");
+//            System.out.println(header);
+//            for(LeaveEntity each : leaveList){
+//                String leaveDetails = String.format("%s-1|%s", each.getDoctorId(), each.getLeaveDate());
+//            }
+//        }
+//        catch(LeaveNotFoundException ex)
+//        {
+//            System.out.println("An error has occurred while viewing the leave: " + ex.getMessage() + "\n");
+//        }
+//    }
 
 }
