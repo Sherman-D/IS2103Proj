@@ -9,6 +9,7 @@ import entity.AppointmentEntity;
 import entity.DoctorEntity;
 import entity.LeaveEntity;
 import entity.PatientEntity;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -108,7 +109,6 @@ public class MainApp {
         String identityNumber = scanner.nextLine().trim();
         System.out.println("Enter Password> ");
         String password = scanner.nextLine().trim();
-        String passwordHash = patientEntitySessionBeanRemote.hashPassword(password);
         System.out.println("Enter First Name> ");
         String firstName = scanner.nextLine().trim();
         System.out.println("Enter Last Name> ");
@@ -141,11 +141,16 @@ public class MainApp {
 
         try
         {
+            String passwordHash = patientEntitySessionBeanRemote.hashPassword(password);
             patientEntitySessionBeanRemote.createNewPatient(new PatientEntity(identityNumber, passwordHash, firstName, lastName, gender, age, phone, address));
             System.out.println("Patient has been registered successfully!");
             
         }
         catch (EntityInstanceExistsInCollectionException ex)
+        {
+            System.out.println("An error has occurred while creating your account: " + ex.getMessage() + "\n");
+        }
+        catch(NoSuchAlgorithmException ex)
         {
             System.out.println("An error has occurred while creating your account: " + ex.getMessage() + "\n");
         }
@@ -414,8 +419,8 @@ public class MainApp {
             try
             {
                 LocalDate now = LocalDate.now();
-                LocalDate twoDays = DateUtil.addDays(now, 2);
-                if(date.before(twoDays)){
+                LocalDate twoDays = now.plusDays(2);
+                if(date.isBefore(twoDays)){
                 throw new EntityManagerException();
                 }
                 DoctorEntity chosenDoctor = doctorEntitySessionBeanRemote.retrieveDoctorByDoctorId(doctorId);

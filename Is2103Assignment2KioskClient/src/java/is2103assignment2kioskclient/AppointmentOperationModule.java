@@ -11,6 +11,7 @@ import entity.DoctorEntity;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import util.exception.DoctorNotFoundException;
 import util.exception.EntityManagerException;
 
 
@@ -49,18 +50,18 @@ public class AppointmentOperationModule {
         System.out.println("Enter Doctor Id> ");
         String did = scanner.nextLine().trim();
         Long doctorId = Long.valueOf(did);
-        DoctorEntity de = doctorEntitySessionBeanRemote.retrieveDoctorByDoctorId(doctorId);
         System.out.println("Enter Date> ");
         String d = scanner.nextLine().trim();
-        LocalDate date = LocalDate.parse(date);
-        LocalDate now = LocalDate.now();
-        LocalDate twoDays = DateUtil.addDays(now, 2);
-        if(date.before(twoDays)){
-            throw new EntityManagerExceotion();
-        }
-        
+        LocalDate date = LocalDate.parse(d);
         try
         {
+            DoctorEntity de = doctorEntitySessionBeanRemote.retrieveDoctorByDoctorId(doctorId);
+            LocalDate now = LocalDate.now();
+            LocalDate twoDays = now.plusDays(2);
+            if(date.isBefore(twoDays)){
+                throw new EntityManagerException();
+            }
+        
         System.out.println("Availability for "+de.getFullName()+" on "+d+":");
         System.out.println("Enter Time> ");
         //Error checking if time entered is not on the list of available timings
@@ -80,6 +81,10 @@ public class AppointmentOperationModule {
         catch(EntityManagerException ex)
         {
             System.out.println("Invalid Date entered! Please book at least 2 days in advance!");
+        }
+        catch(DoctorNotFoundException ex)
+        {
+            System.out.println("Invalid DoctorID entered! "+ ex.getMessage());
         }
     }
     
