@@ -16,10 +16,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.persistence.EntityExistsException;
-import util.exception.AppointmentAlreadyCancelledException;
 import util.exception.AppointmentNotFoundException;
 import util.exception.DoctorNotFoundException;
 import util.exception.EntityInstanceExistsInCollectionException;
@@ -336,6 +332,7 @@ public class MainApp {
                if(earliestTime.equals("O")){
                    time = curHour+":"+curMin;
                    fin = LocalDateTime.of(LocalDate.now(), LocalTime.of(curHour, curMin));
+                   break;
                }
             }
            
@@ -411,26 +408,33 @@ public class MainApp {
             String dId = scanner.nextLine().trim();
             Long doctorId = Long.valueOf(dId);
             System.out.println("Enter Date> ");
-            String date = scanner.nextLine().trim();
+            String d = scanner.nextLine().trim();
+            LocalDate date = LocalDate.parse(d);
             
             try
             {
+                LocalDate now = LocalDate.now();
+                LocalDate twoDays = DateUtil.addDays(now, 2);
+                if(date.before(twoDays)){
+                throw new EntityManagerException();
+                }
                 DoctorEntity chosenDoctor = doctorEntitySessionBeanRemote.retrieveDoctorByDoctorId(doctorId);
-                System.out.println("Availability for "+ chosenDoctor.getFullName()+" on "+date);
+                System.out.println("Availability for "+ chosenDoctor.getFullName()+" on "+d);
                 //help here
                 
                 System.out.println();
                 System.out.println("Enter Time>");
-                String time = scanner.nextLine().trim();
+                String t = scanner.nextLine().trim();
+                LocalTime time = LocalTime.parse(t);
 //                ArrayList<Integer> arr = time.split(":"); // arr[0] is hr and arr[1] is min
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-                LocalDateTime dateTime = LocalDateTime.parse(date + " " + time,  formatter);
+//                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+                LocalDateTime dateTime = time.atDate(date);
                 
                 appointmentEntitySessionBeanRemote.createNewAppointment(new AppointmentEntity(currentPatientEntity.getPatientId(), doctorId, dateTime ));
                
-                System.out.println(currentPatientEntity.getFirstName()+" "+currentPatientEntity.getLastName()+" appointment with "+chosenDoctor.getFullName()+" at "+time+" on "+date+" has been added.");    
+                System.out.println(currentPatientEntity.getFirstName()+" "+currentPatientEntity.getLastName()+" appointment with "+chosenDoctor.getFullName()+" at "+t+" on "+d+" has been added.");    
             }
-                catch(DoctorNotFoundException |  EntityExistsException ex)
+                catch(DoctorNotFoundException |  EntityManagerException ex)
             {
                 System.out.println("Error adding appointment: "+ex.getMessage());
             }
