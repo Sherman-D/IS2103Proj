@@ -13,19 +13,22 @@ import ejb.session.stateless.StaffEntitySessionBeanRemote;
 import entity.AppointmentEntity;
 import entity.DoctorEntity;
 import entity.PatientEntity;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.*;
 import java.util.List;
 import java.util.Scanner;
+import util.exception.AppointmentAlreadyCancelledException;
 import util.exception.AppointmentNotFoundException;
 import util.exception.DoctorNotFoundException;
 import util.exception.EntityInstanceExistsInCollectionException;
 import util.exception.EntityManagerException;
+import util.exception.EntityMismatchException;
 import util.exception.InvalidLoginCredentialException;
 
 public class MainApp {
     
-    private AppointmentOperationModule appointmentOperationModule;
+//    private AppointmentOperationModule appointmentOperationModule;
     
     private AppointmentEntitySessionBeanRemote appointmentEntitySessionBeanRemote;
     private DoctorEntitySessionBeanRemote doctorEntitySessionBeanRemote;
@@ -109,7 +112,6 @@ public class MainApp {
         String identityNumber = scanner.nextLine().trim();
         System.out.println("Enter Password> ");
         String password = scanner.nextLine().trim();
-        String passwordHash = patientEntitySessionBeanRemote.hashPassword(password);
         System.out.println("Enter First Name> ");
         String firstName = scanner.nextLine().trim();
         System.out.println("Enter Last Name> ");
@@ -142,11 +144,16 @@ public class MainApp {
 
         try
         {
+            String passwordHash = patientEntitySessionBeanRemote.hashPassword(password);
             patientEntitySessionBeanRemote.createNewPatient(new PatientEntity(identityNumber, passwordHash, firstName, lastName, gender, age, phone, address));
 //            System.out.println("Patient has been registered successfully!");
             
         }
         catch (EntityInstanceExistsInCollectionException ex)
+        {
+            System.out.println("An error has occurred while creating your account: " + ex.getMessage() + "\n");
+        }
+        catch(NoSuchAlgorithmException ex)
         {
             System.out.println("An error has occurred while creating your account: " + ex.getMessage() + "\n");
         }
@@ -257,7 +264,14 @@ public class MainApp {
             System.out.println("Doctor:");
             System.out.println("Id |Name");
             LocalDateTime now = LocalDateTime.now();
-            List<DoctorEntity> deList = doctorEntitySessionBeanRemote.retrieveDoctorsAvailableOnDate(now);
+            List<DoctorEntity> deList = null;
+            try{
+                deList = doctorEntitySessionBeanRemote.retrieveDoctorsAvailableOnDate(now);
+            }
+            catch(DoctorNotFoundException ex)
+            {
+                System.out.println("No Doctors Found: "+ex.getMessage());
+            }
             
             for(DoctorEntity de : deList){ //print list of doctors
                 System.out.println(de.getDoctorId()+" |"+de.getFullName());
@@ -313,11 +327,24 @@ public class MainApp {
             try
             {
              AppointmentEntity ae = appointmentEntitySessionBeanRemote.retrieveAppointmentByAppointmentId(appointmentId);
+             LocalDateTime dateTime = ae.getAppointmentTime();
+             LocalTime time = dateTime.toLocalTime();
+             LocalDate date = dateTime.toLocalDate();
+             String t = time.toString();
+             String dt = date.toString();
              DoctorEntity d = doctorEntitySessionBeanRemote.retrieveDoctorByDoctorId(ae.getDoctorId());
-             System.out.println(currentPatientEntity.getFirstName()+" "+currentPatientEntity.getLastName()+" appointment with " + d.getFullName() + " at "+ t +" on "+ d +" has been cancelled");
+             System.out.println(currentPatientEntity.getFirstName()+" "+currentPatientEntity.getLastName()+" appointment with " + d.getFullName() + " at "+ t +" on "+ dt +" has been cancelled");
              appointmentEntitySessionBeanRemote.cancelAppointment(ae);
             }
             catch(AppointmentNotFoundException | DoctorNotFoundException  ex)
+            {
+                System.out.println("Error cancelling appointment: "+ ex.getMessage());
+            }
+            catch(EntityMismatchException ex)
+            {
+                System.out.println("Error cancelling appointment: "+ ex.getMessage());
+            }
+            catch(AppointmentAlreadyCancelledException ex)
             {
                 System.out.println("Error cancelling appointment: "+ ex.getMessage());
             }
