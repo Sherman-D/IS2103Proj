@@ -5,6 +5,7 @@ import java.util.List;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
+import javax.management.Query;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
@@ -96,8 +97,9 @@ public class StaffEntitySessionBean implements StaffEntitySessionBeanLocal, Staf
         try
         {
             StaffEntity staffEntity = retrieveStaffByUsername(username);
+//            String passwordHash = CryptographicHelper.getInstance().byteArrayToHexString(CryptographicHelper.getInstance().doMD5Hashing(password+ staffEntity.getSalt()));
             
-            if(staffEntity.getPassword().equals(password))
+            if(staffEntity.getPassword().equals(passwordHash))
             {        
                 return staffEntity;
             }
