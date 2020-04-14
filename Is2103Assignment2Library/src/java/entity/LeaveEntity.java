@@ -24,12 +24,13 @@ public class LeaveEntity implements Serializable, Comparable<LeaveEntity>
     private Long doctorId;
     
     @Column(nullable = false)
-    private LocalDateTime leaveDate;
+//    private LocalDateTime leaveDate;
+    private LocalDate leaveDate;
 
     public LeaveEntity() {
     }
 
-    public LeaveEntity(Long doctorId, LocalDateTime leaveDate) {
+    public LeaveEntity(Long doctorId, /*LocalDateTime*/LocalDate leaveDate) {
         this.doctorId = doctorId;
         this.leaveDate = leaveDate;
     }
@@ -48,7 +49,7 @@ public class LeaveEntity implements Serializable, Comparable<LeaveEntity>
         this.doctorId = doctorId;
     }
 
-    public LocalDateTime getLeaveDate() {
+    public /*LocalDateTime*/LocalDate getLeaveDate() {
         return leaveDate;
     }
 
