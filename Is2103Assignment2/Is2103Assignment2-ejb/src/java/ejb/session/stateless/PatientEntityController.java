@@ -1,6 +1,7 @@
 package ejb.session.stateless;
 
 import entity.PatientEntity;
+import java.security.NoSuchAlgorithmException;
 import javax.ejb.Local;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -82,9 +83,10 @@ public class PatientEntityController implements PatientEntityControllerLocal
         try
         {
             PatientEntity patientEntity = retrievePatientByPatientIdentityNumber(identityNumber);
+            String passwordHash = hashPassword(password);
             
-            if(patientEntity.getPassword().equals(password))
-            {        
+            if(patientEntity.getPassword().equals(hashPassword))
+            {         
                 return patientEntity;
             }
             else
@@ -96,5 +98,17 @@ public class PatientEntityController implements PatientEntityControllerLocal
         {
             throw new InvalidLoginCredentialException("Identity Number or password is incorrect!");
         }
+    }
+    
+    @Override
+    public String hashPassword(String password) throws NoSuchAlgorithmException{
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        md.update(password.getBytes());
+        byte[] b = md.digest();
+        StringBuffer sb = new StringBuffer();
+        for(byte b1 : b){
+            sb.append(Integer.toHexString(b1&0xff).toString());
+        }
+        return sb.toString();
     }
 }
