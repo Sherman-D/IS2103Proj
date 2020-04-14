@@ -1,6 +1,7 @@
 package ejb.session.stateless;
 
 import entity.StaffEntity;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import util.exception.EntityMismatchException;
 import util.exception.InvalidLoginCredentialException;
@@ -24,4 +25,6 @@ public interface StaffEntitySessionBeanLocal
     void updateStaff(StaffEntity staffEntity) throws EntityMismatchException;
     
     void deleteStaff(Long staffId) throws StaffNotFoundException;
+
+    String hashPassword(String password) throws NoSuchAlgorithmException;
 }

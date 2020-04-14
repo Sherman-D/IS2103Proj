@@ -112,6 +112,7 @@ public class MainApp {
         String identityNumber = scanner.nextLine().trim();
         System.out.println("Enter Password> ");
         String password = scanner.nextLine().trim();
+        String passwordHash = patientEntitySessionBeanRemote.hashPassword(password);
         System.out.println("Enter First Name> ");
         String firstName = scanner.nextLine().trim();
         System.out.println("Enter Last Name> ");
@@ -144,7 +145,7 @@ public class MainApp {
 
         try
         {
-            patientEntitySessionBeanRemote.createNewPatient(new PatientEntity(identityNumber, password, firstName, lastName, gender, age, phone, address));
+            patientEntitySessionBeanRemote.createNewPatient(new PatientEntity(identityNumber, passwordHash, firstName, lastName, gender, age, phone, address));
             System.out.println("Patient has been registered successfully!");
             
         }

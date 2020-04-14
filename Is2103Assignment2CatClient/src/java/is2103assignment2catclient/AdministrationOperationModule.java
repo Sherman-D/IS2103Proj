@@ -146,6 +146,7 @@ public class AdministrationOperationModule {
         String identityNumber = scanner.nextLine().trim();
         System.out.println("Enter Password> ");
         String password = scanner.nextLine().trim();
+        String passwordHash = patientEntitySessionBeanRemote.hashPassword(password);
         System.out.println("Enter First Name> ");
         String firstName = scanner.nextLine().trim();
         System.out.println("Enter Last Name> ");
@@ -162,7 +163,7 @@ public class AdministrationOperationModule {
         try
         {
             Integer age1 = Integer.parseInt(age);
-            patientEntitySessionBeanRemote.createNewPatient(new PatientEntity(identityNumber, password, firstName, lastName, gender, age1, phone, address));
+            patientEntitySessionBeanRemote.createNewPatient(new PatientEntity(identityNumber, passwordHash, firstName, lastName, gender, age1, phone, address));
             System.out.println("Patient has been registered successfully!");
         }
         catch (EntityInstanceExistsInCollectionException ex)
@@ -554,8 +555,9 @@ public class AdministrationOperationModule {
         String username = scanner.nextLine().trim();
         System.out.println("Enter Password> ");
         String password = scanner.nextLine().trim();
+        String passwordHash = staffEntitySessionBeanRemote.hashPassword(password);
 
-        StaffEntity se = new StaffEntity(firstName, lastName, username, password);
+        StaffEntity se = new StaffEntity(firstName, lastName, username, passwordHash);
         staffEntitySessionBeanRemote.createNewStaff(se);
         System.out.println("Staff has been created successfully!");
     }
@@ -603,9 +605,10 @@ public class AdministrationOperationModule {
             String username1 = scanner.nextLine().trim();
             System.out.println("Enter Password> ");
             String password = scanner.nextLine().trim();
+            String passwordHash = staffEntitySessionBeanRemote.hashPassword(passwordHash);
 
             Long staffId = se.getStaffId();
-            StaffEntity se1 = new StaffEntity(firstName1, lastName1, username1, password);
+            StaffEntity se1 = new StaffEntity(firstName1, lastName1, username1, passwordHash);
             se1.setStaffId(staffId);
             staffEntitySessionBeanRemote.updateStaff(se1);
 

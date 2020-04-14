@@ -1,6 +1,7 @@
 package ejb.session.stateless;
 
 import entity.PatientEntity;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import util.exception.EntityInstanceExistsInCollectionException;
 import util.exception.PatientNotFoundException;
@@ -26,4 +27,7 @@ public interface PatientEntitySessionBeanRemote
     void updatePatient(PatientEntity patientEntity) throws EntityMismatchException;
     
     void deletePatient(Long patientId) throws PatientNotFoundException;
+    
+    String hashPassword(String password) throws NoSuchAlgorithmException;
+
 }

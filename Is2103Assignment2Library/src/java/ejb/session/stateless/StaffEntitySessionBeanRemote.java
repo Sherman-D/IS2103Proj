@@ -1,6 +1,12 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package ejb.session.stateless;
 
 import entity.StaffEntity;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import util.exception.EntityMismatchException;
 import util.exception.InvalidLoginCredentialException;
@@ -24,4 +30,6 @@ public interface StaffEntitySessionBeanRemote
     void updateStaff(StaffEntity staffEntity) throws EntityMismatchException;
     
     void deleteStaff(Long staffId) throws StaffNotFoundException;
+
+    String hashPassword(String password) throws NoSuchAlgorithmException;
 }

@@ -1,6 +1,7 @@
 package ejb.session.stateless;
 
 import entity.StaffEntity;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -10,7 +11,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import util.exception.EntityMismatchException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.StaffNotFoundException;
@@ -97,7 +97,7 @@ public class StaffEntitySessionBean implements StaffEntitySessionBeanLocal, Staf
         try
         {
             StaffEntity staffEntity = retrieveStaffByUsername(username);
-//            String passwordHash = CryptographicHelper.getInstance().byteArrayToHexString(CryptographicHelper.getInstance().doMD5Hashing(password+ staffEntity.getSalt()));
+            String passwordHash = hashPassword(password);
             
             if(staffEntity.getPassword().equals(passwordHash))
             {        
@@ -136,5 +136,17 @@ public class StaffEntitySessionBean implements StaffEntitySessionBeanLocal, Staf
     {
         StaffEntity staffEntityToRemove = retrieveStaffByStaffId(staffId);
         entityManager.remove(staffEntityToRemove);
+    }
+    
+    @Override
+    public String hashPassword(String password) throws NoSuchAlgorithmException{
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        md.update(password.getBytes());
+        byte[] b = md.digest();
+        StringBuffer sb = new StringBuffer();
+        for(byte b1 : b){
+            sb.append(Integer.toHexString(b1&0xff).toString());
+        }
+        return sb.toString();
     }
 }
