@@ -2,6 +2,7 @@ package is2103assignment2kioskclient;
 
 import ejb.session.stateless.AppointmentEntitySessionBeanRemote;
 import ejb.session.stateless.DoctorEntitySessionBeanRemote;
+import ejb.session.stateless.LeaveEntitySessionBeanRemote;
 import ejb.session.stateless.PatientEntitySessionBeanRemote;
 import entity.AppointmentEntity;
 import entity.DoctorEntity;
@@ -13,9 +14,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import util.exception.AppointmentNotFoundException;
 import util.exception.DoctorNotFoundException;
-import util.exception.EntityInstanceExistsInCollectionException;
 import util.exception.LeaveNotFoundException;
 
 public class RegistrationOperationModule 
@@ -23,6 +22,7 @@ public class RegistrationOperationModule
     private AppointmentEntitySessionBeanRemote appointmentEntitySessionBeanRemote;
     private DoctorEntitySessionBeanRemote doctorEntitySessionBeanRemote;
     private PatientEntitySessionBeanRemote patientEntitySessionBeanRemote;
+    private LeaveEntitySessionBeanRemote leaveEntitySessionBeanRemote;
 
     public RegistrationOperationModule() 
     {
@@ -36,7 +36,7 @@ public class RegistrationOperationModule
         this.patientEntitySessionBeanRemote = patientEntitySessionBeanRemote;
     }
     
-        private void registerWalkInConsult()
+        private void registerWalkInConsult(PatientEntity currentPatientEntity)
         {
             int queueNumber = 0;//TEMPORARY VARIABLE - Replace with queueNumber method from session bean
             Scanner scanner = new Scanner(System.in);
