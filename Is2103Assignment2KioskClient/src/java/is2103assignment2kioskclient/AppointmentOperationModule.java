@@ -5,11 +5,19 @@ import java.util.List;
 import java.util.Scanner;
 import entity.PatientEntity;
 import ejb.session.stateless.AppointmentEntitySessionBeanRemote;
+import ejb.session.stateless.DoctorEntitySessionBeanRemote;
+import entity.AppointmentEntity;
+import entity.DoctorEntity;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import util.exception.EntityManagerException;
 
 
 public class AppointmentOperationModule {
  
     private AppointmentEntitySessionBeanRemote appointmentEntitySessionBeanRemote;
+    private DoctorEntitySessionBeanRemote doctorEntitySessionBeanRemote;
     
     protected void viewAppointments(PatientEntity currentPatientEntity) 
     {
@@ -29,7 +37,7 @@ public class AppointmentOperationModule {
     }
     
     protected void addAppointment(PatientEntity currentPatientEntity)
-    {
+    { //can only be booked in adv by at least 2 days
         Scanner scanner = new Scanner(System.in);
         
         System.out.println("*** Self-Service Kiosk :: Add Appointment ***");
@@ -39,24 +47,40 @@ public class AppointmentOperationModule {
         //Parse list of all doctors
         
         System.out.println("Enter Doctor Id> ");
-        Integer doctorId = scanner.nextInt();
+        String did = scanner.nextLine().trim();
+        Long doctorId = Long.valueOf(did);
+        DoctorEntity de = doctorEntitySessionBeanRemote.retrieveDoctorByDoctorId(doctorId);
         System.out.println("Enter Date> ");
-        String date = scanner.nextLine().trim();
+        String d = scanner.nextLine().trim();
+        LocalDate date = LocalDate.parse(date);
+        LocalDate now = LocalDate.now();
+        LocalDate twoDays = DateUtil.addDays(now, 2);
+        if(date.before(twoDays)){
+            throw new EntityManagerExceotion();
+        }
         
-        
-        //System.out.println("Availability for %s%s on %tY-%tM-%D:", );
-        
+        try
+        {
+        System.out.println("Availability for "+de.getFullName()+" on "+d+":");
         System.out.println("Enter Time> ");
         //Error checking if time entered is not on the list of available timings
-        String time = scanner.nextLine().trim();
-        
-        
-      //Patient ID is in current entity
+        String t = scanner.nextLine().trim();
+        LocalTime time = LocalTime.parse(t);
+  
+        //print avail timings
         
         //Create appointment with date and timing given.
+        LocalDateTime appointmentTime = time.atDate(date);
+        AppointmentEntity ae = new AppointmentEntity(currentPatientEntity.getPatientId(),doctorId, appointmentTime);
+        appointmentEntitySessionBeanRemote.createNewAppointment(ae);
         
-        //System.out.printf(%s%s appointment with Dr. %s%s at %tH:%tM on %tY-%tM-%tD has been added, patientFirstName, patientLastName, doctorFirstName, doctorLastName, appointmentTIme, appointmentTIme, appointmentTIme, appointmentTIme, appointmentTIme);
-        
+        System.out.printf(currentPatientEntity.getFirstName()+" "+currentPatientEntity.getLastName()
+                +" appointment with Dr. "+de.getFullName()+" at "+t+" on "+d+" has been added");
+        }
+        catch(EntityManagerException ex)
+        {
+            System.out.println("Invalid Date entered! Please book at least 2 days in advance!");
+        }
     }
     
     protected void cancelAppointment(PatientEntity currentPatientEntity)

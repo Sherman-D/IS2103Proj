@@ -10,14 +10,11 @@ import entity.DoctorEntity;
 import entity.LeaveEntity;
 import entity.PatientEntity;
 import entity.StaffEntity;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.LocalDate;
 import java.util.List;
 import util.exception.DoctorNotFoundException;
 import util.exception.EntityInstanceExistsInCollectionException;
-import util.exception.EntityManagerException;
 import util.exception.EntityMismatchException;
-import util.exception.LeaveNotFoundException;
 import util.exception.PatientNotFoundException;
 import util.exception.StaffNotFoundException;
 
@@ -730,16 +727,22 @@ public class AdministrationOperationModule {
 
         try
         {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            LocalDateTime leaveDate1 = LocalDateTime.parse(leaveDate, formatter);
+//            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDate date = LocalDate.parse(leaveDate);
+            LocalDate now = LocalDate.now();
+            LocalDate weekLater = now.plusDays(7);
+            if(date.isBefore(weekLater)){
+                throw new EntityManagerException();
+            }
+//            LocalTime time = Local
             DoctorEntity de = doctorEntitySessionBeanRemote.retrieveDoctorByDoctorName(firstName, lastName);
-            LeaveEntity le = new LeaveEntity(de.getDoctorId(), leaveDate1);
+            LeaveEntity le = new LeaveEntity(de.getDoctorId(), date);
             leaveEntitySessionBeanRemote.createNewLeave(le);
             System.out.println("Leave has been created successfully!");
         }
         catch(DoctorNotFoundException ex)
         {
-            System.out.println("An error has occurred while adding the new staff: " + ex.getMessage() + "\n");
+            System.out.println("An error has occurred while adding the new leave: " + ex.getMessage() + "\n");
         }
     }
 //
