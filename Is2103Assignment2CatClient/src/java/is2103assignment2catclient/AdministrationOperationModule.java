@@ -10,10 +10,12 @@ import entity.DoctorEntity;
 import entity.LeaveEntity;
 import entity.PatientEntity;
 import entity.StaffEntity;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.util.List;
 import util.exception.DoctorNotFoundException;
 import util.exception.EntityInstanceExistsInCollectionException;
+import util.exception.EntityManagerException;
 import util.exception.EntityMismatchException;
 import util.exception.PatientNotFoundException;
 import util.exception.StaffNotFoundException;
@@ -143,7 +145,6 @@ public class AdministrationOperationModule {
         String identityNumber = scanner.nextLine().trim();
         System.out.println("Enter Password> ");
         String password = scanner.nextLine().trim();
-        String passwordHash = patientEntitySessionBeanRemote.hashPassword(password);
         System.out.println("Enter First Name> ");
         String firstName = scanner.nextLine().trim();
         System.out.println("Enter Last Name> ");
@@ -159,11 +160,16 @@ public class AdministrationOperationModule {
 
         try
         {
+            String passwordHash = patientEntitySessionBeanRemote.hashPassword(password);
             Integer age1 = Integer.parseInt(age);
             patientEntitySessionBeanRemote.createNewPatient(new PatientEntity(identityNumber, passwordHash, firstName, lastName, gender, age1, phone, address));
             System.out.println("Patient has been registered successfully!");
         }
         catch (EntityInstanceExistsInCollectionException ex)
+        {
+            System.out.println("An error has occurred while registering the new patient: " + ex.getMessage() + "\n");
+        }
+        catch(NoSuchAlgorithmException ex)
         {
             System.out.println("An error has occurred while registering the new patient: " + ex.getMessage() + "\n");
         }
@@ -552,11 +558,17 @@ public class AdministrationOperationModule {
         String username = scanner.nextLine().trim();
         System.out.println("Enter Password> ");
         String password = scanner.nextLine().trim();
+        try{
         String passwordHash = staffEntitySessionBeanRemote.hashPassword(password);
 
         StaffEntity se = new StaffEntity(firstName, lastName, username, passwordHash);
         staffEntitySessionBeanRemote.createNewStaff(se);
         System.out.println("Staff has been created successfully!");
+        }
+        catch(NoSuchAlgorithmException ex)
+        {
+            System.out.println("Error registering patient: "+ex.getMessage());
+        }
     }
 
     private void doViewStaff()
@@ -602,7 +614,7 @@ public class AdministrationOperationModule {
             String username1 = scanner.nextLine().trim();
             System.out.println("Enter Password> ");
             String password = scanner.nextLine().trim();
-            String passwordHash = staffEntitySessionBeanRemote.hashPassword(passwordHash);
+            String passwordHash = staffEntitySessionBeanRemote.hashPassword(password);
 
             Long staffId = se.getStaffId();
             StaffEntity se1 = new StaffEntity(firstName1, lastName1, username1, passwordHash);
@@ -616,6 +628,10 @@ public class AdministrationOperationModule {
 
         }
         catch(EntityMismatchException ex)
+        {
+            System.out.println("An error has occurred while updating the staff details: " + ex.getMessage() + "\n");
+        }
+        catch(NoSuchAlgorithmException ex)
         {
             System.out.println("An error has occurred while updating the staff details: " + ex.getMessage() + "\n");
         }
@@ -741,6 +757,10 @@ public class AdministrationOperationModule {
             System.out.println("Leave has been created successfully!");
         }
         catch(DoctorNotFoundException ex)
+        {
+            System.out.println("An error has occurred while adding the new leave: " + ex.getMessage() + "\n");
+        }
+        catch(EntityManagerException ex)
         {
             System.out.println("An error has occurred while adding the new leave: " + ex.getMessage() + "\n");
         }

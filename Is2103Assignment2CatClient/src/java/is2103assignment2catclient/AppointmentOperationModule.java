@@ -5,8 +5,10 @@ import entity.AppointmentEntity;
 import entity.DoctorEntity;
 import entity.PatientEntity;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Scanner;
+import util.exception.DoctorNotFoundException;
 import util.exception.EntityManagerException;
 
 
@@ -95,34 +97,40 @@ public class AppointmentOperationModule {
         System.out.println("Enter Doctor Id> ");
         String did = scanner.nextLine().trim();
         Long doctorId = Long.valueOf(did);
-        DoctorEntity de = doctorEntitySessionBeanRemote.retrieveDoctorByDoctorId(doctorId);
         System.out.println("Enter Date> ");
         String d = scanner.nextLine().trim();
         LocalDate date = LocalDate.parse(d);
         LocalDate twoDays = LocalDate.now().plusDays(2);
-        if(date.isBefore(twoDays)){
-            throw new EntityManagerException();
-        }
+
         
         try{
-        System.out.println("Availability for "+de.getFullName()+" on "+d+":" );
+            DoctorEntity de = doctorEntitySessionBeanRemote.retrieveDoctorByDoctorId(doctorId);
+
+           if(date.isBefore(twoDays)){
+             throw new EntityManagerException();
+            }
+            System.out.println("Availability for "+de.getFullName()+" on "+d+":" );
         
-        System.out.println("Enter Time> ");
+            System.out.println("Enter Time> ");
         //Error checking if time entered is not on the list of available timings
-        String t = scanner.nextLine().trim();
-        LocalTime time = LocalTime.parse(t);
+            String t = scanner.nextLine().trim();
+            LocalTime time = LocalTime.parse(t);
         
         
-        System.out.println("Enter Patient Identity Number> ");
-        //Error checking if the ID entered does not belong to a registered patient
-        String patientId = scanner.nextLine().trim();
-        LocalDateTime appointmentTime = time.atDate(date);
+            System.out.println("Enter Patient Identity Number> ");
+            //Error checking if the ID entered does not belong to a registered patient
+            String patientId = scanner.nextLine().trim();
+            LocalDateTime appointmentTime = time.atDate(date);
         
-        AppointmentEntity ae = new AppointmentEntity(currentPatientEntity.getPatientId(), doctorId, appointmentTime);
+            AppointmentEntity ae = new AppointmentEntity(currentPatientEntity.getPatientId(), doctorId, appointmentTime);
         
         //System.out.printf(%s%s appointment with Dr. %s%s at %tH:%tM on %tY-%tM-%tD has been added, patientFirstName, patientLastName, doctorFirstName, doctorLastName, appointmentTIme, appointmentTIme, appointmentTIme, appointmentTIme, appointmentTIme);
         }
         catch(EntityManagerException ex)
+        {
+            System.out.println("Invalid Input: "+ex.getMessage());
+        }
+        catch(DoctorNotFoundException ex)
         {
             System.out.println("Invalid Input: "+ex.getMessage());
         }
