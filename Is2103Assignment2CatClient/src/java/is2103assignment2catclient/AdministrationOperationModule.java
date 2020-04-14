@@ -77,7 +77,7 @@ public class AdministrationOperationModule {
         }
     }
 
-    private void doManagePatients() throws EntityMismatchException
+    private void doManagePatients()
     {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
@@ -139,7 +139,6 @@ public class AdministrationOperationModule {
     private void doAddPatient()
     {
         Scanner scanner = new Scanner(System.in);
-        PatientEntity pe = new PatientEntity();
 
         System.out.println("*** CARS :: Administartion Operation :: Patient Management :: Register New Patient ***\n");
 
@@ -173,6 +172,7 @@ public class AdministrationOperationModule {
 
     }
 
+    
     private void doViewPatient() //details
     {
         Scanner scanner = new Scanner(System.in);
@@ -275,7 +275,8 @@ public class AdministrationOperationModule {
         List<PatientEntity> patientList = patientEntitySessionBeanRemote.retrieveAllPatients();
         String header = String.format("%s-1|%s-10|%s-10|%s-1|%s-1|%s-4|%s", "patientId", "First Name", "Last Name", "Gender", "Age", "Phone", "Address");
         System.out.println(header);
-        for(PatientEntity pe : patientList){
+        for(PatientEntity pe : patientList)
+        {
             String patientDetails = String.format("%s-1|%s-10|%s-10|%s-1|%s-1|%s-4|%s", pe.getPatientId(), pe.getFirstName(), pe.getLastName(), pe.getGender(), pe.getAge(), pe.getPhone(), pe.getAddress());
             System.out.println(patientDetails);
         }
@@ -365,16 +366,11 @@ public class AdministrationOperationModule {
         System.out.println("Enter Qualification> ");
         String qualification = scanner.nextLine().trim();
 
-        try
-        {
-            DoctorEntity de = new DoctorEntity(firstName, lastName, registration, qualification);
-            doctorEntitySessionBeanRemote.createNewDoctor(de);
-            System.out.println("Doctor has been created successfully!");
-        }
-        catch(EntityInstanceExistsInCollectionException ex)
-        {
-            System.out.println("An error has occurred while adding the new doctor: " + ex.getMessage() + "\n");
-        }
+
+        DoctorEntity de = new DoctorEntity(firstName, lastName, registration, qualification);
+        doctorEntitySessionBeanRemote.createNewDoctor(de);
+        System.out.println("Doctor has been created successfully!");
+
 
     }
 
@@ -559,16 +555,9 @@ public class AdministrationOperationModule {
         System.out.println("Enter Password> ");
         String password = scanner.nextLine().trim();
 
-        try
-        {
-            StaffEntity se = new StaffEntity(firstName, lastName, username, password);
-            staffEntitySessionBeanRemote.createNewStaff(se);
-            System.out.println("Staff has been created successfully!");
-        }
-        catch(EntityInstanceExistsInCollectionException ex)
-        {
-            System.out.println("An error has occurred while adding the new staff: " + ex.getMessage() + "\n");
-        }
+        StaffEntity se = new StaffEntity(firstName, lastName, username, password);
+        staffEntitySessionBeanRemote.createNewStaff(se);
+        System.out.println("Staff has been created successfully!");
     }
 
     private void doViewStaff()
@@ -744,10 +733,6 @@ public class AdministrationOperationModule {
             LeaveEntity le = new LeaveEntity(de.getDoctorId(), leaveDate1);
             leaveEntitySessionBeanRemote.createNewLeave(le);
             System.out.println("Leave has been created successfully!");
-        }
-        catch(EntityInstanceExistsInCollectionException ex)
-        {
-            System.out.println("An error has occurred while adding the new staff: " + ex.getMessage() + "\n");
         }
         catch(DoctorNotFoundException ex)
         {

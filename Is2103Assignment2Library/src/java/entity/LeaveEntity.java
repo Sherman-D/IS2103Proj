@@ -11,7 +11,8 @@ import javax.persistence.ManyToOne;
 
 
 @Entity
-public class LeaveEntity implements Serializable {
+public class LeaveEntity implements Serializable, Comparable<LeaveEntity>
+{
     private static final long serialVersionUID = 1L;
     
     @Id
@@ -55,5 +56,8 @@ public class LeaveEntity implements Serializable {
         this.leaveDate = leaveDate;
     }
     
-    
+    @Override
+    public int compareTo(LeaveEntity anotherLeave) {
+        return this.leaveId.compareTo(anotherLeave.getLeaveId());
+    }
 }

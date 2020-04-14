@@ -2,12 +2,10 @@ package ejb.session.stateless;
 
 import entity.AppointmentEntity;
 import entity.DoctorEntity;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.Local;
-import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -18,42 +16,33 @@ import util.exception.EntityMismatchException;
 
 
 
-
 @Stateless
-@Local(AppointmentEntitySessionBeanLocal.class)
-@Remote(AppointmentEntitySessionBeanRemote.class)
+@Local(AppointmentEntityControllerLocal.class)
 
-public class AppointmentEntitySessionBean implements AppointmentEntitySessionBeanLocal, AppointmentEntitySessionBeanRemote
+public class AppointmentEntityController implements AppointmentEntityControllerLocal
 {
+
     @PersistenceContext(unitName = "Is2103Assignment2-ejbPU")
     private EntityManager entityManager;
     
     
     
-    public AppointmentEntitySessionBean()
-    {
-    }
     
-    
-    @Override
-    public Long createNewAppointment(AppointmentEntity newAppointmentEntity)
+    public AppointmentEntityController()
     {
-        entityManager.persist(newAppointmentEntity);
-        entityManager.flush();
-        
-        return newAppointmentEntity.getAppointmentId();
     }
     
     
     
     @Override
-    public List<AppointmentEntity> retrieveAllAppointments()
+    public AppointmentEntity createNewAppointment(AppointmentEntity newAppointmentEntity)
     {
-        Query query = entityManager.createQuery("SELECT a FROM AppointmentEntity a");
-        
-        return query.getResultList();
+ 
+            entityManager.persist(newAppointmentEntity);
+            entityManager.flush();
+
+        return newAppointmentEntity;
     }
-    
     
     
     @Override
@@ -71,9 +60,8 @@ public class AppointmentEntitySessionBean implements AppointmentEntitySessionBea
         }
     }
     
-    
-    @Override
-    public List<String> retrieveAppointmentByPatientIdentityNo(String patientId)
+     @Override
+    public List<String> retrieveAppointmentByPatientId(Long patientId)
     {
         Query query = entityManager.createQuery("SELECT a FROM AppointmentEntity a , PatientEntity p WHERE p.identityNumber = :searchId AND p.patientId = a.patientId ").setParameter("searchId", patientId);
         
@@ -88,27 +76,10 @@ public class AppointmentEntitySessionBean implements AppointmentEntitySessionBea
             String appointmentLine = String.format("%s-1|%s-7|%s-3|%s", appointment.getAppointmentId(), appointment.getAppointmentTime().format(DateTimeFormatter.ISO_LOCAL_DATE), appointment.getAppointmentTime().format(DateTimeFormatter.ISO_LOCAL_TIME), servingDoctor.getFullName());
             appointmentDetails.add(appointmentLine);
         }
-        return appointmentDetails;
         
+        return appointmentDetails;
     }
     
-    @Override
-    public String hasAppointment(DoctorEntity doctorEntity, LocalDateTime appointmentTime)
-    {
-        Query query = entityManager.createQuery("SELECT a FROM AppointmentEntity a WHERE a.doctorId = ?1 AND a.appointmentTime = ?2 ");
-        query.setParameter(1, doctorEntity.getDoctorId());
-        query.setParameter(2, appointmentTime);
-        
-        AppointmentEntity ae = (AppointmentEntity) query.getSingleResult();
-        
-        if(ae != null)
-        {
-            return "X";
-        } else 
-        {
-            return "O";
-        }
-    }
     
     @Override
     public void confirmAppointment(Long patientId,Long appointmentId) throws AppointmentNotFoundException

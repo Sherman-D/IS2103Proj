@@ -8,7 +8,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
-public class StaffEntity implements Serializable {
+public class StaffEntity implements Serializable, Comparable<StaffEntity>
+{
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -118,4 +119,8 @@ public class StaffEntity implements Serializable {
         this.password = password;
     }
     
+    @Override
+    public int compareTo(StaffEntity anotherStaff) {
+        return this.staffId.compareTo(anotherStaff.getStaffId());
+    }
 }

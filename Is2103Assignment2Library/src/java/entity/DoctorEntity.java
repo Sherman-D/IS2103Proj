@@ -8,7 +8,7 @@ import javax.persistence.Id;
 
 
 @Entity
-public class DoctorEntity implements Serializable, Comparable 
+public class DoctorEntity implements Serializable, Comparable<DoctorEntity>
 {
 
     private static final long serialVersionUID = 1L;
@@ -120,14 +120,10 @@ public class DoctorEntity implements Serializable, Comparable
         this.qualification = qualification;
     }
 
-    @Override
-    public int compareTo(DoctorEntity o) {
-        if(this.doctorId<o.doctorId){
-            return -1;
-        }else{
-            return 1;
-        }
-    }
     
+    @Override
+    public int compareTo(DoctorEntity anotherDoctor) {
+        return this.doctorId.compareTo(anotherDoctor.getDoctorId());
+    }
     
 }
