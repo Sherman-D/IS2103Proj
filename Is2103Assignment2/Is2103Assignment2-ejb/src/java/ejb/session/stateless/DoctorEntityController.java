@@ -85,7 +85,7 @@ public class DoctorEntityController implements DoctorEntityControllerLocal
     }
     
     @Override
-    public List<DoctorEntity> retrieveDoctorsAvailableOnDate(LocalDateTime searchDate) throws DoctorNotFoundException
+    public List<DoctorEntity> retrieveDoctorsAvailableOnDate(LocalDate searchDate) throws DoctorNotFoundException
     {
         Query query = entityManager.createQuery("select d from DoctorEntity d where not exists (select l.doctorId from LeaveEntity l where l.leaveDate = :searchDate) ").setParameter("searchDate", searchDate);
         List<DoctorEntity> availableDoctorList = query.getResultList();

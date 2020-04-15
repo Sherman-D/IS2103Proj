@@ -27,7 +27,7 @@ public interface DoctorEntityControllerLocal {
 
     DoctorEntity retrieveDoctorByDoctorName(String firstName, String lastName) throws DoctorNotFoundException;
     
-    List<DoctorEntity> retrieveDoctorsAvailableOnDate(LocalDateTime searchDate) throws DoctorNotFoundException;
+    List<DoctorEntity> retrieveDoctorsAvailableOnDate(LocalDate searchDate) throws DoctorNotFoundException;
 
     void updateDoctor(DoctorEntity doctorEntity) throws EntityMismatchException;
     
