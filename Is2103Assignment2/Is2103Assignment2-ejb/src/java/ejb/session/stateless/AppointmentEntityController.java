@@ -1,7 +1,10 @@
 package ejb.session.stateless;
 
 import entity.AppointmentEntity;
+import entity.ClinicEntity;
 import entity.DoctorEntity;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -110,5 +113,70 @@ public class AppointmentEntityController implements AppointmentEntityControllerL
         {
             throw new EntityMismatchException("The appointment record being cancelled does not match the one stored!");
         }
-    }  
+    } 
+    
+    @Override
+    public List<LocalTime> retrieveDoctorAvailableSlotsOnDay(DoctorEntity doctorEntity, LocalDate date)
+    {
+        Query query = entityManager.createQuery("SELECT a FROM AppointmentEntity a WHERE a.doctorId = ?1 ");
+        query.setParameter(1, doctorEntity.getDoctorId());
+        
+        List<AppointmentEntity> appointments = query.getResultList();
+        List<LocalTime> slotsOnDate = new ArrayList<>();
+        for (AppointmentEntity appointment : appointments)
+        {
+            if (appointment.getAppointmentTime().toLocalDate().equals(date) && !(appointment.getIsCancelled()))
+            {
+                slotsOnDate.add(appointment.getAppointmentTime().toLocalTime());
+            }
+        }
+        
+        query = entityManager.createQuery("SELECT c FROM ClinicEntity c WHERE c.day = :searchDay");
+        query.setParameter("searchDay", date.getDayOfWeek().toString());
+        List<ClinicEntity> clinicTimings = query.getResultList();
+        
+        List<LocalTime> consultationSlots = new ArrayList<>();
+        
+        for (ClinicEntity clinic : clinicTimings)
+        {
+            LocalTime time = clinic.getStartOfDay();
+            consultationSlots.add(time);
+            
+            while (time.isBefore(clinic.getEndOfDay()))
+            {
+                time.plusMinutes(30);
+                consultationSlots.add(time);
+            }
+        }
+        
+        List<LocalTime> availableSlots = new ArrayList<>();
+        for (LocalTime slot : consultationSlots) {
+            if (!(slotsOnDate.contains(slot)))
+            {
+                availableSlots.add(slot);
+            }
+        }
+        
+        return availableSlots;
+    }
+    
+    @Override
+    public List<String> retrieveAppointmentByPatientIdentityNo(String patientId)
+    {
+        Query query = entityManager.createQuery("SELECT a FROM AppointmentEntity a , PatientEntity p WHERE p.identityNumber = :searchId AND p.patientId = a.patientId ").setParameter("searchId", patientId);
+        
+        List<AppointmentEntity> patientAppointmentList = query.getResultList();
+        
+        
+        ArrayList<String> appointmentDetails = new ArrayList<>();
+
+        for (AppointmentEntity appointment : patientAppointmentList)
+        {
+            DoctorEntity servingDoctor = entityManager.find(DoctorEntity.class, appointment.getDoctorId());
+            String appointmentLine = String.format("%s-1|%s-7|%s-3|%s", appointment.getAppointmentId(), appointment.getAppointmentTime().format(DateTimeFormatter.ISO_LOCAL_DATE), appointment.getAppointmentTime().format(DateTimeFormatter.ISO_LOCAL_TIME), servingDoctor.getFullName());
+            appointmentDetails.add(appointmentLine);
+        }
+        return appointmentDetails;
+        
+    }
 }
