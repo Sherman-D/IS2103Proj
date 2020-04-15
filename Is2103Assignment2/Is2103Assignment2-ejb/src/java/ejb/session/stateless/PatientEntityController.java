@@ -1,6 +1,7 @@
 package ejb.session.stateless;
 
 import entity.PatientEntity;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import javax.ejb.Local;
 import javax.ejb.Stateless;
@@ -78,14 +79,15 @@ public class PatientEntityController implements PatientEntityControllerLocal
     
     
     @Override
-    public PatientEntity patientLogin(String identityNumber, String password) throws InvalidLoginCredentialException
+    public PatientEntity patientLogin(String identityNumber, String password) throws InvalidLoginCredentialException, NoSuchAlgorithmException
     {
         try
         {
             PatientEntity patientEntity = retrievePatientByPatientIdentityNumber(identityNumber);
+           
             String passwordHash = hashPassword(password);
             
-            if(patientEntity.getPassword().equals(hashPassword))
+             if(patientEntity.getPassword().equals(passwordHash))
             {         
                 return patientEntity;
             }
@@ -94,14 +96,18 @@ public class PatientEntityController implements PatientEntityControllerLocal
                 throw new InvalidLoginCredentialException("Identity Number or password is incorrect!");
             }
         }
-        catch(PatientNotFoundException ex)
+        catch (PatientNotFoundException  ex)
         {
             throw new InvalidLoginCredentialException("Identity Number or password is incorrect!");
         }
+        catch (NoSuchAlgorithmException ex)
+        {
+            throw new NoSuchAlgorithmException("Storage error. Please contact an administrator.");
+        }
     }
     
-    @Override
-    public String hashPassword(String password) throws NoSuchAlgorithmException{
+    private String hashPassword(String password) throws NoSuchAlgorithmException
+    {
         MessageDigest md = MessageDigest.getInstance("MD5");
         md.update(password.getBytes());
         byte[] b = md.digest();

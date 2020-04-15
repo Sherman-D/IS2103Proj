@@ -1,9 +1,10 @@
 package is2103assignment2kioskclient;
 
+import ejb.session.singleton.QueueGeneratorSessionBeanRemote;
 import ejb.session.stateless.AppointmentEntitySessionBeanRemote;
 import ejb.session.stateless.DoctorEntitySessionBeanRemote;
+import ejb.session.stateless.LeaveEntitySessionBeanRemote;
 import ejb.session.stateless.PatientEntitySessionBeanRemote;
-import ejb.session.stateless.StaffEntitySessionBeanRemote;
 import javax.ejb.EJB;
 
 
@@ -17,11 +18,13 @@ public class Is2103Assignment2KioskClient {
     @EJB
     private static PatientEntitySessionBeanRemote patientEntitySessionBeanRemote;
     @EJB
-    private static StaffEntitySessionBeanRemote staffEntitySessionBeanRemote; 
+    private static QueueGeneratorSessionBeanRemote queueGeneratorSessionBeanRemote;
+    @EJB
+    private static LeaveEntitySessionBeanRemote leaveEntitySessionBeanRemote; 
 
 
     public static void main(String[] args) {
-        MainApp mainApp = new MainApp(appointmentEntitySessionBeanRemote, doctorEntitySessionBeanRemote, patientEntitySessionBeanRemote, staffEntitySessionBeanRemote);
+        MainApp mainApp = new MainApp(appointmentEntitySessionBeanRemote, doctorEntitySessionBeanRemote, patientEntitySessionBeanRemote, queueGeneratorSessionBeanRemote, leaveEntitySessionBeanRemote);
         mainApp.runApp();   
     }
     

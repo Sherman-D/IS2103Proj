@@ -1,10 +1,10 @@
 package ejb.session.stateless;
 
 import entity.PatientEntity;
+import java.security.NoSuchAlgorithmException;
 import util.exception.EntityInstanceExistsInCollectionException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.PatientNotFoundException;
-import util.exception.StaffNotFoundException;
 
 
 
@@ -16,5 +16,6 @@ public interface PatientEntityControllerLocal
     
     PatientEntity retrievePatientByPatientIdentityNumber(String identityNumber) throws PatientNotFoundException;
     
-    PatientEntity patientLogin(String identityNumber, String password) throws InvalidLoginCredentialException;
+    PatientEntity patientLogin(String identityNumber, String password) throws InvalidLoginCredentialException, NoSuchAlgorithmException;
+    
 }

@@ -1,8 +1,11 @@
 package ejb.session.stateless;
 
 import entity.AppointmentEntity;
+import entity.ClinicEntity;
 import entity.DoctorEntity;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -93,6 +96,51 @@ public class AppointmentEntitySessionBean implements AppointmentEntitySessionBea
     }
     
     @Override
+    public List<LocalTime> retrieveDoctorAvailableSlotsOnDay(DoctorEntity doctorEntity, LocalDate date)
+    {
+        Query query = entityManager.createQuery("SELECT a FROM AppointmentEntity a WHERE a.doctorId = ?1 ");
+        query.setParameter(1, doctorEntity.getDoctorId());
+        
+        List<AppointmentEntity> appointments = query.getResultList();
+        List<LocalTime> slotsOnDate = new ArrayList<>();
+        for (AppointmentEntity appointment : appointments)
+        {
+            if (appointment.getAppointmentTime().toLocalDate().equals(date) && !(appointment.getIsCancelled()))
+            {
+                slotsOnDate.add(appointment.getAppointmentTime().toLocalTime());
+            }
+        }
+        
+        query = entityManager.createQuery("SELECT c FROM ClinicEntity c WHERE c.day = :searchDay");
+        query.setParameter("searchDay", date.getDayOfWeek().toString());
+        List<ClinicEntity> clinicTimings = query.getResultList();
+        
+        List<LocalTime> consultationSlots = new ArrayList<>();
+        
+        for (ClinicEntity clinic : clinicTimings)
+        {
+            LocalTime time = clinic.getStartOfDay();
+            consultationSlots.add(time);
+            
+            while (time.isBefore(clinic.getEndOfDay()))
+            {
+                time.plusMinutes(30);
+                consultationSlots.add(time);
+            }
+        }
+        
+        List<LocalTime> availableSlots = new ArrayList<>();
+        for (LocalTime slot : consultationSlots) {
+            if (!(slotsOnDate.contains(slot)))
+            {
+                availableSlots.add(slot);
+            }
+        }
+        
+        return availableSlots;
+    }
+    
+    @Override
     public String hasAppointment(DoctorEntity doctorEntity, LocalDateTime appointmentTime)
     {
         Query query = entityManager.createQuery("SELECT a FROM AppointmentEntity a WHERE a.doctorId = ?1 AND a.appointmentTime = ?2 ");
@@ -111,13 +159,14 @@ public class AppointmentEntitySessionBean implements AppointmentEntitySessionBea
     }
     
     @Override
-    public void confirmAppointment(Long patientId,Long appointmentId) throws AppointmentNotFoundException
+    public AppointmentEntity confirmAppointment(Long patientId,Long appointmentId) throws AppointmentNotFoundException
     {
         AppointmentEntity ae = retrieveAppointmentByAppointmentId(appointmentId);
         if(ae.getPatientId().equals(patientId)){
             ae.setIsConfirmed(true);
         }
-
+        
+        return ae;
     }
     
     

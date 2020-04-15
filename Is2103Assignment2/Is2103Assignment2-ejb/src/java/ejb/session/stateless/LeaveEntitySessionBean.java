@@ -1,7 +1,7 @@
 package ejb.session.stateless;
 
 import entity.LeaveEntity;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -85,19 +85,12 @@ public class LeaveEntitySessionBean implements LeaveEntitySessionBeanLocal, Leav
     
     
     @Override
-    public List<LeaveEntity> retrieveLeaveByDate(LocalDateTime searchDate) throws LeaveNotFoundException
+    public List<LeaveEntity> retrieveLeaveByDate(LocalDate searchDate)
     {
         Query query = entityManager.createQuery("SELECT l FROM LeaveEntity l WHERE l.leaveDate = :searchDate").setParameter("searchDate", searchDate);
         List<LeaveEntity> leaveList = query.getResultList();
         
-        if(!leaveList.isEmpty())
-        {
-            return leaveList;
-        }
-        else
-        {
-            throw new LeaveNotFoundException("The date given " + searchDate + " does not have any registered leaves!");
-        }
+        return leaveList;
     }
     
     

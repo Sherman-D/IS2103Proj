@@ -1,8 +1,10 @@
 package ejb.session.singleton;
 
+import ejb.session.stateless.ClinicEntitySessionBeanLocal;
 import ejb.session.stateless.DoctorEntitySessionBeanLocal;
 import ejb.session.stateless.PatientEntitySessionBeanLocal;
 import ejb.session.stateless.StaffEntitySessionBeanLocal;
+import entity.ClinicEntity;
 import entity.DoctorEntity;
 import entity.PatientEntity;
 import entity.StaffEntity;
@@ -26,6 +28,8 @@ public class DataInitializationSessionBean
     private PatientEntitySessionBeanLocal patientEntitySessionBeanLocal;
     @EJB
     private StaffEntitySessionBeanLocal staffEntitySessionBeanLocal;
+    @EJB
+    private ClinicEntitySessionBeanLocal clinicEntitySessionBeanLocal;
     
     
     public DataInitializationSessionBean()
@@ -45,6 +49,18 @@ public class DataInitializationSessionBean
     
     private void initializeData()
     {
+        clinicEntitySessionBeanLocal.createNewClinicTiming(new ClinicEntity("MONDAY", "08:30", "12:30"));
+        clinicEntitySessionBeanLocal.createNewClinicTiming(new ClinicEntity("MONDAY", "13:30", "18:00"));
+        clinicEntitySessionBeanLocal.createNewClinicTiming(new ClinicEntity("TUESDAY", "08:30", "12:30"));
+        clinicEntitySessionBeanLocal.createNewClinicTiming(new ClinicEntity("TUESDAY", "13:30", "18:00"));
+        clinicEntitySessionBeanLocal.createNewClinicTiming(new ClinicEntity("WEDNESDAY", "08:30", "12:30"));
+        clinicEntitySessionBeanLocal.createNewClinicTiming(new ClinicEntity("WEDNESDAY", "13:30", "18:00"));
+        clinicEntitySessionBeanLocal.createNewClinicTiming(new ClinicEntity("THURSDAY", "08:30", "12:30"));
+        clinicEntitySessionBeanLocal.createNewClinicTiming(new ClinicEntity("THURSDAY", "13:30", "17:00"));
+        clinicEntitySessionBeanLocal.createNewClinicTiming(new ClinicEntity("FRIDAY", "08:30", "12:30"));
+        clinicEntitySessionBeanLocal.createNewClinicTiming(new ClinicEntity("FRIDAY", "13:30", "17:30"));
+        
+        
         staffEntitySessionBeanLocal.createNewStaff(new StaffEntity("Eric", "Some", "manager", "password"));
         staffEntitySessionBeanLocal.createNewStaff(new StaffEntity("Victoria", "Newton", "nurse", "password"));
         

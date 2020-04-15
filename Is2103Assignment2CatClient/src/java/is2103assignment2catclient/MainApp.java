@@ -1,12 +1,16 @@
 package is2103assignment2catclient;
 
 
+import ejb.session.singleton.QueueGeneratorSessionBeanRemote;
 import ejb.session.stateless.AppointmentEntitySessionBeanRemote;
+import ejb.session.stateless.ClinicEntitySessionBeanRemote;
 import ejb.session.stateless.DoctorEntitySessionBeanRemote;
+import ejb.session.stateless.LeaveEntitySessionBeanRemote;
 import ejb.session.stateless.PatientEntitySessionBeanRemote;
 import java.util.Scanner;
 import ejb.session.stateless.StaffEntitySessionBeanRemote;
 import entity.StaffEntity;
+import java.security.NoSuchAlgorithmException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.EntityManagerException;
 
@@ -18,18 +22,25 @@ public class MainApp {
     
     private AppointmentEntitySessionBeanRemote appointmentEntitySessionBeanRemote;
     private DoctorEntitySessionBeanRemote doctorEntitySessionBeanRemote;
+    private LeaveEntitySessionBeanRemote leaveEntitySessionBeanRemote;
     private PatientEntitySessionBeanRemote patientEntitySessionBeanRemote;
+    private QueueGeneratorSessionBeanRemote queueGeneratorSessionBeanRemote; 
     private StaffEntitySessionBeanRemote staffEntitySessionBeanRemote;
 
     private StaffEntity currentStaffEntity;
-    
-    public MainApp(AppointmentEntitySessionBeanRemote appointmentEntitySessionBeanRemote, DoctorEntitySessionBeanRemote doctorEntitySessionBeanRemote,  PatientEntitySessionBeanRemote patientEntitySessionBeanRemote, StaffEntitySessionBeanRemote staffEntitySessionBeanRemote) 
-    {        
+
+    public MainApp(AppointmentEntitySessionBeanRemote appointmentEntitySessionBeanRemote, DoctorEntitySessionBeanRemote doctorEntitySessionBeanRemote, LeaveEntitySessionBeanRemote leaveEntitySessionBeanRemote, PatientEntitySessionBeanRemote patientEntitySessionBeanRemote, QueueGeneratorSessionBeanRemote queueGeneratorSessionBeanRemote, StaffEntitySessionBeanRemote staffEntitySessionBeanRemote) {
         this.appointmentEntitySessionBeanRemote = appointmentEntitySessionBeanRemote;
         this.doctorEntitySessionBeanRemote = doctorEntitySessionBeanRemote;
+        this.leaveEntitySessionBeanRemote = leaveEntitySessionBeanRemote;
         this.patientEntitySessionBeanRemote = patientEntitySessionBeanRemote;
+        this.queueGeneratorSessionBeanRemote = queueGeneratorSessionBeanRemote;
         this.staffEntitySessionBeanRemote = staffEntitySessionBeanRemote;
     }
+
+    
+    
+    
     
     public void runApp(){
         Scanner scanner = new Scanner(System.in);
@@ -55,11 +66,13 @@ public class MainApp {
                         doLogin();
                         System.out.println("Login successful!\n");
                         
-                        //Insert registration/administration/appointment initialisation here
+                        administrationOperationModule = new AdministrationOperationModule(doctorEntitySessionBeanRemote, patientEntitySessionBeanRemote, leaveEntitySessionBeanRemote  , staffEntitySessionBeanRemote);
+                        appointmentOperationModule = new AppointmentOperationModule(appointmentEntitySessionBeanRemote, doctorEntitySessionBeanRemote, patientEntitySessionBeanRemote);
+                        registrationOperationModule = new RegistrationOperationModule(appointmentEntitySessionBeanRemote, doctorEntitySessionBeanRemote, patientEntitySessionBeanRemote, queueGeneratorSessionBeanRemote, leaveEntitySessionBeanRemote);
                         
                         menuMain();
                     }
-                    catch(InvalidLoginCredentialException | EntityManagerException ex) 
+                    catch(InvalidLoginCredentialException | EntityManagerException | NoSuchAlgorithmException ex) 
                     {
                         System.out.println("Invalid login credential: " + ex.getMessage() + "\n");
                     }
@@ -81,7 +94,7 @@ public class MainApp {
         }
     }
     
-    private void doLogin() throws InvalidLoginCredentialException,  EntityManagerException
+    private void doLogin() throws InvalidLoginCredentialException,  EntityManagerException, NoSuchAlgorithmException
     {
         Scanner scanner = new Scanner(System.in);
         String username = "";
@@ -93,6 +106,7 @@ public class MainApp {
         System.out.print("Enter password> ");
         password = scanner.nextLine().trim();
         
+      
         if(username.length() > 0 && password.length() > 0)
         {
             currentStaffEntity = staffEntitySessionBeanRemote.staffLogin(username, password);      
@@ -101,6 +115,7 @@ public class MainApp {
         {
             throw new InvalidLoginCredentialException("Missing login credential!");
         }
+       
     }
     
     private void menuMain() 

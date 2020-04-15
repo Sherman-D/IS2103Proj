@@ -25,11 +25,11 @@ public interface StaffEntitySessionBeanRemote
     
     StaffEntity retrieveStaffByUsername(String username) throws StaffNotFoundException;
 
-    StaffEntity staffLogin(String username, String password) throws InvalidLoginCredentialException;
+    StaffEntity staffLogin(String username, String password) throws InvalidLoginCredentialException, NoSuchAlgorithmException;
 
     void updateStaff(StaffEntity staffEntity) throws EntityMismatchException;
     
     void deleteStaff(Long staffId) throws StaffNotFoundException;
-
+    
     String hashPassword(String password) throws NoSuchAlgorithmException;
 }

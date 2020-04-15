@@ -1,5 +1,6 @@
 package is2103assignment2catclient;
 
+import ejb.session.singleton.QueueGeneratorSessionBeanRemote;
 import ejb.session.stateless.AppointmentEntitySessionBeanRemote;
 import ejb.session.stateless.DoctorEntitySessionBeanRemote;
 import ejb.session.stateless.LeaveEntitySessionBeanRemote;
@@ -18,7 +19,6 @@ import java.util.Scanner;
 import util.exception.AppointmentNotFoundException;
 import util.exception.DoctorNotFoundException;
 import util.exception.EntityInstanceExistsInCollectionException;
-import util.exception.LeaveNotFoundException;
 import util.exception.PatientNotFoundException;
 
 public class RegistrationOperationModule 
@@ -26,21 +26,18 @@ public class RegistrationOperationModule
     private AppointmentEntitySessionBeanRemote appointmentEntitySessionBeanRemote;
     private DoctorEntitySessionBeanRemote doctorEntitySessionBeanRemote;
     private PatientEntitySessionBeanRemote patientEntitySessionBeanRemote;
+    private QueueGeneratorSessionBeanRemote queueGeneratorSessionBeanRemote; 
     private LeaveEntitySessionBeanRemote leaveEntitySessionBeanRemote;
-    private PatientEntity currentPatientEntity;
 
-    public RegistrationOperationModule() 
-    {
-    }
-
-    public RegistrationOperationModule(PatientEntity currentPatientEntity, AppointmentEntitySessionBeanRemote appointmentEntitySessionBeanRemote, DoctorEntitySessionBeanRemote doctorEntitySessionBeanRemote, PatientEntitySessionBeanRemote patientEntitySessionBeanRemote) 
-    {
-        this();
+    public RegistrationOperationModule(AppointmentEntitySessionBeanRemote appointmentEntitySessionBeanRemote, DoctorEntitySessionBeanRemote doctorEntitySessionBeanRemote, PatientEntitySessionBeanRemote patientEntitySessionBeanRemote, QueueGeneratorSessionBeanRemote queueGeneratorSessionBeanRemote, LeaveEntitySessionBeanRemote leaveEntitySessionBeanRemote) {
         this.appointmentEntitySessionBeanRemote = appointmentEntitySessionBeanRemote;
         this.doctorEntitySessionBeanRemote = doctorEntitySessionBeanRemote;
         this.patientEntitySessionBeanRemote = patientEntitySessionBeanRemote;
-        this.currentPatientEntity = currentPatientEntity;
+        this.queueGeneratorSessionBeanRemote = queueGeneratorSessionBeanRemote;
+        this.leaveEntitySessionBeanRemote = leaveEntitySessionBeanRemote;
     }
+
+  
     
     
     public void menuRegistrationOperation() 
@@ -120,11 +117,8 @@ public class RegistrationOperationModule
             patientEntitySessionBeanRemote.createNewPatient(newPatientEntity);
             System.out.println("Patient has been registered successfully!");
        
-        } catch (EntityInstanceExistsInCollectionException ex) 
+        } catch (EntityInstanceExistsInCollectionException | NoSuchAlgorithmException ex) 
         { 
-            System.out.println("An error has occurred while creating the new patient: " + ex.getMessage() + "\n");
-        }
-        catch(NoSuchAlgorithmException ex){
             System.out.println("An error has occurred while creating the new patient: " + ex.getMessage() + "\n");
         }
     }
@@ -134,9 +128,8 @@ public class RegistrationOperationModule
     //This will register a patient at the first available slot that the doctor has in the day. 
         private void registerWalkInConsult()
         {
-            int queueNumber = 0;//TEMPORARY VARIABLE - Replace with queueNumber method from session bean
             Scanner scanner = new Scanner(System.in);
-            System.out.println("*** Self-Service Kiosk :: Register Walk-In Consultation ***\n");
+            System.out.println("*** CARS :: Registration Operation :: Register Walk-In Consultation ***\n");
 
             System.out.println("Doctor:");
             System.out.println("Id |Name");
@@ -145,8 +138,8 @@ public class RegistrationOperationModule
             try 
             {
             List<DoctorEntity> doctorList = doctorEntitySessionBeanRemote.retrieveAllDoctors();
-            List<LeaveEntity> leaveToday = leaveEntitySessionBeanRemote.retrieveLeaveByDate(now);
-            List<DoctorEntity> present = new ArrayList<DoctorEntity>();
+            List<LeaveEntity> leaveToday = leaveEntitySessionBeanRemote.retrieveLeaveByDate(now.toLocalDate());
+            List<DoctorEntity> present = new ArrayList<>();
             String availString ="";
             
             //print list of doctors not on leave
@@ -217,10 +210,14 @@ public class RegistrationOperationModule
                 System.out.println("The selected doctor is not available for the session indicated.");
                 return;
             }
+            
+            System.out.println("Enter Patient Identity Number> ");
+            String identityNumber = scanner.nextLine().trim();
+            PatientEntity currentPatientEntity = patientEntitySessionBeanRemote.retrievePatientByIdentityNumber(identityNumber);
  
             String time = "";
             LocalDateTime fin = null; //placeholder
-            for (int i=0 ;i<6 ;i++)
+            for (int i=0 ; i < 6 ; i++)
             { //select earliest appt
                LocalDateTime cur = LocalDateTime.of(LocalDate.now(), LocalTime.of(curHour, curMin));
                String earliestTime = appointmentEntitySessionBeanRemote.hasAppointment(chosenDoctor, cur);
@@ -234,12 +231,13 @@ public class RegistrationOperationModule
            
             AppointmentEntity ae = new AppointmentEntity(currentPatientEntity.getPatientId(), doctorId, fin);
             ae.setIsConfirmed(true);
+            int queueNumber = queueGeneratorSessionBeanRemote.getNextQueueNumber();
             System.out.println(currentPatientEntity.getFirstName() + " " + currentPatientEntity.getLastName() + " with Dr." + chosenDoctor.getFullName() + " has been booked at " + time);
             System.out.printf("Queue Number is %d. \n", queueNumber);
             
             
             
-        } catch (LeaveNotFoundException | DoctorNotFoundException ex) 
+        } catch (PatientNotFoundException | DoctorNotFoundException ex) 
         {
             System.out.println("Error in walk-in registration"+ ex.getMessage()+"\n");
         }
@@ -309,7 +307,8 @@ public class RegistrationOperationModule
              System.out.println("There are no appointments associated with this identity number.");
              return;
          }
-         //Fetch list of appointments. Throw error message if no appointments are logged with the ID number
+
+         
          System.out.println("Appointments: ");
          System.out.printf("%s-1|%s-7|%s-3|%s", "Id", "Date", "Time", "Doctor");
          
@@ -325,12 +324,15 @@ public class RegistrationOperationModule
             PatientEntity pe = patientEntitySessionBeanRemote.retrievePatientByPatientIdentityNumber(patientIn);
             Long patientId = pe.getPatientId();
 
-            appointmentEntitySessionBeanRemote.confirmAppointment(patientId, appointmentId);
-            //Throw error if the appointment is not today?
-            //Parse doctorId,
-            //System.out.printf(%s%s appointment is confirmed with Dr. %s%s at %tH:%tM, patientFirstName, patientLastName, doctorFirstName, doctorLastName, appointmentTIme, appointmentTIme);
+            AppointmentEntity confirmedAppointment = appointmentEntitySessionBeanRemote.confirmAppointment(patientId, appointmentId);
+            DoctorEntity doctor = doctorEntitySessionBeanRemote.retrieveDoctorByDoctorId(confirmedAppointment.getDoctorId());
+            int queueNumber = queueGeneratorSessionBeanRemote.getNextQueueNumber();
+            
+            
+            System.out.printf("%s%s appointment is confirmed with Dr. %s at %d:%d", pe.getFirstName(), pe.getLastName(), doctor.getFullName(), confirmedAppointment.getAppointmentTime().getHour(), confirmedAppointment.getAppointmentTime().getMinute());
+            System.out.printf("Queue Number is %d. \n", queueNumber);
          } 
-         catch (PatientNotFoundException | AppointmentNotFoundException ex) 
+         catch (PatientNotFoundException | DoctorNotFoundException | AppointmentNotFoundException ex) 
          {
              System.out.println("An error has occured while registering the appointment: " + ex.getMessage());
          }

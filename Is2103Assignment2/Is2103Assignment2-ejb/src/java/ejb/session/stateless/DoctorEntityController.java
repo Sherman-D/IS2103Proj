@@ -8,6 +8,7 @@ package ejb.session.stateless;
 import entity.DoctorEntity;
 import java.time.LocalDateTime;
 import java.util.List;
+import javax.ejb.Local;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -15,13 +16,10 @@ import javax.persistence.Query;
 import util.exception.DoctorNotFoundException;
 import util.exception.EntityMismatchException;
 
-/**
- *
- * @author User
- */
+
 @Stateless
 @Local(DoctorEntityControllerLocal.class)
-public class DoctorEntityController implements DoctorEntityControllerLocal {
+public class DoctorEntityController implements DoctorEntityControllerLocal 
 {
     @PersistenceContext(unitName = "Is2103Assignment2-ejbPU")
     private EntityManager entityManager;

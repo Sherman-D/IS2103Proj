@@ -22,12 +22,11 @@ public interface PatientEntitySessionBeanRemote
     
     PatientEntity retrievePatientByPatientIdentityNumber(String identityNumber) throws PatientNotFoundException;
     
-    PatientEntity patientLogin(String identityNumber, String password) throws InvalidLoginCredentialException;
+    PatientEntity patientLogin(String identityNumber, String password) throws  InvalidLoginCredentialException, NoSuchAlgorithmException;
 
     void updatePatient(PatientEntity patientEntity) throws EntityMismatchException;
     
     void deletePatient(Long patientId) throws PatientNotFoundException;
     
     String hashPassword(String password) throws NoSuchAlgorithmException;
-
 }

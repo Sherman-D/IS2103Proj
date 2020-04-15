@@ -1,10 +1,10 @@
 package is2103assignment2kioskclient;
 
+import ejb.session.singleton.QueueGeneratorSessionBeanRemote;
 import ejb.session.stateless.AppointmentEntitySessionBeanRemote;
 import ejb.session.stateless.DoctorEntitySessionBeanRemote;
 import ejb.session.stateless.LeaveEntitySessionBeanRemote;
 import ejb.session.stateless.PatientEntitySessionBeanRemote;
-import ejb.session.stateless.StaffEntitySessionBeanRemote;
 import entity.AppointmentEntity;
 import entity.DoctorEntity;
 import entity.LeaveEntity;
@@ -22,7 +22,6 @@ import util.exception.DoctorNotFoundException;
 import util.exception.EntityInstanceExistsInCollectionException;
 import util.exception.EntityManagerException;
 import util.exception.InvalidLoginCredentialException;
-import util.exception.LeaveNotFoundException;
 
 public class MainApp {
     
@@ -30,18 +29,20 @@ public class MainApp {
     private AppointmentEntitySessionBeanRemote appointmentEntitySessionBeanRemote;
     private DoctorEntitySessionBeanRemote doctorEntitySessionBeanRemote;
     private PatientEntitySessionBeanRemote patientEntitySessionBeanRemote;
-    private StaffEntitySessionBeanRemote staffEntitySessionBeanRemote;
+    private QueueGeneratorSessionBeanRemote queueGeneratorSessionBeanRemote;
     private LeaveEntitySessionBeanRemote leaveEntitySessionBeanRemote;
     
     private PatientEntity currentPatientEntity;
-    
-     public MainApp(AppointmentEntitySessionBeanRemote appointmentEntitySessionBeanRemote, DoctorEntitySessionBeanRemote doctorEntitySessionBeanRemote,  PatientEntitySessionBeanRemote patientEntitySessionBeanRemote, StaffEntitySessionBeanRemote staffEntitySessionBeanRemote) 
-    {        
+
+    public MainApp(AppointmentEntitySessionBeanRemote appointmentEntitySessionBeanRemote, DoctorEntitySessionBeanRemote doctorEntitySessionBeanRemote, PatientEntitySessionBeanRemote patientEntitySessionBeanRemote, QueueGeneratorSessionBeanRemote queueGeneratorSessionBeanRemote, LeaveEntitySessionBeanRemote leaveEntitySessionBeanRemote) {
         this.appointmentEntitySessionBeanRemote = appointmentEntitySessionBeanRemote;
         this.doctorEntitySessionBeanRemote = doctorEntitySessionBeanRemote;
         this.patientEntitySessionBeanRemote = patientEntitySessionBeanRemote;
-        this.staffEntitySessionBeanRemote = staffEntitySessionBeanRemote;
+        this.queueGeneratorSessionBeanRemote = queueGeneratorSessionBeanRemote;
+        this.leaveEntitySessionBeanRemote = leaveEntitySessionBeanRemote;
     }
+    
+
     
     public void runApp(){
         Scanner scanner = new Scanner(System.in);
@@ -76,7 +77,7 @@ public class MainApp {
                                                
                         menuMain();
                     }
-                    catch(InvalidLoginCredentialException | EntityManagerException ex) 
+                    catch(InvalidLoginCredentialException | EntityManagerException | NoSuchAlgorithmException ex) 
                     {
                         System.out.println("Invalid login credential: " + ex.getMessage() + "\n");
                     }
@@ -157,7 +158,7 @@ public class MainApp {
     }
     
     
-    private void doLogin() throws InvalidLoginCredentialException,  EntityManagerException
+    private void doLogin() throws InvalidLoginCredentialException, EntityManagerException, NoSuchAlgorithmException
     {
         Scanner scanner = new Scanner(System.in);
         String iN = "";
@@ -243,7 +244,6 @@ public class MainApp {
         
         private void doRegisterWalkIn()
         {
-            int queueNumber = 0;//TEMPORARY VARIABLE - Replace with queueNumber method from session bean
             Scanner scanner = new Scanner(System.in);
             System.out.println("*** Self-Service Kiosk :: Register Walk-In Consultation ***\n");
 
@@ -254,8 +254,8 @@ public class MainApp {
             try 
             {
             List<DoctorEntity> doctorList = doctorEntitySessionBeanRemote.retrieveAllDoctors();
-            List<LeaveEntity> leaveToday = leaveEntitySessionBeanRemote.retrieveLeaveByDate(now);
-            List<DoctorEntity> present = new ArrayList<DoctorEntity>();
+            List<LeaveEntity> leaveToday = leaveEntitySessionBeanRemote.retrieveLeaveByDate(now.toLocalDate());
+            List<DoctorEntity> present = new ArrayList<>();
             String availString ="";
             
             //print list of doctors not on leave
@@ -343,12 +343,13 @@ public class MainApp {
            
             AppointmentEntity ae = new AppointmentEntity(currentPatientEntity.getPatientId(), doctorId, fin);
             ae.setIsConfirmed(true);
+            int queueNumber = queueGeneratorSessionBeanRemote.getNextQueueNumber();
             System.out.println(currentPatientEntity.getFirstName() + " " + currentPatientEntity.getLastName() + " with Dr." + chosenDoctor.getFullName() + " has been booked at " + time);
             System.out.printf("Queue Number is %d. \n", queueNumber);
             
             
             
-        } catch (LeaveNotFoundException | DoctorNotFoundException ex) 
+        } catch (DoctorNotFoundException ex) 
         {
             System.out.println("Error in walk-in registration"+ ex.getMessage()+"\n");
         }
@@ -357,7 +358,6 @@ public class MainApp {
         
         private void doRegisterAppointment(){
              
-            int queueNumber = 0;//TEMPORARY VARIABLE - Replace with queueNumber method from session bean
             Scanner scanner = new Scanner(System.in);
             System.out.println("*** Self-Service Kiosk :: Register Consultation By Appointment ***\n");
 
@@ -376,11 +376,12 @@ public class MainApp {
             
             AppointmentEntity ae = appointmentEntitySessionBeanRemote.retrieveAppointmentByAppointmentId(appointmentId);
             ae.setIsConfirmed(true);
+            int queueNumber = queueGeneratorSessionBeanRemote.getNextQueueNumber();
             
             DoctorEntity de = doctorEntitySessionBeanRemote.retrieveDoctorByDoctorId(ae.getDoctorId());
             System.out.println(currentPatientEntity.getFirstName()+" "+currentPatientEntity.getLastName()+" appointment is confirmed with Dr. "+de.getFullName()+" at "+ae.getAppointmentTime());
-            
             System.out.printf("Queue Number is %d. \n", queueNumber);
+            
             }
             catch(AppointmentNotFoundException | DoctorNotFoundException ex)
             {
@@ -477,7 +478,7 @@ public class MainApp {
             
             System.out.println(currentPatientEntity.getFirstName() + " "  + currentPatientEntity.getLastName() + " with " + de.getFullName()+" at"+time+" on "+date+" has been cancelled.");
             }
-            catch(AppointmentNotFoundException | DoctorNotFoundException ex)
+            catch (AppointmentNotFoundException | DoctorNotFoundException ex)
             {
                 System.out.println("Error cancelling appointment: " +ex.getMessage());
             }

@@ -21,12 +21,18 @@ import util.exception.PatientNotFoundException;
 import util.exception.StaffNotFoundException;
 
 public class AdministrationOperationModule {
-    private PatientEntitySessionBeanRemote patientEntitySessionBeanRemote;
-    private AppointmentEntitySessionBeanRemote appointmentEntitySessionBeanRemote;
     private DoctorEntitySessionBeanRemote doctorEntitySessionBeanRemote;
-    private StaffEntitySessionBeanRemote staffEntitySessionBeanRemote;
+    private PatientEntitySessionBeanRemote patientEntitySessionBeanRemote;
     private LeaveEntitySessionBeanRemote leaveEntitySessionBeanRemote;
+    private StaffEntitySessionBeanRemote staffEntitySessionBeanRemote;
 
+    public AdministrationOperationModule(DoctorEntitySessionBeanRemote doctorEntitySessionBeanRemote, PatientEntitySessionBeanRemote patientEntitySessionBeanRemote, LeaveEntitySessionBeanRemote leaveEntitySessionBeanRemote, StaffEntitySessionBeanRemote staffEntitySessionBeanRemote) {
+        this.doctorEntitySessionBeanRemote = doctorEntitySessionBeanRemote;
+        this.patientEntitySessionBeanRemote = patientEntitySessionBeanRemote;
+        this.leaveEntitySessionBeanRemote = leaveEntitySessionBeanRemote;
+        this.staffEntitySessionBeanRemote = staffEntitySessionBeanRemote;
+    }
+    
     public void menuAdministrationOperation()
     {
         Scanner scanner = new Scanner(System.in);
@@ -152,7 +158,7 @@ public class AdministrationOperationModule {
         System.out.println("Enter Gender> ");
         String gender = scanner.nextLine().trim();
         System.out.println("Enter Age> ");
-        String age = scanner.nextLine().trim();
+        Integer age = Integer.parseInt(scanner.nextLine().trim());
         System.out.println("Enter Phone> ");
         String phone = scanner.nextLine().trim();
         System.out.println("Enter Address> ");
@@ -161,15 +167,10 @@ public class AdministrationOperationModule {
         try
         {
             String passwordHash = patientEntitySessionBeanRemote.hashPassword(password);
-            Integer age1 = Integer.parseInt(age);
-            patientEntitySessionBeanRemote.createNewPatient(new PatientEntity(identityNumber, passwordHash, firstName, lastName, gender, age1, phone, address));
+            patientEntitySessionBeanRemote.createNewPatient(new PatientEntity(identityNumber, passwordHash, firstName, lastName, gender, age, phone, address));
             System.out.println("Patient has been registered successfully!");
         }
-        catch (EntityInstanceExistsInCollectionException ex)
-        {
-            System.out.println("An error has occurred while registering the new patient: " + ex.getMessage() + "\n");
-        }
-        catch(NoSuchAlgorithmException ex)
+        catch (EntityInstanceExistsInCollectionException | NoSuchAlgorithmException ex)
         {
             System.out.println("An error has occurred while registering the new patient: " + ex.getMessage() + "\n");
         }
@@ -177,7 +178,7 @@ public class AdministrationOperationModule {
     }
 
     
-    private void doViewPatient() //details
+    private void doViewPatient()
     {
         Scanner scanner = new Scanner(System.in);
 
@@ -223,28 +224,22 @@ public class AdministrationOperationModule {
             System.out.println("Enter Gender> ");
             String gender = scanner.nextLine().trim();
             System.out.println("Enter Age> ");
-            String age = scanner.nextLine().trim();
+            Integer age = Integer.parseInt(scanner.nextLine().trim());
             System.out.println("Enter Phone> ");
             String phone = scanner.nextLine().trim();
             System.out.println("Enter Address> ");
             String address = scanner.nextLine();
 
-            Integer age1 = Integer.parseInt(age);
-            PatientEntity pe1 = new PatientEntity(identityNumber, password, firstName, lastName, gender, age1, phone, address);
+            PatientEntity pe1 = new PatientEntity(identityNumber, password, firstName, lastName, gender, age, phone, address);
             pe1.setPatientId(patientId);
             patientEntitySessionBeanRemote.updatePatient(pe1);
 
         }
-        catch(PatientNotFoundException ex)
+        catch(EntityMismatchException | PatientNotFoundException ex)
         {
             System.out.println("An error has occurred while updating the patient details: " + ex.getMessage() + "\n");
 
         }
-        catch(EntityMismatchException ex)
-        {
-            System.out.println("An error has occurred while updating the patient details: " + ex.getMessage() + "\n");
-        }
-
     }
 
     private void doDeletePatient()
@@ -270,12 +265,9 @@ public class AdministrationOperationModule {
 
     private void doViewAllPatients()
     {
-        Scanner scanner = new Scanner(System.in);
 
         System.out.println("*** CARS :: Administration Operation :: Patient Management :: View All Patients ***\n");
 
-//        try
-//        {
         List<PatientEntity> patientList = patientEntitySessionBeanRemote.retrieveAllPatients();
         String header = String.format("%s-1|%s-10|%s-10|%s-1|%s-1|%s-4|%s", "patientId", "First Name", "Last Name", "Gender", "Age", "Phone", "Address");
         System.out.println(header);
@@ -284,11 +276,6 @@ public class AdministrationOperationModule {
             String patientDetails = String.format("%s-1|%s-10|%s-10|%s-1|%s-1|%s-4|%s", pe.getPatientId(), pe.getFirstName(), pe.getLastName(), pe.getGender(), pe.getAge(), pe.getPhone(), pe.getAddress());
             System.out.println(patientDetails);
         }
-//        }
-//        catch()
-//        {
-//
-//        }
     }
 
     private void doManageDoctors()
@@ -434,14 +421,10 @@ public class AdministrationOperationModule {
             doctorEntitySessionBeanRemote.updateDoctor(de1);
 
         }
-        catch(DoctorNotFoundException ex)
+        catch(DoctorNotFoundException | EntityMismatchException ex)
         {
             System.out.println("An error has occurred while updating the doctor details: " + ex.getMessage() + "\n");
 
-        }
-        catch(EntityMismatchException ex)
-        {
-            System.out.println("An error has occurred while updating the doctor details: " + ex.getMessage() + "\n");
         }
     }
 
@@ -660,8 +643,6 @@ public class AdministrationOperationModule {
 
     private void doViewAllStaff()
     {
-        Scanner scanner = new Scanner(System.in);
-
         System.out.println("*** CARS :: Administration Operation :: Staff Management :: View All Staff ***\n");
 
         List<StaffEntity> staffList = staffEntitySessionBeanRemote.retrieveAllStaffs();

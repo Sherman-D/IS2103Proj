@@ -1,12 +1,13 @@
 package ejb.session.stateless;
 
 import entity.StaffEntity;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
-import javax.management.Query;
+import javax.persistence.Query;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
@@ -92,7 +93,7 @@ public class StaffEntitySessionBean implements StaffEntitySessionBeanLocal, Staf
     
     
     @Override
-    public StaffEntity staffLogin(String username, String password) throws InvalidLoginCredentialException
+    public StaffEntity staffLogin(String username, String password) throws InvalidLoginCredentialException, NoSuchAlgorithmException
     {
         try
         {
@@ -111,6 +112,10 @@ public class StaffEntitySessionBean implements StaffEntitySessionBeanLocal, Staf
         catch(StaffNotFoundException ex)
         {
             throw new InvalidLoginCredentialException("Username or password is incorrect!");
+        }
+         catch (NoSuchAlgorithmException ex)
+        {
+            throw new NoSuchAlgorithmException("Login error. Please contact an administrator.");
         }
     }
     
@@ -139,7 +144,8 @@ public class StaffEntitySessionBean implements StaffEntitySessionBeanLocal, Staf
     }
     
     @Override
-    public String hashPassword(String password) throws NoSuchAlgorithmException{
+    public String hashPassword(String password) throws NoSuchAlgorithmException
+    {
         MessageDigest md = MessageDigest.getInstance("MD5");
         md.update(password.getBytes());
         byte[] b = md.digest();
