@@ -422,25 +422,45 @@ public class MainApp {
                 LocalDate now = LocalDate.now();
                 LocalDate twoDays = now.plusDays(2);
                 if(date.isBefore(twoDays)){
-                throw new EntityManagerException();
+                  System.out.println("Error: Appointments cannot be made less than two days to the consultation date.");
+                  return;
                 }
                 DoctorEntity chosenDoctor = doctorEntitySessionBeanRemote.retrieveDoctorByDoctorId(doctorId);
                 System.out.println("Availability for "+ chosenDoctor.getFullName()+" on "+d);
-                //help here
+                StringBuilder slots = new StringBuilder();
+           
+                List<LocalTime> availableSlots = appointmentEntitySessionBeanRemote.retrieveDoctorAvailableSlotsOnDay(chosenDoctor, date);
+
+                if (availableSlots.isEmpty()) {
+                    System.out.println("This doctor is has no open consultation sessions on the selected date.");
+                    return;
+                }
+
+                for (LocalTime time : availableSlots) {
+                    slots.append(time.toString());
+                    slots.append(" ");
+                }
+                System.out.println(slots.toString());
+
+                LocalTime time = LocalTime.MIDNIGHT;
+
+                while (true) {
+                    System.out.println("Enter Time> ");
+                    String t = scanner.nextLine().trim();
+                    time = LocalTime.parse(t);
+
+                    if (!availableSlots.contains(time)) {
+                        System.out.println("That timing is not available. Please choose another time slot");
+                        continue;
+                    }
+                    break;
+                }
                 
-                System.out.println();
-                System.out.println("Enter Time>");
-                String t = scanner.nextLine().trim();
-                LocalTime time = LocalTime.parse(t);
-//                ArrayList<Integer> arr = time.split(":"); // arr[0] is hr and arr[1] is min
-//                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-                LocalDateTime dateTime = time.atDate(date);
-                
-                appointmentEntitySessionBeanRemote.createNewAppointment(new AppointmentEntity(currentPatientEntity.getPatientId(), doctorId, dateTime ));
+                appointmentEntitySessionBeanRemote.createNewAppointment(new AppointmentEntity(currentPatientEntity.getPatientId(), doctorId, date.atTime(time) ));
                
-                System.out.println(currentPatientEntity.getFirstName()+" "+currentPatientEntity.getLastName()+" appointment with "+chosenDoctor.getFullName()+" at "+t+" on "+d+" has been added.");    
+                System.out.println(currentPatientEntity.getFirstName()+" "+currentPatientEntity.getLastName()+" appointment with "+chosenDoctor.getFullName()+" at "+ time +" on "+d+" has been added.");    
             }
-                catch(DoctorNotFoundException |  EntityManagerException ex)
+                catch(DoctorNotFoundException ex)
             {
                 System.out.println("Error adding appointment: "+ex.getMessage());
             }

@@ -146,7 +146,12 @@ public class AppointmentOperationModule {
            
             List<LocalTime> availableSlots = appointmentEntitySessionBeanRemote.retrieveDoctorAvailableSlotsOnDay(de, date);
             
-            if (!availableSlots.isEmpty()) {
+            if (availableSlots.isEmpty())
+            {
+                System.out.println("This doctor is has no open consultation sessions on the selected date.");
+                return;
+            }
+            
             for (LocalTime time : availableSlots) 
             {
                 slots.append(time.toString());
@@ -165,11 +170,8 @@ public class AppointmentOperationModule {
                 if (!availableSlots.contains(time)) {
                     System.out.println("That timing is not available. Please choose another time slot");
                     continue;
-                }
-                
-                break;
             }
-        
+                
         
             System.out.println("Enter Patient Identity Number> ");
             //Error checking if the ID entered does not belong to a registered patient
