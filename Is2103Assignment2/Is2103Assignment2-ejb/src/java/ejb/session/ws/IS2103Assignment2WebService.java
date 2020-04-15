@@ -1,6 +1,7 @@
 package ejb.session.ws;
 
 import ejb.session.stateless.AppointmentEntityControllerLocal;
+import ejb.session.stateless.DoctorEntityControllerLocal;
 import ejb.session.stateless.PatientEntityControllerLocal;
 import entity.AppointmentEntity;
 import entity.DoctorEntity;
@@ -31,6 +32,8 @@ public class IS2103Assignment2WebService
     private AppointmentEntityControllerLocal appointmentEntityControllerLocal;
     @EJB
     private PatientEntityControllerLocal patientEntityControllerLocal;
+    @EJB
+    private DoctorEntityControllerLocal doctorEntityControllerLocal;
     
     
 //    
@@ -112,7 +115,8 @@ public class IS2103Assignment2WebService
     @WebMethod (operationName = "retrieveDoctorsAvailableOnDate")
    public List<String> retrieveDoctorsAvailableOnDate(@WebParam(name ="date") String date) 
    {
-        return doctorEntityControllerLocal.retrieveDoctorsAvailableOnDate(date);
+       LocalDate d = LocalDate.parse(date);
+        return doctorEntityControllerLocal.retrieveDoctorsAvailableOnDate(d);
    }
    
    @WebMethod(operationName = "retrieveDoctorByDoctorId")
