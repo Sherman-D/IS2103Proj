@@ -393,6 +393,7 @@ public class MainApp {
         private void doViewAppointment(){
             System.out.println("*** Self-Service Kiosk :: View Appointments ***\n");
             System.out.println("Appointments:");
+            System.out.printf("%s-1|%s-7|%s-3|%s", "Id", "Date", "Time", "Doctor");
             List<String> ls = appointmentEntitySessionBeanRemote.retrieveAppointmentByPatientIdentityNo(currentPatientEntity.getIdentityNumber());
             for(String each: ls){
                 System.out.println(each);
@@ -471,7 +472,7 @@ public class MainApp {
             System.out.println("*** Self-Service Kiosk :: Cancel Appointment ***\n");
             
             System.out.println("Appointments:");
-            System.out.println("Id |Date       |Time  |Doctor ");
+            System.out.printf("%s-1|%s-7|%s-3|%s", "Id", "Date", "Time", "Doctor");
             List<String> appts = appointmentEntitySessionBeanRemote.retrieveAppointmentByPatientIdentityNo(currentPatientEntity.getIdentityNumber());
             
             for(String s : appts){

@@ -8,6 +8,7 @@ import entity.DoctorEntity;
 import entity.PatientEntity;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Scanner;
 import util.exception.AppointmentAlreadyCancelledException;
@@ -94,6 +95,7 @@ public class AppointmentOperationModule {
         PatientEntity patient = patientEntitySessionBeanRemote.retrievePatientByIdentityNumber(patientIdentityNumber);
         
         System.out.println("Appointments: ");
+        System.out.printf("%s-1|%s-7|%s-3|%s", "Id", "Date", "Time", "Doctor");
         List<String> appointments = appointmentEntitySessionBeanRemote.retrieveAppointmentByPatientIdentityNo(patient.getPatientId().toString());
         
         for (String appointment : appointments)
@@ -202,6 +204,7 @@ public class AppointmentOperationModule {
             PatientEntity patient = patientEntitySessionBeanRemote.retrievePatientByIdentityNumber(patientId);
             
             System.out.println("Appointments: ");
+            System.out.printf("%s-1|%s-7|%s-3|%s", "Id", "Date", "Time", "Doctor");
             List<String> appointments = appointmentEntitySessionBeanRemote.retrieveAppointmentByPatientIdentityNo(patientId);
             for (String appointment : appointments)
             {
@@ -210,11 +213,14 @@ public class AppointmentOperationModule {
             
             System.out.println("Enter Appointment Id> ");
             Long appointmentId = Long.parseLong(scanner.nextLine().trim());
+            AppointmentEntity appointment = appointmentEntitySessionBeanRemote.retrieveAppointmentByAppointmentId(appointmentId);
+            DoctorEntity de = doctorEntitySessionBeanRemote.retrieveDoctorByDoctorId(appointment.getDoctorId());
+            LocalDateTime appointmentTime = appointment.getAppointmentTime();
             
-            appointmentEntitySessionBeanRemote.cancelAppointment(appointmentEntitySessionBeanRemote.retrieveAppointmentByAppointmentId(appointmentId));
+            appointmentEntitySessionBeanRemote.cancelAppointment(appointment);
             //Send cancel status to database entry. 
-             //System.out.printf(%s%s appointment with Dr. %s%s at %tH:%tM on %tY-%tM-%tD has been cancelled, patientFirstName, patientLastName, doctorFirstName, doctorLastName, appointmentTIme, appointmentTIme, appointmentTIme, appointmentTIme, appointmentTIme);
-        } catch(AppointmentNotFoundException | AppointmentAlreadyCancelledException |EntityMismatchException | PatientNotFoundException ex)
+           System.out.printf("%s%s appointment with Dr. %s at %d:%d on %d-%d-%d has been added", patient.getFirstName(), patient.getLastName(), de.getFullName(), appointmentTime.getHour(), appointmentTime.getMinute(), appointmentTime.getYear(), appointmentTime.getMonth(), appointmentTime.getDayOfMonth());
+        } catch(AppointmentNotFoundException | AppointmentAlreadyCancelledException |EntityMismatchException | PatientNotFoundException |DoctorNotFoundException ex)
         {
             System.out.println("Error: " + ex.getMessage());
         }
