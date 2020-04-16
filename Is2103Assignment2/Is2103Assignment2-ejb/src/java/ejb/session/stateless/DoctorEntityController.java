@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.DoctorEntity;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import javax.ejb.Local;

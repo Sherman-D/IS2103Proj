@@ -42,7 +42,15 @@ public class PatientEntitySessionBean implements PatientEntitySessionBeanLocal, 
     @Override
     public Long createNewPatient(PatientEntity newPatientEntity) throws EntityInstanceExistsInCollectionException
     {
-        PatientEntity existingPatientEntity = entityManager.find(PatientEntity.class, newPatientEntity.getIdentityNumber());
+        PatientEntity existingPatientEntity = null;
+        try {
+        Query query = entityManager.createQuery("SELECT p FROM PatientEntity p where p.identityNumber = :searchId");
+        query.setParameter("searchId", newPatientEntity.getIdentityNumber());
+        existingPatientEntity = (PatientEntity) query.getSingleResult();
+        } catch (NoResultException ex)
+       {
+            
+        }
         
         if (existingPatientEntity == null) {
             entityManager.persist(newPatientEntity);

@@ -7,7 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 @Entity
 public class AppointmentEntity implements Serializable, Comparable<AppointmentEntity>  
@@ -19,16 +20,17 @@ public class AppointmentEntity implements Serializable, Comparable<AppointmentEn
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long appointmentId;
     
-    @OneToOne
-    @Column(nullable = false)
-    private Long patientId;
+    @ManyToOne
+    @JoinColumn(name = "patientId", nullable = false)
+    private PatientEntity patient;
     
-    @OneToOne
-    @Column(nullable = false)
-    private Long doctorId; 
+    @ManyToOne
+    @JoinColumn(name = "doctorId", nullable = false)
+    private DoctorEntity doctor; 
     
     @Column(nullable = false)
     private LocalDateTime appointmentTime;
+    
     private Boolean isCancelled = false;
     private Boolean isConfirmed = false;
     
@@ -36,9 +38,9 @@ public class AppointmentEntity implements Serializable, Comparable<AppointmentEn
     public AppointmentEntity() {
     }
 
-    public AppointmentEntity(Long patientId, Long doctorId, LocalDateTime appointmentTime) {
-        this.patientId = patientId;
-        this.doctorId = doctorId;
+    public AppointmentEntity(PatientEntity patient, DoctorEntity doctor, LocalDateTime appointmentTime) {
+        this.patient = patient;
+        this.doctor = doctor;
         this.appointmentTime = appointmentTime;
     }
     
@@ -81,12 +83,29 @@ public class AppointmentEntity implements Serializable, Comparable<AppointmentEn
         return appointmentId;
     }
 
+    public PatientEntity getPatient() {
+        return patient;
+    }
+
+    public void setPatient(PatientEntity patient) {
+        this.patient = patient;
+    }
+
+    public DoctorEntity getDoctor() {
+        return doctor;
+    }
+
+    public void setDoctor(DoctorEntity doctor) {
+        this.doctor = doctor;
+    }
+
+    
     public Long getPatientId() {
-        return patientId;
+        return patient.getPatientId();
     }
 
     public Long getDoctorId() {
-        return doctorId;
+        return doctor.getDoctorId();
     }
 
     public LocalDateTime getAppointmentTime() {

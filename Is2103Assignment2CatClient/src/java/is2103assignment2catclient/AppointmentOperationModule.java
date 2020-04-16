@@ -180,7 +180,7 @@ public class AppointmentOperationModule {
             String patientId = scanner.nextLine().trim();
             PatientEntity patient = patientEntitySessionBeanRemote.retrievePatientByIdentityNumber(patientId);
         
-            appointmentEntitySessionBeanRemote.createNewAppointment(new AppointmentEntity(patient.getPatientId(), doctorId, date.atTime(time)));
+            appointmentEntitySessionBeanRemote.createNewAppointment(new AppointmentEntity(patient, de, date.atTime(time)));
         
             System.out.printf("%s%s appointment with Dr. %s at %d:%d on %d-%d-%d has been added", patient.getFirstName(), patient.getLastName(), de.getFullName(), time.getHour(), time.getMinute(), date.getYear(), date.getMonth(), date.getDayOfMonth());
             }

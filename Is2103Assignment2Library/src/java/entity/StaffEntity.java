@@ -20,8 +20,6 @@ public class StaffEntity implements Serializable, Comparable<StaffEntity>
     private String userName;
     @Column(nullable = false)
     private String password;
-    @Column (nullable = false)
-    private String salt;
 
     public StaffEntity() {
     }

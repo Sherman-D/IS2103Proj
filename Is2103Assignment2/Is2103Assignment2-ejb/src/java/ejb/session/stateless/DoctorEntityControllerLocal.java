@@ -6,7 +6,7 @@
 package ejb.session.stateless;
 
 import entity.DoctorEntity;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import javax.ejb.Local;
 import util.exception.DoctorNotFoundException;

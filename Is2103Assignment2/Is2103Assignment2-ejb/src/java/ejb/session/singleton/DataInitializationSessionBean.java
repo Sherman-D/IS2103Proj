@@ -49,6 +49,15 @@ public class DataInitializationSessionBean
     
     private void initializeData()
     {
+        
+        
+        staffEntitySessionBeanLocal.createNewStaff(new StaffEntity("Eric", "Some", "manager", "password"));
+        staffEntitySessionBeanLocal.createNewStaff(new StaffEntity("Victoria", "Newton", "nurse", "password"));
+        
+        doctorEntitySessionBeanLocal.createNewDoctor(new DoctorEntity("Tan", "Ming", "S10011", "BMBS"));
+        doctorEntitySessionBeanLocal.createNewDoctor(new DoctorEntity("Clair", "Hahn", "S41221", "MBBCh"));
+        doctorEntitySessionBeanLocal.createNewDoctor(new DoctorEntity("Robert", "Blake", "S58201", "MBBS"));
+        
         clinicEntitySessionBeanLocal.createNewClinicTiming(new ClinicEntity("MONDAY", "08:30", "12:30"));
         clinicEntitySessionBeanLocal.createNewClinicTiming(new ClinicEntity("MONDAY", "13:30", "18:00"));
         clinicEntitySessionBeanLocal.createNewClinicTiming(new ClinicEntity("TUESDAY", "08:30", "12:30"));
@@ -59,14 +68,6 @@ public class DataInitializationSessionBean
         clinicEntitySessionBeanLocal.createNewClinicTiming(new ClinicEntity("THURSDAY", "13:30", "17:00"));
         clinicEntitySessionBeanLocal.createNewClinicTiming(new ClinicEntity("FRIDAY", "08:30", "12:30"));
         clinicEntitySessionBeanLocal.createNewClinicTiming(new ClinicEntity("FRIDAY", "13:30", "17:30"));
-        
-        
-        staffEntitySessionBeanLocal.createNewStaff(new StaffEntity("Eric", "Some", "manager", "password"));
-        staffEntitySessionBeanLocal.createNewStaff(new StaffEntity("Victoria", "Newton", "nurse", "password"));
-        
-        doctorEntitySessionBeanLocal.createNewDoctor(new DoctorEntity("Tan", "Ming", "S10011", "BMBS"));
-        doctorEntitySessionBeanLocal.createNewDoctor(new DoctorEntity("Clair", "Hahn", "S41221", "MBBCh"));
-        doctorEntitySessionBeanLocal.createNewDoctor(new DoctorEntity("Robert", "Blake", "S58201", "MBBS"));
         
         try 
         {

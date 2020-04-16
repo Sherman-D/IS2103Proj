@@ -5,20 +5,20 @@
  */
 package is2103assignment2amsclient;
 
-import entity.AppointmentEntity;
-import entity.DoctorEntity;
-import entity.PatientEntity;
-import java.security.NoSuchAlgorithmException;
-import java.time.LocalDateTime;
 import java.time.*;
 import java.util.List;
 import java.util.Scanner;
-import util.exception.AppointmentAlreadyCancelledException;
-import util.exception.AppointmentNotFoundException;
-import util.exception.DoctorNotFoundException;
-import util.exception.EntityInstanceExistsInCollectionException;
-import util.exception.EntityMismatchException;
-import util.exception.InvalidLoginCredentialException;
+import ws.client.ams.AppointmentAlreadyCancelledException_Exception;
+import ws.client.ams.AppointmentEntity;
+import ws.client.ams.AppointmentNotFoundException_Exception;
+import ws.client.ams.DoctorEntity;
+import ws.client.ams.DoctorNotFoundException_Exception;
+import ws.client.ams.EntityInstanceExistsInCollectionException_Exception;
+import ws.client.ams.EntityMismatchException_Exception;
+import ws.client.ams.InvalidLoginCredentialException_Exception;
+import ws.client.ams.NoSuchAlgorithmException_Exception;
+import ws.client.ams.PatientEntity;
+import ws.client.ams.PatientNotFoundException_Exception;
 
 public class MainApp {
 
@@ -102,7 +102,7 @@ public class MainApp {
             PatientEntity patient  = createNewPatient(identityNumber, password, firstName, lastName, gender, age, phone, address);
             currentPatient = patient;
             menuMain();
-        } catch (EntityInstanceExistsInCollectionException /*| NoSuchAlgorithmException*/ ex) {
+        } catch (EntityInstanceExistsInCollectionException_Exception | NoSuchAlgorithmException_Exception ex) {
             System.out.println("An error has occurred while creating your account: " + ex.getMessage() + "\n");
         }
     }
@@ -119,12 +119,16 @@ public class MainApp {
         System.out.print("Enter Password> ");
         password = scanner.nextLine().trim();
 
+        try {
         if (iN.length() > 0 && password.length() > 0) {
             PatientEntity patient = patientLogin(iN, password);
             currentPatient = patient;
             menuMain();
         } else {
             System.out.println("Missing login credential!");
+        }
+        } catch (InvalidLoginCredentialException_Exception | NoSuchAlgorithmException_Exception ex) {
+            System.out.println("Incorrect login credential!");
         }
     }
 
@@ -160,7 +164,7 @@ public class MainApp {
                     doCancelAppointment();
 
                 } else if (response == 4) {
-                    currentPatient = new PatientEntity("", "", "", "", "", 0, "", "");
+                    currentPatient = new PatientEntity();
                     break;
                 } else {
                     System.out.println("Invalid option, please try again!\n");
@@ -168,7 +172,7 @@ public class MainApp {
             }
 
             if (response == 4) {
-                currentPatient = new PatientEntity("", "", "", "", "", 0, "", "");
+                currentPatient = new PatientEntity();
                 break;
             }
         }
@@ -197,8 +201,8 @@ public class MainApp {
         
         LocalDate now = LocalDate.now();
         try {
-            List<String> deList = retrieveDoctorsAvailableOnDate(now.toString());
-            for (String doctor : deList) 
+            List<DoctorEntity> deList = (List<DoctorEntity>) retrieveDoctorsAvailableOnDate(now.toString());
+            for (DoctorEntity doctor : deList) 
             { //print list of doctors
                 System.out.println(doctor);
             }
@@ -220,7 +224,7 @@ public class MainApp {
         
             
             DoctorEntity de = retrieveDoctorByDoctorId(doctorId);
-            System.out.println("Availability for " + de.getFullName() + " on " + d + ":");
+            System.out.println("Availability for " + de.getFirstName() + " " +  de.getLastName() + " on " + d + ":");
             List<String> availableSlots = retrieveDoctorAvailableSlotsOnDay(de.getDoctorId(), date.toString());
             
             if (availableSlots.isEmpty())
@@ -241,20 +245,20 @@ public class MainApp {
            while (true) 
             {
                 System.out.println("Enter Time> ");
-                String t = scanner.nextLine().trim();
-                time = LocalTime.parse(t);
+                String selectedTime = scanner.nextLine().trim();
                 
-                if (!availableSlots.contains(time)) {
+                
+                if (!availableSlots.contains(selectedTime)) {
                     System.out.println("That timing is not available. Please choose another time slot");
                     continue;
             }
         
             createNewAppointment(currentPatient.getPatientId(), doctorId, date.atTime(time).toString());
         
-            System.out.printf("%s%s appointment with Dr. %s at %d:%d on %d-%d-%d has been added.", currentPatient.getFirstName(), currentPatient.getLastName(), de.getFullName(), time.getHour(), time.getMinute(), date.getYear(), date.getMonth(), date.getDayOfMonth());
+            System.out.printf("%s%s appointment with Dr. %s %s at %d:%d on %d-%d-%d has been added.", currentPatient.getFirstName(), currentPatient.getLastName(), de.getFirstName(), de.getLastName(), time.getHour(), time.getMinute(), date.getYear(), date.getMonth(), date.getDayOfMonth());
             }
         
-        } catch (DoctorNotFoundException_Exception ex) {
+        } catch (DoctorNotFoundException_Exception | PatientNotFoundException_Exception ex) {
             System.out.println("No Doctors Found: " + ex.getMessage());
         }
     }
@@ -277,53 +281,56 @@ public class MainApp {
         Long appointmentId = Long.valueOf(in);
 
         try {
-            
-            cancelAppointment(appointmentId);
-            //Send cancel status to database entry. 
-           System.out.printf("%s%s appointment with Dr. %s at %d:%d on %d-%d-%d has been added", currentPatient.getFirstName(), currentPatient.getLastName(), de.getFullName(), appointmentTime.getHour(), appointmentTime.getMinute(), appointmentTime.getYear(), appointmentTime.getMonth(), appointmentTime.getDayOfMonth());
-        } catch (AppointmentNotFoundException | AppointmentAlreadyCancelledException | DoctorNotFoundException | DoctorNotFoundException ex) {
+            AppointmentEntity appointment = cancelAppointment(appointmentId);
+            DoctorEntity de = appointment.getDoctor();
+            LocalDateTime appointmentTime = appointment.getAppointmentTime();
+           System.out.printf("%s%s appointment with Dr. %s %s at %d:%d on %d-%d-%d has been cancelled", currentPatient.getFirstName(), currentPatient.getLastName(), de.getFirstName(), de.getLastName(), appointmentTime.getHour(), appointmentTime.getMinute(), appointmentTime.getYear(), appointmentTime.getMonth(), appointmentTime.getDayOfMonth());
+        } catch (AppointmentNotFoundException_Exception | AppointmentAlreadyCancelledException_Exception |  DoctorNotFoundException_Exception | EntityMismatchException_Exception ex) {
             System.out.println("Error cancelling appointment: " + ex.getMessage());
         }
     }
 
-    private static ws.client.ams.PatientEntity createNewPatient(java.lang.String identityNumber, java.lang.String password, java.lang.String firstName, java.lang.String lastName, java.lang.String gender, java.lang.Integer age, java.lang.String phone, java.lang.String address) throws EntityInstanceExistsInCollectionException_Exception
+    private static ws.client.ams.PatientEntity createNewPatient(java.lang.String identityNumber, java.lang.String password, java.lang.String firstName, java.lang.String lastName, java.lang.String gender, java.lang.Integer age, java.lang.String phone, java.lang.String address) 
+                throws EntityInstanceExistsInCollectionException_Exception, NoSuchAlgorithmException_Exception
     {
 
-        ws.client.ams.XXXXXX_Service service = new ws.client.ams.XXXXX_Service();
-        ws.client.ams.XXXXXX port = service.getXXXXXPort();
+        ws.client.ams.IS2103Assignment2WebService_Service service = new ws.client.ams.IS2103Assignment2WebService_Service();
+        ws.client.ams.IS2103Assignment2WebService port = service.getIS2103Assignment2WebServicePort();
 
         return port.createNewPatient(identityNumber, password, firstName, lastName, gender, age, phone, address);
     }
     
-    private static ws.client.ams.PatientEntity patientLogin(java.lang.String identityNumber, java.lang.String password) throws InvalidLoginCredentialException_Exception
+    private static ws.client.ams.PatientEntity patientLogin(java.lang.String identityNumber, java.lang.String password) 
+                throws InvalidLoginCredentialException_Exception, NoSuchAlgorithmException_Exception
     {
-        ws.client.ams.XXXXXX_Service service = new ws.client.ams.XXXXX_Service();
-        ws.client.ams.XXXXXX port = service.getXXXXXPort();
+        ws.client.ams.IS2103Assignment2WebService_Service service = new ws.client.ams.IS2103Assignment2WebService_Service();
+        ws.client.ams.IS2103Assignment2WebService port = service.getIS2103Assignment2WebServicePort();
         
-        return port.createNewPatient(identityNumber, password);
+        return port.patientLogin(identityNumber, password);
     }
     
     
     private static java.util.List<java.lang.String> retrieveAppointmentByPatientIdentityNo(java.lang.String identityNumber)
     {
-        ws.client.ams.XXXXXX_Service service = new ws.client.ams.XXXXX_Service();
-        ws.client.ams.XXXXXX port = service.getXXXXXPort();
+        ws.client.ams.IS2103Assignment2WebService_Service service = new ws.client.ams.IS2103Assignment2WebService_Service();
+        ws.client.ams.IS2103Assignment2WebService port = service.getIS2103Assignment2WebServicePort();
         
         return port.retrieveAppointmentByPatientIdentityNo(identityNumber);
     }
     
-   private static  java.util.List<java.lang.String> retrieveDoctorsAvailableOnDate(java.lang.String now) 
+   private static  java.util.List<ws.client.ams.DoctorEntity> retrieveDoctorsAvailableOnDate(java.lang.String now) 
+           throws DoctorNotFoundException_Exception
    {
-        ws.client.ams.XXXXXX_Service service = new ws.client.ams.XXXXX_Service();
-        ws.client.ams.XXXXXX port = service.getXXXXXPort();
+        ws.client.ams.IS2103Assignment2WebService_Service service = new ws.client.ams.IS2103Assignment2WebService_Service();
+        ws.client.ams.IS2103Assignment2WebService port = service.getIS2103Assignment2WebServicePort();
         
         return port.retrieveDoctorsAvailableOnDate(now);
    }
    
    private static ws.client.ams.DoctorEntity retrieveDoctorByDoctorId(java.lang.Long doctorId) throws DoctorNotFoundException_Exception
    {
-       ws.client.ams.XXXXXX_Service service = new ws.client.ams.XXXXX_Service();
-       ws.client.ams.XXXXXX port = service.getXXXXXPort();
+       ws.client.ams.IS2103Assignment2WebService_Service service = new ws.client.ams.IS2103Assignment2WebService_Service();
+        ws.client.ams.IS2103Assignment2WebService port = service.getIS2103Assignment2WebServicePort();
         
         return port.retrieveDoctorByDoctorId(doctorId);
    }
@@ -331,26 +338,28 @@ public class MainApp {
    
    private static java.util.List<java.lang.String> retrieveDoctorAvailableSlotsOnDay(java.lang.Long doctorId, java.lang.String date)
    {
-       ws.client.ams.XXXXXX_Service service = new ws.client.ams.XXXXX_Service();
-       ws.client.ams.XXXXXX port = service.getXXXXXPort();
+       ws.client.ams.IS2103Assignment2WebService_Service service = new ws.client.ams.IS2103Assignment2WebService_Service();
+        ws.client.ams.IS2103Assignment2WebService port = service.getIS2103Assignment2WebServicePort();
         
-        return port.retrieveDoctorByDoctorId(doctorId, date);
+        return port.retrieveDoctorAvailableSlotsOnDay(doctorId, date);
    }
    
    
-   private static void createNewAppointment(java.lang.Long patientId, java.lang.Long doctorId, java.lang.String dateTime) 
+   private static void createNewAppointment(java.lang.Long patientId, java.lang.Long doctorId, java.lang.String dateTime)
+           throws DoctorNotFoundException_Exception, PatientNotFoundException_Exception
    {
-       ws.client.ams.XXXXXX_Service service = new ws.client.ams.XXXXX_Service();
-       ws.client.ams.XXXXXX port = service.getXXXXXPort();
+       ws.client.ams.IS2103Assignment2WebService_Service service = new ws.client.ams.IS2103Assignment2WebService_Service();
+        ws.client.ams.IS2103Assignment2WebService port = service.getIS2103Assignment2WebServicePort();
         
        port.createNewAppointment(patientId, doctorId, dateTime);
    }
    
-   private static void cancelAppointment(java.lang.Long appointmentId) throws AppointmentNotFoundException_Exception, AppointmentAlreadyCancelledException_Exception, DoctorNotFoundException_Exception
+   private static ws.client.ams.AppointmentEntity cancelAppointment(java.lang.Long appointmentId) 
+           throws AppointmentNotFoundException_Exception, AppointmentAlreadyCancelledException_Exception, DoctorNotFoundException_Exception, EntityMismatchException_Exception
    {
-       ws.client.ams.XXXXXX_Service service = new ws.client.ams.XXXXX_Service();
-       ws.client.ams.XXXXXX port = service.getXXXXXPort();
+       ws.client.ams.IS2103Assignment2WebService_Service service = new ws.client.ams.IS2103Assignment2WebService_Service();
+        ws.client.ams.IS2103Assignment2WebService port = service.getIS2103Assignment2WebServicePort();
         
-       port.createNewAppointment(appointmentId);
+       return port.cancelAppointment(appointmentId);
    }
 }

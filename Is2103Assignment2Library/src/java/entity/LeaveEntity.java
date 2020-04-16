@@ -2,12 +2,12 @@ package entity;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 
@@ -21,8 +21,8 @@ public class LeaveEntity implements Serializable, Comparable<LeaveEntity>
     private Long leaveId;
     
     @ManyToOne
-    @Column(nullable = false)
-    private Long doctorId;
+    @JoinColumn(name = "doctorId", nullable = false)
+    private DoctorEntity doctor;
     
     @Column(nullable = false)
     private LocalDate leaveDate;
@@ -30,8 +30,8 @@ public class LeaveEntity implements Serializable, Comparable<LeaveEntity>
     public LeaveEntity() {
     }
 
-    public LeaveEntity(Long doctorId, LocalDate leaveDate) {
-        this.doctorId = doctorId;
+    public LeaveEntity(DoctorEntity doctor, LocalDate leaveDate) {
+        this.doctor = doctor;
         this.leaveDate = leaveDate;
     }
 
@@ -42,11 +42,12 @@ public class LeaveEntity implements Serializable, Comparable<LeaveEntity>
     public void setLeaveId(Long leaveId){ this.leaveId = leaveId; }
     
     public Long getDoctorId() {
-        return doctorId;
+        return doctor.getDoctorId();
     }
-
-    public void setDoctorId(Long doctorId) {
-        this.doctorId = doctorId;
+    
+    public DoctorEntity getDoctorEntity() 
+    {
+        return this.doctor;
     }
 
     public LocalDate getLeaveDate() {

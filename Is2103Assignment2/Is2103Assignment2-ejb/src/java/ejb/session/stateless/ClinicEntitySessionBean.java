@@ -1,21 +1,20 @@
 package ejb.session.stateless;
 
 import entity.ClinicEntity;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import javax.ejb.Local;
 import javax.ejb.Stateless;
-import javax.ejb.LocalBean;
 import javax.ejb.Remote;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 @Stateless
-@LocalBean
-@Remote
+@Local(ClinicEntitySessionBeanLocal.class)
+@Remote(ClinicEntitySessionBeanRemote.class)
 public class ClinicEntitySessionBean implements ClinicEntitySessionBeanLocal, ClinicEntitySessionBeanRemote {
 
     @PersistenceContext(unitName = "Is2103Assignment2-ejbPU")

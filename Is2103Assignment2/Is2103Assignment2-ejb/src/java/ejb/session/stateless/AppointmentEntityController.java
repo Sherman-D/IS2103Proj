@@ -66,7 +66,7 @@ public class AppointmentEntityController implements AppointmentEntityControllerL
      @Override
     public List<String> retrieveAppointmentByPatientId(Long patientId)
     {
-        Query query = entityManager.createQuery("SELECT a FROM AppointmentEntity a , PatientEntity p WHERE p.identityNumber = :searchId AND p.patientId = a.patientId ").setParameter("searchId", patientId);
+        Query query = entityManager.createQuery("SELECT a FROM AppointmentEntity a , PatientEntity p WHERE p.patientId = :searchId AND p.patientId = a.patient ").setParameter("searchId", patientId);
         
         List<AppointmentEntity> patientAppointmentList = query.getResultList();
         
@@ -96,7 +96,7 @@ public class AppointmentEntityController implements AppointmentEntityControllerL
     
     
     @Override
-    public void cancelAppointment(AppointmentEntity appointmentEntity) throws EntityMismatchException, AppointmentAlreadyCancelledException
+    public AppointmentEntity cancelAppointment(AppointmentEntity appointmentEntity) throws EntityMismatchException, AppointmentAlreadyCancelledException
     {
         
         AppointmentEntity existingAppointmentEntity = entityManager.find(AppointmentEntity.class, appointmentEntity.getAppointmentId());
@@ -108,7 +108,9 @@ public class AppointmentEntityController implements AppointmentEntityControllerL
         
         if (existingAppointmentEntity.getAppointmentId().equals(appointmentEntity.getAppointmentId())) 
         {
+            appointmentEntity.cancelAppointment();
             entityManager.merge(appointmentEntity);
+            return appointmentEntity;
         } else 
         {
             throw new EntityMismatchException("The appointment record being cancelled does not match the one stored!");
@@ -116,10 +118,10 @@ public class AppointmentEntityController implements AppointmentEntityControllerL
     } 
     
     @Override
-    public List<LocalTime> retrieveDoctorAvailableSlotsOnDay(DoctorEntity doctorEntity, LocalDate date)
+    public List<LocalTime> retrieveDoctorAvailableSlotsOnDay(Long doctorId, LocalDate date)
     {
-        Query query = entityManager.createQuery("SELECT a FROM AppointmentEntity a WHERE a.doctorId = ?1 ");
-        query.setParameter(1, doctorEntity.getDoctorId());
+        Query query = entityManager.createQuery("SELECT a FROM AppointmentEntity a WHERE a.doctor= ?1 ");
+        query.setParameter(1, doctorId);
         
         List<AppointmentEntity> appointments = query.getResultList();
         List<LocalTime> slotsOnDate = new ArrayList<>();
@@ -131,7 +133,7 @@ public class AppointmentEntityController implements AppointmentEntityControllerL
             }
         }
         
-        query = entityManager.createQuery("SELECT c FROM ClinicEntity c WHERE c.day = :searchDay");
+        query = entityManager.createQuery("SELECT c FROM ClinicEntity c WHERE c.operationDay = :searchDay");
         query.setParameter("searchDay", date.getDayOfWeek().toString());
         List<ClinicEntity> clinicTimings = query.getResultList();
         
@@ -163,7 +165,7 @@ public class AppointmentEntityController implements AppointmentEntityControllerL
     @Override
     public List<String> retrieveAppointmentByPatientIdentityNo(String patientId)
     {
-        Query query = entityManager.createQuery("SELECT a FROM AppointmentEntity a , PatientEntity p WHERE p.identityNumber = :searchId AND p.patientId = a.patientId ").setParameter("searchId", patientId);
+        Query query = entityManager.createQuery("SELECT a FROM AppointmentEntity a , PatientEntity p WHERE p.identityNumber = :searchId AND p.patientId = a.patient ").setParameter("searchId", patientId);
         
         List<AppointmentEntity> patientAppointmentList = query.getResultList();
         

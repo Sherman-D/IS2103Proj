@@ -1,17 +1,17 @@
 package ejb.session.singleton;
 
 import javax.annotation.PostConstruct;
+import javax.ejb.Local;
 import javax.ejb.Singleton;
-import javax.ejb.LocalBean;
 import javax.ejb.Remote;
 import javax.ejb.Startup;
 
 
 @Singleton
-@LocalBean
-@Remote
+@Local(QueueGeneratorSessionBeanLocal.class)
+@Remote(QueueGeneratorSessionBeanRemote.class)
 @Startup
-public class QueueGeneratorSessionBean {
+public class QueueGeneratorSessionBean implements QueueGeneratorSessionBeanLocal, QueueGeneratorSessionBeanRemote {
     private Integer queueNumber;
     
     public QueueGeneratorSessionBean()
@@ -26,6 +26,7 @@ public class QueueGeneratorSessionBean {
         queueNumber = 0;
     }
     
+    @Override
     public Integer getNextQueueNumber()
     {
         Integer newNumber = queueNumber.intValue();

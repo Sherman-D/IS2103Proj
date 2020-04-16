@@ -229,7 +229,7 @@ public class RegistrationOperationModule
                }
             }
            
-            AppointmentEntity ae = new AppointmentEntity(currentPatientEntity.getPatientId(), doctorId, fin);
+            AppointmentEntity ae = new AppointmentEntity(currentPatientEntity, chosenDoctor, fin);
             ae.setIsConfirmed(true);
             int queueNumber = queueGeneratorSessionBeanRemote.getNextQueueNumber();
             System.out.println(currentPatientEntity.getFirstName() + " " + currentPatientEntity.getLastName() + " with Dr." + chosenDoctor.getFullName() + " has been booked at " + time);

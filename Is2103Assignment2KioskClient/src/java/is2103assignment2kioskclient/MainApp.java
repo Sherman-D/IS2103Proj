@@ -341,7 +341,7 @@ public class MainApp {
                }
             }
            
-            AppointmentEntity ae = new AppointmentEntity(currentPatientEntity.getPatientId(), doctorId, fin);
+            AppointmentEntity ae = new AppointmentEntity(currentPatientEntity, chosenDoctor, fin);
             ae.setIsConfirmed(true);
             int queueNumber = queueGeneratorSessionBeanRemote.getNextQueueNumber();
             System.out.println(currentPatientEntity.getFirstName() + " " + currentPatientEntity.getLastName() + " with Dr." + chosenDoctor.getFullName() + " has been booked at " + time);
@@ -457,7 +457,7 @@ public class MainApp {
                     break;
                 }
                 
-                appointmentEntitySessionBeanRemote.createNewAppointment(new AppointmentEntity(currentPatientEntity.getPatientId(), doctorId, date.atTime(time) ));
+                appointmentEntitySessionBeanRemote.createNewAppointment(new AppointmentEntity(currentPatientEntity, chosenDoctor, date.atTime(time) ));
                
                 System.out.println(currentPatientEntity.getFirstName()+" "+currentPatientEntity.getLastName()+" appointment with "+chosenDoctor.getFullName()+" at "+ time +" on "+d+" has been added.");    
             }

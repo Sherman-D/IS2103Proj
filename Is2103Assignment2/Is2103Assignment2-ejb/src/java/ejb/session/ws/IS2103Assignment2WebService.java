@@ -6,9 +6,11 @@ import ejb.session.stateless.PatientEntityControllerLocal;
 import entity.AppointmentEntity;
 import entity.DoctorEntity;
 import entity.PatientEntity;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.jws.WebService;
@@ -19,7 +21,9 @@ import util.exception.AppointmentAlreadyCancelledException;
 import util.exception.AppointmentNotFoundException;
 import util.exception.DoctorNotFoundException;
 import util.exception.EntityInstanceExistsInCollectionException;
+import util.exception.EntityMismatchException;
 import util.exception.InvalidLoginCredentialException;
+import util.exception.PatientNotFoundException;
 
 
 
@@ -76,8 +80,9 @@ public class IS2103Assignment2WebService
                                           @WebParam(name ="age")  Integer age,
                                           @WebParam(name ="phone")  String phone,
                                           @WebParam(name ="address")  String address)
-                                  throws EntityInstanceExistsInCollectionException
+                                  throws EntityInstanceExistsInCollectionException, NoSuchAlgorithmException
     {
+        
         String passwordHash = patientEntityControllerLocal.hashPassword(password);
         PatientEntity newPatientEntity = new PatientEntity(identityNumber, passwordHash, firstName, lastName, gender, age, phone, address);
         
@@ -85,23 +90,22 @@ public class IS2103Assignment2WebService
     }
     
     @WebMethod(operationName = "createNewAppointment")
-    public AppointmentEntity createNewAppointment(@WebParam(name = "doctorId") String doctorId,
-                                                  @WebParam(name = "date") String date,
-                                                  @WebParam(name = "time") String time,
-                                                  @WebParam(name = "patientId") Long patientId)
+    public AppointmentEntity createNewAppointment(@WebParam(name = "doctorId") Long doctorId,
+                                                  @WebParam(name = "patientId") Long patientId,
+                                                  @WebParam(name = "date") String dateTime) throws DoctorNotFoundException, PatientNotFoundException
     {
-        LocalTime t = LocalTime.parse(time);  
-        LocalDate d = LocalDate.parse(date);
-        LocalDateTime apptTime = t.atDate(d);
-        AppointmentEntity ae = new AppointmentEntity(patientId, doctorId, apptTime);
+        LocalDateTime apptTime = LocalDateTime.parse(dateTime);
+        DoctorEntity doctor = doctorEntityControllerLocal.retrieveDoctorByDoctorId(doctorId);
+        PatientEntity patient = patientEntityControllerLocal.retrievePatientByPatientId(patientId);
+        AppointmentEntity ae = new AppointmentEntity(patient, doctor, apptTime);
         appointmentEntityControllerLocal.createNewAppointment(ae);
         return ae;
     }
     
     @WebMethod(operationName = "patientLogin")
-    public void patientLogin(@WebParam(name = "identityNumber") String identityNumber,
-                             @WebParam(name = "password") String password) throws InvalidLoginCredentialException
-    {
+    public PatientEntity patientLogin(@WebParam(name = "identityNumber") String identityNumber,
+                                                        @WebParam(name = "password") String password) throws InvalidLoginCredentialException, NoSuchAlgorithmException
+    {   
          return patientEntityControllerLocal.patientLogin(identityNumber, password);
 
     }
@@ -113,7 +117,8 @@ public class IS2103Assignment2WebService
     }
     
     @WebMethod (operationName = "retrieveDoctorsAvailableOnDate")
-   public List<String> retrieveDoctorsAvailableOnDate(@WebParam(name ="date") String date) 
+   public List<DoctorEntity> retrieveDoctorsAvailableOnDate(@WebParam(name ="date") String date) 
+                                                        throws DoctorNotFoundException
    {
        LocalDate d = LocalDate.parse(date);
         return doctorEntityControllerLocal.retrieveDoctorsAvailableOnDate(d);
@@ -132,14 +137,21 @@ public class IS2103Assignment2WebService
                                                          @WebParam(name = "date") String date)
    {
        LocalDate d = LocalDate.parse(date);
-        
-       return appointmentEntityControllerLocal.retrieveDoctorAvailableSlotsOnDay(doctorId, d);
+       List<LocalTime> objTimes = appointmentEntityControllerLocal.retrieveDoctorAvailableSlotsOnDay(doctorId, d);
+       List<String> strTime = new ArrayList<>();
+       for (LocalTime time : objTimes) 
+       {
+           strTime.add(time.toString());
+       }
+       return strTime;
    }
    
    @WebMethod (operationName = "cancelAppointment")
-   public void cancelAppointment(@WebParam(name = "appointmentId")Long appointmentId) throws AppointmentNotFoundException, AppointmentAlreadyCancelledException, DoctorNotFoundException
+   public AppointmentEntity cancelAppointment(@WebParam(name = "appointmentId")Long appointmentId) 
+                throws AppointmentNotFoundException, AppointmentAlreadyCancelledException, DoctorNotFoundException, EntityMismatchException
    {
-       AppointmentEntity ae = appointmentEntityControllerLocal.retrieveAppointmentByAppointmentId(appointmentId)''
-       return appointmentEntityControllerLocal.cancelAppointment(ae);
+       AppointmentEntity ae = appointmentEntityControllerLocal.retrieveAppointmentByAppointmentId(appointmentId);
+       appointmentEntityControllerLocal.cancelAppointment(ae);
+       return ae;
    }
 }

@@ -3,7 +3,6 @@ package is2103assignment2catclient;
 
 import ejb.session.singleton.QueueGeneratorSessionBeanRemote;
 import ejb.session.stateless.AppointmentEntitySessionBeanRemote;
-import ejb.session.stateless.ClinicEntitySessionBeanRemote;
 import ejb.session.stateless.DoctorEntitySessionBeanRemote;
 import ejb.session.stateless.LeaveEntitySessionBeanRemote;
 import ejb.session.stateless.PatientEntitySessionBeanRemote;
@@ -127,7 +126,7 @@ public class MainApp {
         {
             System.out.println("*** CARS :: Main ***\n");
             
-            System.out.printf("You are login as %s %s", currentStaffEntity.getFirstName(), currentStaffEntity.getLastName());
+            System.out.printf("You are login as %s %s \n", currentStaffEntity.getFirstName(), currentStaffEntity.getLastName());
       
             System.out.println("1: Registration Operation");
             System.out.println("2: Appointment Operation");

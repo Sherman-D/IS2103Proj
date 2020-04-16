@@ -20,6 +20,7 @@
 
         -->
 <project xmlns:carproject="http://www.netbeans.org/ns/car-project/1" basedir=".." default="default" name="IS2103Assignment2AMSClient-impl">
+    <import file="jaxws-build.xml"/>
     <import file="ant-deploy.xml"/>
     <fail message="Please build using Ant 1.7.1 or higher.">
         <condition>
@@ -763,7 +764,7 @@ exists or setup the property manually. For example like this:
         </ant>
     </target>
     <target depends="init, -check-main-class, -deps-module-jar, -deps-ear-jar" name="deps-jar"/>
-    <target depends="init,deps-jar" name="-pre-pre-compile">
+    <target depends="init,deps-jar,wsimport-client-generate" name="-pre-pre-compile">
         <mkdir dir="${classes.dir}"/>
     </target>
     <target name="-pre-compile">

@@ -733,7 +733,7 @@ public class AdministrationOperationModule {
             }
 //            LocalTime time = Local
             DoctorEntity de = doctorEntitySessionBeanRemote.retrieveDoctorByDoctorName(firstName, lastName);
-            LeaveEntity le = new LeaveEntity(de.getDoctorId(), date);
+            LeaveEntity le = new LeaveEntity(de, date);
             leaveEntitySessionBeanRemote.createNewLeave(le);
             System.out.println("Leave has been created successfully!");
         }

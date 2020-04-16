@@ -6,9 +6,10 @@
     <class>entity.LeaveEntity</class>
     <class>entity.PatientEntity</class>
     <class>entity.StaffEntity</class>
-    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+    <class>entity.ClinicEntity</class>
+    <exclude-unlisted-classes>false</exclude-unlisted-classes>
     <properties>
-      <property name="javax.persistence.schema-generation.database.action" value="create"/>
+      <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
     </properties>
   </persistence-unit>
 </persistence>

@@ -6,7 +6,9 @@ import java.security.NoSuchAlgorithmException;
 import javax.ejb.Local;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import util.exception.EntityInstanceExistsInCollectionException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.PatientNotFoundException;
@@ -34,7 +36,15 @@ public class PatientEntityController implements PatientEntityControllerLocal
     @Override
     public PatientEntity createNewPatient(PatientEntity newPatientEntity) throws EntityInstanceExistsInCollectionException
     {
-        PatientEntity existingPatientEntity = entityManager.find(PatientEntity.class, newPatientEntity.getIdentityNumber());
+        PatientEntity existingPatientEntity = null;
+        try {
+        Query query = entityManager.createQuery("SELECT p FROM PatientEntity p where p.identityNumber = :searchId");
+        query.setParameter("searchId", newPatientEntity.getIdentityNumber());
+        existingPatientEntity = (PatientEntity) query.getSingleResult();
+        } catch (NoResultException ex)
+       {
+            
+        }
         
         if (existingPatientEntity == null) {
             entityManager.persist(newPatientEntity);
@@ -106,7 +116,7 @@ public class PatientEntityController implements PatientEntityControllerLocal
         }
     }
     
-    private String hashPassword(String password) throws NoSuchAlgorithmException
+    public String hashPassword(String password) throws NoSuchAlgorithmException
     {
         MessageDigest md = MessageDigest.getInstance("MD5");
         md.update(password.getBytes());

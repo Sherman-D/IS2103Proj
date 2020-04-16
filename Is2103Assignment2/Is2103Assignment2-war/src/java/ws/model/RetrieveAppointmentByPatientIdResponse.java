@@ -33,7 +33,7 @@ public class RetrieveAppointmentByPatientIdResponse
         return appointmentEntities;
     }
 
-    public void setProductEntities(List<String> appointmentEntities) {
+    public void setAppointmentEntities(List<String> appointmentEntities) {
         this.appointmentEntities = appointmentEntities;
     }
 }

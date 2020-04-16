@@ -98,9 +98,8 @@ public class StaffEntitySessionBean implements StaffEntitySessionBeanLocal, Staf
         try
         {
             StaffEntity staffEntity = retrieveStaffByUsername(username);
-            String passwordHash = hashPassword(password);
             
-            if(staffEntity.getPassword().equals(passwordHash))
+            if(staffEntity.getPassword().equals(password))
             {        
                 return staffEntity;
             }
@@ -112,10 +111,6 @@ public class StaffEntitySessionBean implements StaffEntitySessionBeanLocal, Staf
         catch(StaffNotFoundException ex)
         {
             throw new InvalidLoginCredentialException("Username or password is incorrect!");
-        }
-         catch (NoSuchAlgorithmException ex)
-        {
-            throw new NoSuchAlgorithmException("Login error. Please contact an administrator.");
         }
     }
     

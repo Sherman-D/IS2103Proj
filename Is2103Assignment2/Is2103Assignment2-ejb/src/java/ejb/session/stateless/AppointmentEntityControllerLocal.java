@@ -21,9 +21,9 @@ public interface AppointmentEntityControllerLocal
     
     void confirmAppointment(Long patientId,Long appointmentId) throws AppointmentNotFoundException;
     
-    void cancelAppointment(AppointmentEntity appointmentEntity) throws EntityMismatchException, AppointmentAlreadyCancelledException;
+    AppointmentEntity cancelAppointment(AppointmentEntity appointmentEntity) throws EntityMismatchException, AppointmentAlreadyCancelledException;
 
-    List<LocalTime> retrieveDoctorAvailableSlotsOnDay(DoctorEntity doctorEntity, LocalDate date);
+    List<LocalTime> retrieveDoctorAvailableSlotsOnDay(Long doctorId, LocalDate date);
     
     List<String> retrieveAppointmentByPatientIdentityNo(String patientId);
 

@@ -25,13 +25,13 @@ public class DoctorEntity implements Serializable, Comparable<DoctorEntity>
     public DoctorEntity() {
     }
 
-    public DoctorEntity(Long doctorId, String firstName, String lastName, String registration, String qualification) {
+    /*public DoctorEntity(Long doctorId, String firstName, String lastName, String registration, String qualification) {
         this.doctorId = doctorId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.registration = registration;
         this.qualification = qualification;
-    }
+    }*/
 
     public DoctorEntity(String firstName, String lastName, String registration, String qualification) {
         this.firstName = firstName;

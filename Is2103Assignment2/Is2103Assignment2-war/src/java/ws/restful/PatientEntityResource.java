@@ -3,6 +3,7 @@ package ws.restful;
 
 import ejb.session.stateless.PatientEntityControllerLocal;
 import entity.PatientEntity;
+import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.naming.InitialContext;
@@ -19,6 +20,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import util.exception.EntityInstanceExistsInCollectionException;
+import util.exception.InvalidLoginCredentialException;
 import util.exception.PatientNotFoundException;
 
 @Path("PatientEntity")
@@ -53,12 +55,31 @@ public class PatientEntityResource {
                                         )
     {
         try {
-             PatientEntity patientEntity = patientEntityControllerLocal.createNewPatient(new PatientEntity(identityNumber, password, firstName, lastName, gender, age, phone, address));
+             String passwordHash = patientEntityControllerLocal.hashPassword(password);
+             PatientEntity patientEntity = patientEntityControllerLocal.createNewPatient(new PatientEntity(identityNumber, passwordHash, firstName, lastName, gender, age, phone, address));
              
              return Response.status(Response.Status.OK).entity(patientEntity).build();
-        } catch (EntityInstanceExistsInCollectionException ex) {
+        } catch (EntityInstanceExistsInCollectionException | NoSuchAlgorithmException ex) {
             
             return Response.status(Response.Status.CONFLICT).build();
+        }
+    }
+    
+    @GET
+    @Path("patientLogin")
+    @Produces(MediaType.APPLICATION_XML)
+    public Response patientLogin(@QueryParam("identityNumber") String identityNumber,
+                                                                @QueryParam("password") String password)
+    {
+        try
+        {
+            PatientEntity patient = patientEntityControllerLocal.patientLogin(identityNumber, password);
+            patient.setPassword(null);
+            
+            return Response.status(Response.Status.OK).entity(patient).build();
+        } catch (InvalidLoginCredentialException | NoSuchAlgorithmException ex)
+        {
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
     }
    
@@ -70,7 +91,6 @@ public class PatientEntityResource {
         try
         {
             PatientEntity patientEntity = patientEntityControllerLocal.retrievePatientByPatientId(patientId);
-            patientEntity.setIdentityNumber(null);
             patientEntity.setPassword(null);
 
             return Response.status(Response.Status.OK).entity(patientEntity).build();
@@ -105,7 +125,7 @@ public class PatientEntityResource {
         try {
             javax.naming.Context c = new InitialContext();
             //Change database name
-            return (PatientEntityControllerLocal) c.lookup("java:global/Is2103Lecture9/Is2103Lecture9-ejb/PatientEntityController!ejb.session.stateless.PatientEntityControllerLocal");
+            return (PatientEntityControllerLocal) c.lookup("java:global/Is2103Assignment2/Is2103Assignment2-ejb/PatientEntityController!ejb.session.stateless.PatientEntityControllerLocal");
         } catch (NamingException ne) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, "exception caught", ne);
             throw new RuntimeException(ne);

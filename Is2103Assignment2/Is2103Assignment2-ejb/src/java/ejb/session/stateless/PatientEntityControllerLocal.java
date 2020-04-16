@@ -18,4 +18,5 @@ public interface PatientEntityControllerLocal
     
     PatientEntity patientLogin(String identityNumber, String password) throws InvalidLoginCredentialException, NoSuchAlgorithmException;
     
+    String hashPassword(String password) throws NoSuchAlgorithmException;
 }
