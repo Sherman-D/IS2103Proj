@@ -189,7 +189,7 @@ public class MainApp {
         {
             System.out.println("*** Self-Service Kiosk :: Main ***\n");
             
-            System.out.printf("You are login as %s %s", currentPatientEntity.getFirstName(), currentPatientEntity.getLastName());
+            System.out.printf("You are login as %s %s \n", currentPatientEntity.getFirstName(), currentPatientEntity.getLastName());
       
             System.out.println("1: Registration Walk-In Consultation");
             System.out.println("2: Register Consultation By Appointment");

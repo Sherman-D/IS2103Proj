@@ -140,7 +140,7 @@ public class MainApp {
         while (true) {
             System.out.println("*** AMS Client :: Main ***\n");
 
-            System.out.printf("You are login as %s %s", currentPatient.getFirstName(), currentPatient.getLastName());
+            System.out.printf("You are login as %s %s \n", currentPatient.getFirstName(), currentPatient.getLastName());
 
             System.out.println("1: View Appointments");
             System.out.println("2: Add Appointment");
@@ -255,7 +255,7 @@ public class MainApp {
         
             createNewAppointment(currentPatient.getPatientId(), doctorId, date.atTime(time).toString());
         
-            System.out.printf("%s%s appointment with Dr. %s %s at %d:%d on %d-%d-%d has been added.", currentPatient.getFirstName(), currentPatient.getLastName(), de.getFirstName(), de.getLastName(), time.getHour(), time.getMinute(), date.getYear(), date.getMonth(), date.getDayOfMonth());
+            System.out.printf("%s%s appointment with Dr. %s %s at %d:%d on %d-%d-%d has been added. \n", currentPatient.getFirstName(), currentPatient.getLastName(), de.getFirstName(), de.getLastName(), time.getHour(), time.getMinute(), date.getYear(), date.getMonth(), date.getDayOfMonth());
             }
         
         } catch (DoctorNotFoundException_Exception | PatientNotFoundException_Exception ex) {
@@ -269,6 +269,7 @@ public class MainApp {
         System.out.println("*** AMS Client :: Cancel Appointment ***\n");
         System.out.println("Appointments:");
         System.out.printf("%s-1|%s-7|%s-3|%s", "Id", "Date", "Time", "Doctor");
+        System.out.println();
         List<String> appts = retrieveAppointmentByPatientIdentityNo(currentPatient.getIdentityNumber());
        
         for (String s : appts) {
