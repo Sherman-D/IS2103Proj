@@ -23,7 +23,7 @@ public class QueueGeneratorSessionBean implements QueueGeneratorSessionBeanLocal
     @PostConstruct
     public void postConstruct()
     {
-        queueNumber = 0;
+        queueNumber = 1;
     }
     
     @Override

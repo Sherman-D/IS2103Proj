@@ -2,6 +2,7 @@ package is2103assignment2kioskclient;
 
 import ejb.session.singleton.QueueGeneratorSessionBeanRemote;
 import ejb.session.stateless.AppointmentEntitySessionBeanRemote;
+import ejb.session.stateless.ClinicEntitySessionBeanRemote;
 import ejb.session.stateless.DoctorEntitySessionBeanRemote;
 import ejb.session.stateless.LeaveEntitySessionBeanRemote;
 import ejb.session.stateless.PatientEntitySessionBeanRemote;
@@ -17,6 +18,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 import util.exception.AppointmentNotFoundException;
 import util.exception.DoctorNotFoundException;
 import util.exception.EntityInstanceExistsInCollectionException;
@@ -27,6 +29,7 @@ public class MainApp {
     
     
     private AppointmentEntitySessionBeanRemote appointmentEntitySessionBeanRemote;
+    private ClinicEntitySessionBeanRemote clinicEntitySessionBeanRemote;
     private DoctorEntitySessionBeanRemote doctorEntitySessionBeanRemote;
     private PatientEntitySessionBeanRemote patientEntitySessionBeanRemote;
     private QueueGeneratorSessionBeanRemote queueGeneratorSessionBeanRemote;
@@ -34,8 +37,10 @@ public class MainApp {
     
     private PatientEntity currentPatientEntity;
 
-    public MainApp(AppointmentEntitySessionBeanRemote appointmentEntitySessionBeanRemote, DoctorEntitySessionBeanRemote doctorEntitySessionBeanRemote, PatientEntitySessionBeanRemote patientEntitySessionBeanRemote, QueueGeneratorSessionBeanRemote queueGeneratorSessionBeanRemote, LeaveEntitySessionBeanRemote leaveEntitySessionBeanRemote) {
+    
+    public MainApp(AppointmentEntitySessionBeanRemote appointmentEntitySessionBeanRemote, ClinicEntitySessionBeanRemote clinicEntitySessionBeanRemote, DoctorEntitySessionBeanRemote doctorEntitySessionBeanRemote, PatientEntitySessionBeanRemote patientEntitySessionBeanRemote, QueueGeneratorSessionBeanRemote queueGeneratorSessionBeanRemote, LeaveEntitySessionBeanRemote leaveEntitySessionBeanRemote) {
         this.appointmentEntitySessionBeanRemote = appointmentEntitySessionBeanRemote;
+        this.clinicEntitySessionBeanRemote = clinicEntitySessionBeanRemote;
         this.doctorEntitySessionBeanRemote = doctorEntitySessionBeanRemote;
         this.patientEntitySessionBeanRemote = patientEntitySessionBeanRemote;
         this.queueGeneratorSessionBeanRemote = queueGeneratorSessionBeanRemote;
@@ -106,22 +111,33 @@ public class MainApp {
 
         System.out.println("*** Self-Service Kiosk :: Register ***\n");
 
-        System.out.println("Enter Identity Number> ");
+        System.out.print("Enter Identity Number> ");
         String identityNumber = scanner.nextLine().trim();
-        System.out.println("Enter Password> ");
-        String password = scanner.nextLine().trim();
-        System.out.println("Enter First Name> ");
+        
+        String password = "";
+        while (true) {
+            System.out.print("Enter Password> ");
+            password = scanner.nextLine().trim();
+            if (password.length() != 6 || Pattern.compile("[^0-9]").matcher(password).matches()) 
+            {
+                System.out.println("Your password must be a sequence of 6 digit numbers.");
+                continue;
+            }
+            break;
+        }
+        
+        System.out.print("Enter First Name> ");
         String firstName = scanner.nextLine().trim();
-        System.out.println("Enter Last Name> ");
+        System.out.print("Enter Last Name> ");
         String lastName = scanner.nextLine().trim();
-        System.out.println("Enter Gender> ");
+        System.out.print("Enter Gender> ");
         String gender = scanner.nextLine().trim();
         
         boolean isValid = true;
         Integer age = 0;
         while (isValid)
         {
-            System.out.println("Enter Age> ");
+            System.out.print("Enter Age> ");
             String ageInput = scanner.nextLine().trim();
             
             try {
@@ -135,9 +151,9 @@ public class MainApp {
             }
         }
         
-        System.out.println("Enter Phone> ");
+        System.out.print("Enter Phone> ");
         String phone = scanner.nextLine().trim();
-        System.out.println("Enter Address> ");
+        System.out.print("Enter Address> ");
         String address = scanner.nextLine();
 
         try
@@ -167,7 +183,7 @@ public class MainApp {
         System.out.println("*** Self-Service Kiosk :: Login ***\n");
         System.out.print("Enter Identity Number> ");
         iN = scanner.nextLine().trim();
-        System.out.print("Enter password> ");
+        System.out.print("Enter Password> ");
         password = scanner.nextLine().trim();
         
         if(iN.length() > 0 && password.length() > 0)
@@ -281,42 +297,41 @@ public class MainApp {
             System.out.println("Availability:");
             System.out.println("Time  |"+ availString);
             
-            //initialising hour n min
-            int curHour = now.getHour();
-            int curMin = now.getMinute();
-            if(curMin>30)
+            List<LocalTime> consultSessions = clinicEntitySessionBeanRemote.retrieveConsultationSlots(LocalDate.now());
+            
+            boolean isClinicOpen = true;
+            for (LocalTime session : consultSessions)
             {
-                curHour++;
-            }else if(curMin>0){
-                curMin = 30; //earliest appt
-            }else if (curMin==0){
-                curMin = 0;
+                isClinicOpen = false;
+                if (session.isAfter(LocalTime.now())) 
+                {
+                    isClinicOpen = true;
+                }
             }
             
-            
-            for(int i=0;i<6;i++)
-            { //printing X and O
-               String out = curHour+":"+curMin+" |";
-               LocalDateTime cur = LocalDateTime.of(LocalDate.now(), LocalTime.of(curHour, curMin));
-               
-               for(DoctorEntity de : doctorList){
-                   out += appointmentEntitySessionBeanRemote.hasAppointment(de, cur)+ " |";
-               }
-               System.out.println(out);
-               
-               if(curMin==30)
-               {
-                   curHour +=1;
-                   curMin = 0;
-               } 
-               else
-               {
-                   curMin += 30;
-               }
+            if (!isClinicOpen) {
+                System.out.println("There are no remaining consultation slots today.");
+                return;
+            }
+            for (LocalTime session : consultSessions)
+            {
+                int counter = 0;
+                if (counter > 6) {
+                    break;
+                }
+                if (session.isAfter(LocalTime.now())){
+                    String output = session.toString();
+                    for (DoctorEntity doctor : doctorList)
+                    {
+                       output = appointmentEntitySessionBeanRemote.hasAppointment(doctor, LocalDateTime.of(LocalDate.now(), session))+ " |";
+                    }
+                    System.out.println(output);
+                }
+                counter ++;
             }
             
-            System.out.println("Enter Doctor Id> ");
-            String in = scanner.next().trim();
+            System.out.print("Enter Doctor Id> ");
+            String in = scanner.nextLine().trim();
             Long doctorId = Long.valueOf(in);
             
             DoctorEntity chosenDoctor = doctorEntitySessionBeanRemote.retrieveDoctorByDoctorId(doctorId);
@@ -329,17 +344,33 @@ public class MainApp {
  
             String time = "";
             LocalDateTime fin = null; //placeholder
-            for (int i=0 ;i<6 ;i++)
+           /* for (int i=0 ; i < 6 ; i++)
             { //select earliest appt
                LocalDateTime cur = LocalDateTime.of(LocalDate.now(), LocalTime.of(curHour, curMin));
                String earliestTime = appointmentEntitySessionBeanRemote.hasAppointment(chosenDoctor, cur);
               
                if(earliestTime.equals("O")){
-                   time = curHour+":"+curMin;
+                   time = String.format("%01d:%02d", curHour, curMin);
                    fin = LocalDateTime.of(LocalDate.now(), LocalTime.of(curHour, curMin));
                    break;
                }
-            }
+            }*/
+            
+                for (LocalTime session : consultSessions) {
+                    int counter = 0;
+                    if (counter > 6) {
+                        break;
+                    }
+                    if (session.isAfter(LocalTime.now())) {
+                        String earliestSession = appointmentEntitySessionBeanRemote.hasAppointment(chosenDoctor, LocalDateTime.of(LocalDate.now(), session));
+                        if (earliestSession.equals("O")) {
+                            time = session.toString();
+                            fin = LocalDateTime.of(LocalDate.now(), session);
+                            break;
+                        }
+                    }
+                    counter++;
+                }
            
             AppointmentEntity ae = new AppointmentEntity(currentPatientEntity, chosenDoctor, fin);
             ae.setIsConfirmed(true);
@@ -370,7 +401,7 @@ public class MainApp {
                 System.out.println(each);
             }
             
-            System.out.println("Enter Appointment Id> ");
+            System.out.print("Enter Appointment Id> ");
             String appointmentId1 = scanner.nextLine().trim();
             Long appointmentId = Long.valueOf(appointmentId1);
             
@@ -390,17 +421,19 @@ public class MainApp {
             
         }
         
-        private void doViewAppointment(){
+        private void doViewAppointment()
+        {
             System.out.println("*** Self-Service Kiosk :: View Appointments ***\n");
             System.out.println("Appointments:");
-            System.out.printf("%s-1|%s-7|%s-3|%s", "Id", "Date", "Time", "Doctor");
+            System.out.printf("%-1s|%-7s|%-3s|%s", "Id", "Date", "Time", "Doctor");
             List<String> ls = appointmentEntitySessionBeanRemote.retrieveAppointmentByPatientIdentityNo(currentPatientEntity.getIdentityNumber());
             for(String each: ls){
                 System.out.println(each);
             }
         }
         
-        private void doAddAppointment(){
+        private void doAddAppointment()
+        {
             System.out.println("*** Self-Service Kiosk :: Add Appointment ***\n");
             Scanner scanner = new Scanner(System.in);
             
@@ -410,11 +443,11 @@ public class MainApp {
                 System.out.println(de.getDoctorId()+" |"+de.getFullName());
             }
             
-            System.out.println("");
-            System.out.println("Enter Doctor Id> ");
+            System.out.println();
+            System.out.print("Enter Doctor Id> ");
             String dId = scanner.nextLine().trim();
             Long doctorId = Long.valueOf(dId);
-            System.out.println("Enter Date> ");
+            System.out.print("Enter Date> ");
             String d = scanner.nextLine().trim();
             LocalDate date = LocalDate.parse(d);
             
@@ -446,12 +479,15 @@ public class MainApp {
                 LocalTime time = LocalTime.MIDNIGHT;
 
                 while (true) {
-                    System.out.println("Enter Time> ");
+                    System.out.print("Enter Time> ");
                     String t = scanner.nextLine().trim();
+                    if (t.equals("cancel")) {
+                        return;
+                    }
                     time = LocalTime.parse(t);
 
                     if (!availableSlots.contains(time)) {
-                        System.out.println("That timing is not available. Please choose another time slot");
+                        System.out.println("That timing is not available. Please choose another time slot. Otherwise, enter \" cancel \" to cancel.");
                         continue;
                     }
                     break;
@@ -472,15 +508,21 @@ public class MainApp {
             System.out.println("*** Self-Service Kiosk :: Cancel Appointment ***\n");
             
             System.out.println("Appointments:");
-            System.out.printf("%s-1|%s-7|%s-3|%s", "Id", "Date", "Time", "Doctor");
+            System.out.printf("%-1s|%-7s|%-3s|%s\n", "Id", "Date", "Time", "Doctor");
             List<String> appts = appointmentEntitySessionBeanRemote.retrieveAppointmentByPatientIdentityNo(currentPatientEntity.getIdentityNumber());
+            
+            if (appts.isEmpty())
+            {
+                System.out.println("No appointments with the associated patient were found.");
+                return;
+            }
             
             for(String s : appts){
                 System.out.println(s);
             }
             System.out.println();
             
-            System.out.println("Enter Appointment Id> ");
+            System.out.print("Enter Appointment Id> ");
             String apptId = scanner.nextLine().trim();
             Long appointmentId = Long.valueOf(apptId);
             
@@ -497,7 +539,7 @@ public class MainApp {
             String time = t.format(formatter1);
             ae.cancelAppointment();
             
-            System.out.println(currentPatientEntity.getFirstName() + " "  + currentPatientEntity.getLastName() + " with " + de.getFullName()+" at"+time+" on "+date+" has been cancelled.");
+            System.out.println(currentPatientEntity.getFirstName() + " "  + currentPatientEntity.getLastName() + " with " + de.getFullName()+" at "+time+" on "+date+" has been cancelled.");
             }
             catch (AppointmentNotFoundException | DoctorNotFoundException ex)
             {

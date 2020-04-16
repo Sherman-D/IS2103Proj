@@ -68,7 +68,7 @@ public class PatientEntity implements Serializable, Comparable<PatientEntity>
         
         PatientEntity other = (PatientEntity) object;
         
-        if ((this.patientId == null && other.patientId != null) || (this.patientId != null && !this.patientId.equals(other.patientId))) 
+        if ((this.patientId == null && other.getPatientId() != null) || (this.patientId != null && !this.patientId.equals(other.getPatientId()))) 
         {
             return false;
         }

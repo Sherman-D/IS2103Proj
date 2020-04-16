@@ -3,6 +3,7 @@ package is2103assignment2catclient;
 
 import ejb.session.singleton.QueueGeneratorSessionBeanRemote;
 import ejb.session.stateless.AppointmentEntitySessionBeanRemote;
+import ejb.session.stateless.ClinicEntitySessionBeanRemote;
 import ejb.session.stateless.DoctorEntitySessionBeanRemote;
 import ejb.session.stateless.LeaveEntitySessionBeanRemote;
 import ejb.session.stateless.PatientEntitySessionBeanRemote;
@@ -20,6 +21,7 @@ public class MainApp {
     private RegistrationOperationModule registrationOperationModule;
     
     private AppointmentEntitySessionBeanRemote appointmentEntitySessionBeanRemote;
+    private ClinicEntitySessionBeanRemote clinicEntitySessionBeanRemote;
     private DoctorEntitySessionBeanRemote doctorEntitySessionBeanRemote;
     private LeaveEntitySessionBeanRemote leaveEntitySessionBeanRemote;
     private PatientEntitySessionBeanRemote patientEntitySessionBeanRemote;
@@ -28,8 +30,10 @@ public class MainApp {
 
     private StaffEntity currentStaffEntity;
 
-    public MainApp(AppointmentEntitySessionBeanRemote appointmentEntitySessionBeanRemote, DoctorEntitySessionBeanRemote doctorEntitySessionBeanRemote, LeaveEntitySessionBeanRemote leaveEntitySessionBeanRemote, PatientEntitySessionBeanRemote patientEntitySessionBeanRemote, QueueGeneratorSessionBeanRemote queueGeneratorSessionBeanRemote, StaffEntitySessionBeanRemote staffEntitySessionBeanRemote) {
+
+    public MainApp(AppointmentEntitySessionBeanRemote appointmentEntitySessionBeanRemote, ClinicEntitySessionBeanRemote clinicEntitySessionBeanRemote, DoctorEntitySessionBeanRemote doctorEntitySessionBeanRemote, LeaveEntitySessionBeanRemote leaveEntitySessionBeanRemote, PatientEntitySessionBeanRemote patientEntitySessionBeanRemote, QueueGeneratorSessionBeanRemote queueGeneratorSessionBeanRemote, StaffEntitySessionBeanRemote staffEntitySessionBeanRemote) {
         this.appointmentEntitySessionBeanRemote = appointmentEntitySessionBeanRemote;
+        this.clinicEntitySessionBeanRemote = clinicEntitySessionBeanRemote;
         this.doctorEntitySessionBeanRemote = doctorEntitySessionBeanRemote;
         this.leaveEntitySessionBeanRemote = leaveEntitySessionBeanRemote;
         this.patientEntitySessionBeanRemote = patientEntitySessionBeanRemote;
@@ -37,9 +41,6 @@ public class MainApp {
         this.staffEntitySessionBeanRemote = staffEntitySessionBeanRemote;
     }
 
-    
-    
-    
     
     public void runApp(){
         Scanner scanner = new Scanner(System.in);
@@ -67,7 +68,7 @@ public class MainApp {
                         
                         administrationOperationModule = new AdministrationOperationModule(doctorEntitySessionBeanRemote, patientEntitySessionBeanRemote, leaveEntitySessionBeanRemote  , staffEntitySessionBeanRemote);
                         appointmentOperationModule = new AppointmentOperationModule(appointmentEntitySessionBeanRemote, doctorEntitySessionBeanRemote, patientEntitySessionBeanRemote);
-                        registrationOperationModule = new RegistrationOperationModule(appointmentEntitySessionBeanRemote, doctorEntitySessionBeanRemote, patientEntitySessionBeanRemote, queueGeneratorSessionBeanRemote, leaveEntitySessionBeanRemote);
+                        registrationOperationModule = new RegistrationOperationModule(appointmentEntitySessionBeanRemote, clinicEntitySessionBeanRemote, doctorEntitySessionBeanRemote, patientEntitySessionBeanRemote, queueGeneratorSessionBeanRemote, leaveEntitySessionBeanRemote);
                         
                         menuMain();
                     }

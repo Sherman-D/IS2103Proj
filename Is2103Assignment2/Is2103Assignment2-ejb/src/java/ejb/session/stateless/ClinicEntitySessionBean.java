@@ -1,6 +1,7 @@
 package ejb.session.stateless;
 
 import entity.ClinicEntity;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -35,8 +36,9 @@ public class ClinicEntitySessionBean implements ClinicEntitySessionBeanLocal, Cl
     @Override
     public List<ClinicEntity> retrieveClinicTimingsByDay(String day)
     {
-        Query query = entityManager.createQuery("SELECT c FROM ClinicEntity c WHERE c.day = :searchDay");
-        query.setParameter("searchDay", day);
+        DayOfWeek searchDay = DayOfWeek.valueOf(day);
+        Query query = entityManager.createQuery("SELECT c FROM ClinicEntity c WHERE c.operationDay = :searchDay");
+        query.setParameter("searchDay", searchDay);
         
         
         List<ClinicEntity> clinicTimings = query.getResultList();
@@ -54,10 +56,11 @@ public class ClinicEntitySessionBean implements ClinicEntitySessionBeanLocal, Cl
             LocalTime time = clinic.getStartOfDay();
             consultationSlots.add(time);
             
-            while (time.isBefore(clinic.getEndOfDay()))
+            while (time.isBefore(clinic.getEndOfDay().minusMinutes(30)))
             {
-                time.plusMinutes(30);
+                time = time.plusMinutes(30);
                 consultationSlots.add(time);
+               
             }
         }
         

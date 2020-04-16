@@ -2,6 +2,7 @@ package is2103assignment2catclient;
 
 import ejb.session.singleton.QueueGeneratorSessionBeanRemote;
 import ejb.session.stateless.AppointmentEntitySessionBeanRemote;
+import ejb.session.stateless.ClinicEntitySessionBeanRemote;
 import ejb.session.stateless.DoctorEntitySessionBeanRemote;
 import ejb.session.stateless.LeaveEntitySessionBeanRemote;
 import ejb.session.stateless.PatientEntitySessionBeanRemote;
@@ -13,6 +14,8 @@ public class Main {
         
     @EJB
     private static AppointmentEntitySessionBeanRemote appointmentEntitySessionBeanRemote;
+    @EJB
+    private static ClinicEntitySessionBeanRemote clinicEntitySessionBeanRemote;
     @EJB
     private static DoctorEntitySessionBeanRemote doctorEntitySessionBeanRemote;
     @EJB
@@ -29,7 +32,7 @@ public class Main {
         public static void main(String[] args) 
         {
 
-            MainApp mainApp = new MainApp(appointmentEntitySessionBeanRemote,  doctorEntitySessionBeanRemote, leaveEntitySessionBeanRemote, patientEntitySessionBeanRemote, queueGeneratorSessionBeanRemote, staffEntitySessionBeanRemote);
+            MainApp mainApp = new MainApp(appointmentEntitySessionBeanRemote,  clinicEntitySessionBeanRemote, doctorEntitySessionBeanRemote, leaveEntitySessionBeanRemote, patientEntitySessionBeanRemote, queueGeneratorSessionBeanRemote, staffEntitySessionBeanRemote);
             mainApp.runApp();     
         }
 

@@ -8,6 +8,7 @@ import entity.ClinicEntity;
 import entity.DoctorEntity;
 import entity.PatientEntity;
 import entity.StaffEntity;
+import java.security.NoSuchAlgorithmException;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
@@ -50,9 +51,16 @@ public class DataInitializationSessionBean
     private void initializeData()
     {
         
+        try 
+        {
+            String passwordS1 = staffEntitySessionBeanLocal.hashPassword("password");
+
+            staffEntitySessionBeanLocal.createNewStaff(new StaffEntity("Eric", "Some", "manager", passwordS1));
+            staffEntitySessionBeanLocal.createNewStaff(new StaffEntity("Victoria", "Newton", "nurse", passwordS1));
+        } catch (NoSuchAlgorithmException ex) {
+
+        }
         
-        staffEntitySessionBeanLocal.createNewStaff(new StaffEntity("Eric", "Some", "manager", "password"));
-        staffEntitySessionBeanLocal.createNewStaff(new StaffEntity("Victoria", "Newton", "nurse", "password"));
         
         doctorEntitySessionBeanLocal.createNewDoctor(new DoctorEntity("Tan", "Ming", "S10011", "BMBS"));
         doctorEntitySessionBeanLocal.createNewDoctor(new DoctorEntity("Clair", "Hahn", "S41221", "MBBCh"));
@@ -71,11 +79,14 @@ public class DataInitializationSessionBean
         
         try 
         {
-        patientEntitySessionBeanLocal.createNewPatient(new PatientEntity("S9867027A", "1234567", "Sarah", "Yi", "F", 22, "93718799", "13, Clementi Road"));
-        patientEntitySessionBeanLocal.createNewPatient(new PatientEntity("G1314207T", "ABCDEFG", "Rajesh", "Singh", "M", 36, "93506839", "15, Mountbatten Road"));
+        String password1 = patientEntitySessionBeanLocal.hashPassword("123456");
+        String password2 = patientEntitySessionBeanLocal.hashPassword("654321");
+        
+        patientEntitySessionBeanLocal.createNewPatient(new PatientEntity("S9867027A", password1, "Sarah", "Yi", "F", 22, "93718799", "13, Clementi Road"));
+        patientEntitySessionBeanLocal.createNewPatient(new PatientEntity("G1314207T", password2, "Rajesh", "Singh", "M", 36, "93506839", "15, Mountbatten Road"));
         
         }
-        catch (EntityInstanceExistsInCollectionException ex) 
+        catch (EntityInstanceExistsInCollectionException | NoSuchAlgorithmException ex) 
         {
             
         }

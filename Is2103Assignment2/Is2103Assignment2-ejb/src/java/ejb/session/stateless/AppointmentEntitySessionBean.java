@@ -13,6 +13,7 @@ import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import util.exception.AppointmentAlreadyCancelledException;
@@ -52,9 +53,18 @@ public class AppointmentEntitySessionBean implements AppointmentEntitySessionBea
     @Override
     public List<AppointmentEntity> retrieveAllAppointments()
     {
+        List<AppointmentEntity> appointments = new ArrayList<>();
+        try
+        {
         Query query = entityManager.createQuery("SELECT a FROM AppointmentEntity a");
+        appointments = query.getResultList();
+        }
+        catch (NoResultException ex)
+        {
+            
+        }
         
-        return query.getResultList();
+        return  appointments;
     }
     
     
@@ -78,17 +88,31 @@ public class AppointmentEntitySessionBean implements AppointmentEntitySessionBea
     @Override
     public List<String> retrieveAppointmentByPatientIdentityNo(String patientId)
     {
-        Query query = entityManager.createQuery("SELECT a FROM AppointmentEntity a , PatientEntity p WHERE p.identityNumber = :searchId AND p.patientId = a.patientId ").setParameter("searchId", patientId);
         
-        List<AppointmentEntity> patientAppointmentList = query.getResultList();
+        List<AppointmentEntity> patientAppointmentList = new ArrayList<>();
+        try {
+        Query query = entityManager.createQuery("SELECT a FROM AppointmentEntity a , PatientEntity p WHERE p.identityNumber = :searchId AND p = a.patient ").setParameter("searchId", patientId);
         
+        patientAppointmentList = query.getResultList();
+        for (AppointmentEntity appointment : patientAppointmentList)
+        {
+            if (appointment.getIsCancelled())
+            {
+                patientAppointmentList.remove(appointment);
+            }
+        }
+        } 
+        catch (NoResultException ex)
+        {
+            
+        }
         
         ArrayList<String> appointmentDetails = new ArrayList<>();
 
         for (AppointmentEntity appointment : patientAppointmentList)
         {
             DoctorEntity servingDoctor = entityManager.find(DoctorEntity.class, appointment.getDoctorId());
-            String appointmentLine = String.format("%s-1|%s-7|%s-3|%s", appointment.getAppointmentId(), appointment.getAppointmentTime().format(DateTimeFormatter.ISO_LOCAL_DATE), appointment.getAppointmentTime().format(DateTimeFormatter.ISO_LOCAL_TIME), servingDoctor.getFullName());
+            String appointmentLine = String.format("%-1s|%-7s|%-3s|%s\n", appointment.getAppointmentId(), appointment.getAppointmentTime().format(DateTimeFormatter.ISO_LOCAL_DATE), appointment.getAppointmentTime().format(DateTimeFormatter.ISO_LOCAL_TIME), servingDoctor.getFullName());
             appointmentDetails.add(appointmentLine);
         }
         return appointmentDetails;
@@ -98,9 +122,13 @@ public class AppointmentEntitySessionBean implements AppointmentEntitySessionBea
     @Override
     public List<LocalTime> retrieveDoctorAvailableSlotsOnDay(DoctorEntity doctorEntity, LocalDate date)
     {
-        Query query = entityManager.createQuery("SELECT a FROM AppointmentEntity a WHERE a.doctorId = ?1 ");
-        query.setParameter(1, doctorEntity.getDoctorId());
+        Query query = entityManager.createQuery("SELECT a FROM AppointmentEntity a WHERE a.doctor = ?1 ");
+        query.setParameter(1, doctorEntity);
         
+        List<LocalTime> availableSlots = new ArrayList<>();
+        try 
+        {
+            
         List<AppointmentEntity> appointments = query.getResultList();
         List<LocalTime> slotsOnDate = new ArrayList<>();
         for (AppointmentEntity appointment : appointments)
@@ -111,8 +139,8 @@ public class AppointmentEntitySessionBean implements AppointmentEntitySessionBea
             }
         }
         
-        query = entityManager.createQuery("SELECT c FROM ClinicEntity c WHERE c.day = :searchDay");
-        query.setParameter("searchDay", date.getDayOfWeek().toString());
+        query = entityManager.createQuery("SELECT c FROM ClinicEntity c WHERE c.operationDay = :searchDay");
+        query.setParameter("searchDay", date.getDayOfWeek());
         List<ClinicEntity> clinicTimings = query.getResultList();
         
         List<LocalTime> consultationSlots = new ArrayList<>();
@@ -124,18 +152,25 @@ public class AppointmentEntitySessionBean implements AppointmentEntitySessionBea
             
             while (time.isBefore(clinic.getEndOfDay()))
             {
-                time.plusMinutes(30);
+                time = time.plusMinutes(30);
                 consultationSlots.add(time);
             }
         }
         
-        List<LocalTime> availableSlots = new ArrayList<>();
+        
         for (LocalTime slot : consultationSlots) {
             if (!(slotsOnDate.contains(slot)))
             {
                 availableSlots.add(slot);
             }
         }
+        } 
+        catch (NoResultException ex) 
+        {
+            
+        }
+        
+        
         
         return availableSlots;
     }
@@ -143,11 +178,19 @@ public class AppointmentEntitySessionBean implements AppointmentEntitySessionBea
     @Override
     public String hasAppointment(DoctorEntity doctorEntity, LocalDateTime appointmentTime)
     {
-        Query query = entityManager.createQuery("SELECT a FROM AppointmentEntity a WHERE a.doctorId = ?1 AND a.appointmentTime = ?2 ");
-        query.setParameter(1, doctorEntity.getDoctorId());
+        Query query = entityManager.createQuery("SELECT a FROM AppointmentEntity a WHERE a.doctor = ?1 AND a.appointmentTime = ?2 ");
+        query.setParameter(1, doctorEntity);
         query.setParameter(2, appointmentTime);
         
-        AppointmentEntity ae = (AppointmentEntity) query.getSingleResult();
+        AppointmentEntity ae = null;
+        
+        try {
+           ae = (AppointmentEntity) query.getSingleResult();
+        }
+        catch (NoResultException ex)
+        {
+            
+        }
         
         if(ae != null)
         {

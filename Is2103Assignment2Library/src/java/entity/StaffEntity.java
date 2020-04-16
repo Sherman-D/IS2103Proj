@@ -62,7 +62,7 @@ public class StaffEntity implements Serializable, Comparable<StaffEntity>
         
         StaffEntity other = (StaffEntity) object;
         
-        if ((this.staffId == null && other.staffId != null) || (this.staffId != null && !this.staffId.equals(other.staffId))) 
+        if ((this.staffId == null && other.getStaffId() != null) || (this.staffId != null && !this.staffId.equals(other.getStaffId()))) 
         {
             return false;
         }
@@ -74,7 +74,7 @@ public class StaffEntity implements Serializable, Comparable<StaffEntity>
     @Override
     public String toString() 
     {
-        return "entity.StaffEntity[ doctorId=" + this.staffId  + " ]";
+        return "entity.StaffEntity[ staffId=" + this.staffId  + " ]";
     }
 
     public Long getStaffId() {

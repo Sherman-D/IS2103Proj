@@ -61,7 +61,7 @@ public class DoctorEntity implements Serializable, Comparable<DoctorEntity>
         
         DoctorEntity other = (DoctorEntity) object;
         
-        if ((this.doctorId == null && other.doctorId != null) || (this.doctorId != null && !this.doctorId.equals(other.doctorId))) 
+        if ((this.doctorId == null && other.getDoctorId() != null) || (this.doctorId != null && !this.doctorId.equals(other.getDoctorId()))) 
         {
             return false;
         }

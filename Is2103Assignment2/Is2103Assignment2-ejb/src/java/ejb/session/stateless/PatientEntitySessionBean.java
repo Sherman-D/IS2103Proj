@@ -67,7 +67,7 @@ public class PatientEntitySessionBean implements PatientEntitySessionBeanLocal, 
     {
         try
         {
-            PatientEntity patientEntity = retrievePatientByPatientIdentityNumber(identityNumber);
+            PatientEntity patientEntity = retrievePatientByIdentityNumber(identityNumber);
             String passwordHash = hashPassword(password);
             
             if(patientEntity.getPassword().equals(passwordHash))

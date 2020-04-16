@@ -38,7 +38,7 @@ public class StaffEntitySessionBean implements StaffEntitySessionBeanLocal, Staf
     
     @Override
     public Long createNewStaff(StaffEntity newStaffEntity)
-    {
+    {        
         entityManager.persist(newStaffEntity);
         entityManager.flush();
         
@@ -98,8 +98,9 @@ public class StaffEntitySessionBean implements StaffEntitySessionBeanLocal, Staf
         try
         {
             StaffEntity staffEntity = retrieveStaffByUsername(username);
+            String passwordHash = hashPassword(password);
             
-            if(staffEntity.getPassword().equals(password))
+            if(staffEntity.getPassword().equals(passwordHash))
             {        
                 return staffEntity;
             }

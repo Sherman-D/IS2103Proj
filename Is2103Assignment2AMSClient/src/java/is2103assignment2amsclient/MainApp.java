@@ -5,9 +5,12 @@
  */
 package is2103assignment2amsclient;
 
-import java.time.*;
 import java.util.List;
 import java.util.Scanner;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.LocalDateTime;
+import java.util.regex.Pattern;
 import ws.client.ams.AppointmentAlreadyCancelledException_Exception;
 import ws.client.ams.AppointmentEntity;
 import ws.client.ams.AppointmentNotFoundException_Exception;
@@ -66,21 +69,32 @@ public class MainApp {
 
         System.out.println("*** Self-Service Kiosk :: Register ***\n");
 
-        System.out.println("Enter Identity Number> ");
+        System.out.print("Enter Identity Number> ");
         String identityNumber = scanner.nextLine().trim();
-        System.out.println("Enter Password> ");
-        String password = scanner.nextLine().trim();
-        System.out.println("Enter First Name> ");
+       
+        String password = "";
+        while (true) {
+            System.out.print("Enter Password> ");
+            password = scanner.nextLine().trim();
+            if (password.length() != 6 || Pattern.compile("[^0-9]").matcher(password).matches()) 
+            {
+                System.out.println("Your password must be a sequence of 6 digit numbers.");
+                continue;
+            }
+            break;
+        }
+        
+        System.out.print("Enter First Name> ");
         String firstName = scanner.nextLine().trim();
-        System.out.println("Enter Last Name> ");
+        System.out.print("Enter Last Name> ");
         String lastName = scanner.nextLine().trim();
-        System.out.println("Enter Gender> ");
+        System.out.print("Enter Gender> ");
         String gender = scanner.nextLine().trim();
 
         boolean isValid = true;
         Integer age = 0;
         while (isValid) {
-            System.out.println("Enter Age> ");
+            System.out.print("Enter Age> ");
             String ageInput = scanner.nextLine().trim();
 
             try {
@@ -92,9 +106,9 @@ public class MainApp {
             }
         }
 
-        System.out.println("Enter Phone> ");
+        System.out.print("Enter Phone> ");
         String phone = scanner.nextLine().trim();
-        System.out.println("Enter Address> ");
+        System.out.print("Enter Address> ");
         String address = scanner.nextLine();
 
         try {
@@ -204,14 +218,14 @@ public class MainApp {
             List<DoctorEntity> deList = (List<DoctorEntity>) retrieveDoctorsAvailableOnDate(now.toString());
             for (DoctorEntity doctor : deList) 
             { //print list of doctors
-                System.out.println(doctor);
+                System.out.println(doctor.getDoctorId() + " | " + doctor);
             }
             System.out.println();
 
-            System.out.println("Enter Doctor Id> ");
+            System.out.print("Enter Doctor Id> ");
             Long doctorId = Long.valueOf(scanner.nextLine().trim());
 
-            System.out.println("Enter Date> ");
+            System.out.print("Enter Date> ");
             String d = scanner.nextLine().trim();
             LocalDate date = LocalDate.parse(d);
             LocalDate twoDays = LocalDate.now().plusDays(2);
@@ -244,22 +258,27 @@ public class MainApp {
             
            while (true) 
             {
-                System.out.println("Enter Time> ");
+                System.out.print("Enter Time> ");
                 String selectedTime = scanner.nextLine().trim();
                 
+                if (selectedTime.equals("cancel")) {
+                    return;
+                }
                 
                 if (!availableSlots.contains(selectedTime)) {
-                    System.out.println("That timing is not available. Please choose another time slot");
+                    System.out.println("That timing is not available. Please choose another time slot. Otherwise, enter \" cancel \" to cancel.");
                     continue;
+                }
+                break;
             }
         
             createNewAppointment(currentPatient.getPatientId(), doctorId, date.atTime(time).toString());
         
-            System.out.printf("%s%s appointment with Dr. %s %s at %d:%d on %d-%d-%d has been added. \n", currentPatient.getFirstName(), currentPatient.getLastName(), de.getFirstName(), de.getLastName(), time.getHour(), time.getMinute(), date.getYear(), date.getMonth(), date.getDayOfMonth());
-            }
+            System.out.printf("%s %s appointment with Dr. %s %s at %01d:%01d on %d-%01d-%01d has been added. \n", currentPatient.getFirstName(), currentPatient.getLastName(), de.getFirstName(), de.getLastName(), time.getHour(), time.getMinute(), date.getYear(), date.getMonthValue(), date.getDayOfMonth());
+            
         
         } catch (DoctorNotFoundException_Exception | PatientNotFoundException_Exception ex) {
-            System.out.println("No Doctors Found: " + ex.getMessage());
+            System.out.println("Error in creating appointment: " + ex.getMessage());
         }
     }
 
@@ -268,24 +287,29 @@ public class MainApp {
 
         System.out.println("*** AMS Client :: Cancel Appointment ***\n");
         System.out.println("Appointments:");
-        System.out.printf("%s-1|%s-7|%s-3|%s", "Id", "Date", "Time", "Doctor");
-        System.out.println();
+        System.out.printf("%-1s|%-7s|%-3s|%s\n", "Id", "Date", "Time", "Doctor");
         List<String> appts = retrieveAppointmentByPatientIdentityNo(currentPatient.getIdentityNumber());
        
+        if (appts.isEmpty())
+            {
+                System.out.println("No appointments with the associated patient were found.");
+                return;
+            }
+        
         for (String s : appts) {
             System.out.println(s);
         }
         System.out.println();
 
-        System.out.println("Enter Appointment Id> ");
+        System.out.print("Enter Appointment Id> ");
         String in = scanner.nextLine().trim();
         Long appointmentId = Long.valueOf(in);
 
         try {
             AppointmentEntity appointment = cancelAppointment(appointmentId);
             DoctorEntity de = appointment.getDoctor();
-            LocalDateTime appointmentTime = appointment.getAppointmentTime();
-           System.out.printf("%s%s appointment with Dr. %s %s at %d:%d on %d-%d-%d has been cancelled", currentPatient.getFirstName(), currentPatient.getLastName(), de.getFirstName(), de.getLastName(), appointmentTime.getHour(), appointmentTime.getMinute(), appointmentTime.getYear(), appointmentTime.getMonth(), appointmentTime.getDayOfMonth());
+            LocalDateTime appointmentTime = LocalDateTime.parse(appointment.getDateTime());
+           System.out.printf("%s %s appointment with Dr. %s %s at %01d:%01d on %d-%01d-%01d has been cancelled. \n", currentPatient.getFirstName(), currentPatient.getLastName(), de.getFirstName(), de.getLastName(), appointmentTime.getHour(), appointmentTime.getMinute(), appointmentTime.getYear(), appointmentTime.getMonthValue(), appointmentTime.getDayOfMonth());
         } catch (AppointmentNotFoundException_Exception | AppointmentAlreadyCancelledException_Exception |  DoctorNotFoundException_Exception | EntityMismatchException_Exception ex) {
             System.out.println("Error cancelling appointment: " + ex.getMessage());
         }

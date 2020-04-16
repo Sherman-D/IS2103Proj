@@ -13,6 +13,7 @@ import entity.StaffEntity;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.regex.Pattern;
 import util.exception.DoctorNotFoundException;
 import util.exception.EntityInstanceExistsInCollectionException;
 import util.exception.EntityManagerException;
@@ -147,21 +148,32 @@ public class AdministrationOperationModule {
 
         System.out.println("*** CARS :: Administartion Operation :: Patient Management :: Register New Patient ***\n");
 
-        System.out.println("Enter Identity Number> ");
+        System.out.print("Enter Identity Number> ");
         String identityNumber = scanner.nextLine().trim();
-        System.out.println("Enter Password> ");
-        String password = scanner.nextLine().trim();
-        System.out.println("Enter First Name> ");
+        
+        String password = "";
+        while (true) {
+            System.out.print("Enter Password> ");
+            password = scanner.nextLine().trim();
+            if (password.length() != 6 || Pattern.compile("[^0-9]").matcher(password).matches()) 
+            {
+                System.out.println("Your password must be a sequence of 6 digit numbers.");
+                continue;
+            }
+            break;
+        }
+        
+        System.out.print("Enter First Name> ");
         String firstName = scanner.nextLine().trim();
-        System.out.println("Enter Last Name> ");
+        System.out.print("Enter Last Name> ");
         String lastName = scanner.nextLine().trim();
-        System.out.println("Enter Gender> ");
+        System.out.print("Enter Gender> ");
         String gender = scanner.nextLine().trim();
-        System.out.println("Enter Age> ");
+        System.out.print("Enter Age> ");
         Integer age = Integer.parseInt(scanner.nextLine().trim());
-        System.out.println("Enter Phone> ");
+        System.out.print("Enter Phone> ");
         String phone = scanner.nextLine().trim();
-        System.out.println("Enter Address> ");
+        System.out.print("Enter Address> ");
         String address = scanner.nextLine();
 
         try
@@ -184,14 +196,14 @@ public class AdministrationOperationModule {
 
         System.out.println("*** CARS :: Appointment Operation :: View Patient Details ***\n");
 
-        System.out.println("Enter Patient Identity Number> ");
+        System.out.print("Enter Patient Identity Number> ");
         String identityNumber = scanner.nextLine().trim();
         try
         {
             PatientEntity pe = patientEntitySessionBeanRemote.retrievePatientByIdentityNumber(identityNumber);
-            String header = String.format("%s-10|%s-10|%s-1|%s-1|%s-4|%s", "First Name", "Last Name", "Gender", "Age", "Phone", "Address");
+            String header = String.format("%-10s|%-10s|%-1s|%-1s|%-4s|%s \n", "First Name", "Last Name", "Gender", "Age", "Phone", "Address");
             System.out.println(header);
-            String patientDetails = String.format("%s-10|%s-10|%s-1|%s-1|%s-4|%s", pe.getFirstName(), pe.getLastName(), pe.getGender(), pe.getAge(), pe.getPhone(), pe.getAddress());
+            String patientDetails = String.format("%-10s|%-10s|%-1s|%-1s|%-4s|%s \n", pe.getFirstName(), pe.getLastName(), pe.getGender(), pe.getAge(), pe.getPhone(), pe.getAddress());
             System.out.println(patientDetails);
 
         }
@@ -207,7 +219,7 @@ public class AdministrationOperationModule {
 
         System.out.println("*** CARS :: Administration Operation :: Patient Management :: Update Patient ***\n");
 
-        System.out.println("Enter Patient Identity Number> ");
+        System.out.print("Enter Patient Identity Number> ");
         String identityNumber = scanner.nextLine().trim();
 
         try
@@ -217,17 +229,17 @@ public class AdministrationOperationModule {
             String password = pe.getPassword();
 //            System.out.println("Enter Password> ");
 //            String password = scanner.nextLine().trim();
-            System.out.println("Enter First Name> ");
+            System.out.print("Enter First Name> ");
             String firstName = scanner.nextLine().trim();
-            System.out.println("Enter Last Name> ");
+            System.out.print("Enter Last Name> ");
             String lastName = scanner.nextLine().trim();
-            System.out.println("Enter Gender> ");
+            System.out.print("Enter Gender> ");
             String gender = scanner.nextLine().trim();
-            System.out.println("Enter Age> ");
+            System.out.print("Enter Age> ");
             Integer age = Integer.parseInt(scanner.nextLine().trim());
-            System.out.println("Enter Phone> ");
+            System.out.print("Enter Phone> ");
             String phone = scanner.nextLine().trim();
-            System.out.println("Enter Address> ");
+            System.out.print("Enter Address> ");
             String address = scanner.nextLine();
 
             PatientEntity pe1 = new PatientEntity(identityNumber, password, firstName, lastName, gender, age, phone, address);
@@ -248,7 +260,7 @@ public class AdministrationOperationModule {
 
         System.out.println("*** CARS :: Administration Operation :: Patient Management :: Delete Patient ***\n");
 
-        System.out.println("Enter Patient Identity Number> ");
+        System.out.print("Enter Patient Identity Number> ");
         String identityNumber = scanner.nextLine().trim();
 
         try
@@ -269,11 +281,11 @@ public class AdministrationOperationModule {
         System.out.println("*** CARS :: Administration Operation :: Patient Management :: View All Patients ***\n");
 
         List<PatientEntity> patientList = patientEntitySessionBeanRemote.retrieveAllPatients();
-        String header = String.format("%s-1|%s-10|%s-10|%s-1|%s-1|%s-4|%s", "patientId", "First Name", "Last Name", "Gender", "Age", "Phone", "Address");
+        String header = String.format("%-1s|%-10s|%-10s|%-10s|%-1s|%-1s|%-4s|%s \n", "Id", "identity Number", "First Name", "Last Name", "Gender", "Age", "Phone", "Address");
         System.out.println(header);
         for(PatientEntity pe : patientList)
         {
-            String patientDetails = String.format("%s-1|%s-10|%s-10|%s-1|%s-1|%s-4|%s", pe.getPatientId(), pe.getFirstName(), pe.getLastName(), pe.getGender(), pe.getAge(), pe.getPhone(), pe.getAddress());
+            String patientDetails = String.format("%-1s|%-10s|%-10s|%-10s|%-1s|%-1s|%-4s|%s", pe.getPatientId(), pe.getIdentityNumber(), pe.getFirstName(), pe.getLastName(), pe.getGender(), pe.getAge(), pe.getPhone(), pe.getAddress());
             System.out.println(patientDetails);
         }
     }
@@ -348,13 +360,13 @@ public class AdministrationOperationModule {
 
         System.out.println("*** CARS :: Administartion Operation :: Doctor Management :: Add Doctor ***\n");
 
-        System.out.println("Enter First Name> ");
+        System.out.print("Enter First Name> ");
         String firstName = scanner.nextLine().trim();
-        System.out.println("Enter Last Name> ");
+        System.out.print("Enter Last Name> ");
         String lastName = scanner.nextLine().trim();
-        System.out.println("Enter Registration> ");
+        System.out.print("Enter Registration> ");
         String registration = scanner.nextLine().trim();
-        System.out.println("Enter Qualification> ");
+        System.out.print("Enter Qualification> ");
         String qualification = scanner.nextLine().trim();
 
 
@@ -371,17 +383,17 @@ public class AdministrationOperationModule {
 
         System.out.println("*** CARS :: Administartion Operation :: Doctor Management :: View Doctor Details ***\n");
 
-        System.out.println("Enter First Name> ");
+        System.out.print("Enter First Name> ");
         String firstName = scanner.nextLine().trim();
-        System.out.println("Enter Last Name> ");
+        System.out.print("Enter Last Name> ");
         String lastName = scanner.nextLine().trim();
 
         try
         {
             DoctorEntity de = doctorEntitySessionBeanRemote.retrieveDoctorByDoctorName(firstName, lastName);
-            String header = String.format("%s-1|%s-10|%s-10|%s-1|%s", "doctorId", "First Name", "Last Name", "Registration", "Qualification");
+            String header = String.format("%-1s|%s-10|%s-10|%s-1|%s\n", "doctorId", "First Name", "Last Name", "Registration", "Qualification");
             System.out.println(header);
-            String doctorDetails = String.format("%s-1|%s-10|%s-10|%s-1|%s", de.getDoctorId(), de.getFirstName(), de.getLastName(), de.getRegistration(), de.getQualification());
+            String doctorDetails = String.format("%-1s|%s-10|%s-10|%s-1|%s", de.getDoctorId(), de.getFirstName(), de.getLastName(), de.getRegistration(), de.getQualification());
             System.out.println(doctorDetails);
         }
         catch(DoctorNotFoundException ex)
@@ -397,22 +409,22 @@ public class AdministrationOperationModule {
 
         System.out.println("*** CARS :: Administration Operation :: Doctor Management :: Update Doctor ***\n");
 
-        System.out.println("Enter First Name> ");
+        System.out.print("Enter First Name> ");
         String firstName = scanner.nextLine().trim();
-        System.out.println("Enter Last Name> ");
+        System.out.print("Enter Last Name> ");
         String lastName = scanner.nextLine().trim();
 
 
         try
         {
             DoctorEntity de = doctorEntitySessionBeanRemote.retrieveDoctorByDoctorName(firstName, lastName);
-            System.out.println("Enter First Name> ");
+            System.out.print("Enter First Name> ");
             String firstName1 = scanner.nextLine().trim();
-            System.out.println("Enter Last Name> ");
+            System.out.print("Enter Last Name> ");
             String lastName1 = scanner.nextLine().trim();
-            System.out.println("Enter Registration> ");
+            System.out.print("Enter Registration> ");
             String registration1 = scanner.nextLine().trim();
-            System.out.println("Enter Qualifications> ");
+            System.out.print("Enter Qualifications> ");
             String qualifications = scanner.nextLine().trim();
 
             Long doctorId = de.getDoctorId();
@@ -434,9 +446,9 @@ public class AdministrationOperationModule {
 
         System.out.println("*** CARS :: Administration Operation :: Doctor Management :: Delete Doctor ***\n");
 
-        System.out.println("Enter First Name> ");
+        System.out.print("Enter First Name> ");
         String firstName = scanner.nextLine().trim();
-        System.out.println("Enter Last Name> ");
+        System.out.print("Enter Last Name> ");
         String lastName = scanner.nextLine().trim();
 
         try
@@ -459,10 +471,10 @@ public class AdministrationOperationModule {
         System.out.println("*** CARS :: Administration Operation :: Doctor Management :: View All Doctors ***\n");
 
         List<DoctorEntity> doctorList = doctorEntitySessionBeanRemote.retrieveAllDoctors();
-        String header = String.format("%s-1|%s-10|%s-10|%s-1|%s", "doctorId", "First Name", "Last Name", "Registration", "Qualification");
+        String header = String.format("%-1s|%-10s|%-10s|%-1s|%s\n", "doctorId", "First Name", "Last Name", "Registration", "Qualification");
         System.out.println(header);
         for(DoctorEntity de : doctorList){
-            String doctorDetails = String.format("%s-1|%s-10|%s-10|%s-1|%s", de.getDoctorId(), de.getFirstName(), de.getLastName(), de.getRegistration(), de.getQualification());
+            String doctorDetails = String.format("%-1s|%-10s|%-10s|%-1s|%s", de.getDoctorId(), de.getFirstName(), de.getLastName(), de.getRegistration(), de.getQualification());
             System.out.println(doctorDetails);
         }
     }
@@ -566,9 +578,9 @@ public class AdministrationOperationModule {
         try
         {
             StaffEntity se = staffEntitySessionBeanRemote.retrieveStaffByUsername(username);
-            String header = String.format("%s-1|%s-10|%s-10|%s-1|%s", "staffId", "First Name", "Last Name", "Username", "Password");
+            String header = String.format("-1s|%-10s|%-10s|%-1s|%s \n", "staffId", "First Name", "Last Name", "Username", "Password");
             System.out.println(header);
-            String staffDetails = String.format("%s-1|%s-10|%s-10|%s-1|%s", se.getStaffId(), se.getFirstName(), se.getLastName(), se.getUserName(), se.getPassword());
+            String staffDetails = String.format("-1s|%-10s|%-10s|%-1s|%s", se.getStaffId(), se.getFirstName(), se.getLastName(), se.getUserName(), se.getPassword());
             System.out.println(staffDetails);
         }
         catch(StaffNotFoundException ex)
@@ -646,10 +658,10 @@ public class AdministrationOperationModule {
         System.out.println("*** CARS :: Administration Operation :: Staff Management :: View All Staff ***\n");
 
         List<StaffEntity> staffList = staffEntitySessionBeanRemote.retrieveAllStaffs();
-        String header = String.format("%s-1|%s-10|%s-10|%s-1|%s", "staffId", "First Name", "Last Name", "Username", "Password");
+        String header = String.format("%-1s|%-10s|%-10s|%-1s|%s\n", "staffId", "First Name", "Last Name", "Username", "Password");
         System.out.println(header);
         for(StaffEntity se : staffList){
-            String staffDetails = String.format("%s-1|%s-10|%s-10|%s-1|%s", se.getStaffId(), se.getFirstName(), se.getLastName(), se.getUserName(), se.getPassword());
+            String staffDetails = String.format("%-1s|%-10s|%-10s|%-1s|%s", se.getStaffId(), se.getFirstName(), se.getLastName(), se.getUserName(), se.getPassword());
             System.out.println(staffDetails);
         }
     }

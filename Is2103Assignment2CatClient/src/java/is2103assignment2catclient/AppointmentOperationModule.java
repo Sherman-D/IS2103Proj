@@ -87,7 +87,7 @@ public class AppointmentOperationModule {
         
         System.out.println("*** CARS :: Appointment Operation :: View Patient Appointments ***");
         
-        System.out.println("Enter Patient Identity Number> ");
+        System.out.print("Enter Patient Identity Number> ");
         String patientIdentityNumber = scanner.nextLine().trim();
         
         try
@@ -95,8 +95,8 @@ public class AppointmentOperationModule {
         PatientEntity patient = patientEntitySessionBeanRemote.retrievePatientByIdentityNumber(patientIdentityNumber);
         
         System.out.println("Appointments: ");
-        System.out.printf("%s-1|%s-7|%s-3|%s", "Id", "Date", "Time", "Doctor");
-        List<String> appointments = appointmentEntitySessionBeanRemote.retrieveAppointmentByPatientIdentityNo(patient.getPatientId().toString());
+        System.out.printf("%-1s|%-7s|%-3s|%s\n", "Id", "Date", "Time", "Doctor");
+        List<String> appointments = appointmentEntitySessionBeanRemote.retrieveAppointmentByPatientIdentityNo(patient.getIdentityNumber());
         
         for (String appointment : appointments)
         {
@@ -121,14 +121,14 @@ public class AppointmentOperationModule {
         List<DoctorEntity> doctors = doctorEntitySessionBeanRemote.retrieveAllDoctors();
         for (DoctorEntity doctor : doctors)
         {
-            System.out.printf("%d | %s", doctor.getDoctorId(), doctor.getFullName());
+            System.out.printf("%d | %s \n", doctor.getDoctorId(), doctor.getFullName());
         }
         
-        System.out.println("Enter Doctor Id> ");
+        System.out.print("Enter Doctor Id> ");
         String did = scanner.nextLine().trim();
         Long doctorId = Long.valueOf(did);
         
-        System.out.println("Enter Date> ");
+        System.out.print("Enter Date> ");
         String d = scanner.nextLine().trim();
         LocalDate date = LocalDate.parse(d);
         LocalDate twoDays = LocalDate.now().plusDays(2);
@@ -163,28 +163,30 @@ public class AppointmentOperationModule {
            
             LocalTime time = LocalTime.MIDNIGHT;
             
-            while (true) 
-            {
-                System.out.println("Enter Time> ");
+            while (true) {
+                System.out.print("Enter Time> ");
                 String t = scanner.nextLine().trim();
+                if (t.equals("cancel")) {
+                    return;
+                }
                 time = LocalTime.parse(t);
-                
+
                 if (!availableSlots.contains(time)) {
-                    System.out.println("That timing is not available. Please choose another time slot");
+                    System.out.println("That timing is not available. Please choose another time slot. Otherwise, enter \" cancel \" to cancel.");
                     continue;
+                }
+                break;
             }
-                
-        
-            System.out.println("Enter Patient Identity Number> ");
+
+            System.out.print("Enter Patient Identity Number> ");
             //Error checking if the ID entered does not belong to a registered patient
             String patientId = scanner.nextLine().trim();
             PatientEntity patient = patientEntitySessionBeanRemote.retrievePatientByIdentityNumber(patientId);
         
             appointmentEntitySessionBeanRemote.createNewAppointment(new AppointmentEntity(patient, de, date.atTime(time)));
         
-            System.out.printf("%s%s appointment with Dr. %s at %d:%d on %d-%d-%d has been added", patient.getFirstName(), patient.getLastName(), de.getFullName(), time.getHour(), time.getMinute(), date.getYear(), date.getMonth(), date.getDayOfMonth());
+            System.out.printf("%s %s appointment with Dr. %s at %01d:%01d on %d-%01d-%01d has been added. \n", patient.getFirstName(), patient.getLastName(), de.getFullName(), time.getHour(), time.getMinute(), date.getYear(), date.getMonthValue(), date.getDayOfMonth());
             }
-        }
         catch(PatientNotFoundException | DoctorNotFoundException ex)
         {
             System.out.println("Invalid Input: "+ex.getMessage());
@@ -199,19 +201,25 @@ public class AppointmentOperationModule {
         
         try 
         {
-            System.out.println("Enter Patient Identity Number> ");
+            System.out.print("Enter Patient Identity Number> ");
             String patientId = scanner.nextLine().trim();
             PatientEntity patient = patientEntitySessionBeanRemote.retrievePatientByIdentityNumber(patientId);
             
             System.out.println("Appointments: ");
-            System.out.printf("%s-1|%s-7|%s-3|%s", "Id", "Date", "Time", "Doctor");
+            System.out.printf("%-1s|%-7s|%-3s|%s\n", "Id", "Date", "Time", "Doctor");
             List<String> appointments = appointmentEntitySessionBeanRemote.retrieveAppointmentByPatientIdentityNo(patientId);
+            if (appointments.isEmpty())
+            {
+                System.out.println("No appointments with the associated patient were found.");
+                return;
+            }
+            
             for (String appointment : appointments)
             {
                 System.out.println(appointment);
             }
             
-            System.out.println("Enter Appointment Id> ");
+            System.out.print("Enter Appointment Id> ");
             Long appointmentId = Long.parseLong(scanner.nextLine().trim());
             AppointmentEntity appointment = appointmentEntitySessionBeanRemote.retrieveAppointmentByAppointmentId(appointmentId);
             DoctorEntity de = doctorEntitySessionBeanRemote.retrieveDoctorByDoctorId(appointment.getDoctorId());
@@ -219,7 +227,7 @@ public class AppointmentOperationModule {
             
             appointmentEntitySessionBeanRemote.cancelAppointment(appointment);
             //Send cancel status to database entry. 
-           System.out.printf("%s%s appointment with Dr. %s at %d:%d on %d-%d-%d has been added", patient.getFirstName(), patient.getLastName(), de.getFullName(), appointmentTime.getHour(), appointmentTime.getMinute(), appointmentTime.getYear(), appointmentTime.getMonth(), appointmentTime.getDayOfMonth());
+           System.out.printf("%s %s appointment with Dr. %s at %01d:%01d on %d-%01d-%01d has been cancelled. \n", patient.getFirstName(), patient.getLastName(), de.getFullName(), appointmentTime.getHour(), appointmentTime.getMinute(), appointmentTime.getYear(), appointmentTime.getMonthValue(), appointmentTime.getDayOfMonth());
         } catch(AppointmentNotFoundException | AppointmentAlreadyCancelledException |EntityMismatchException | PatientNotFoundException |DoctorNotFoundException ex)
         {
             System.out.println("Error: " + ex.getMessage());

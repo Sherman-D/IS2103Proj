@@ -66,10 +66,16 @@
 
 <xs:complexType name="appointmentEntity">
 <xs:sequence>
+<xs:element name="appointmentTime" type="tns:localDateTime" minOccurs="0"/>
+<xs:element name="dateTime" type="xs:string" minOccurs="0"/>
 <xs:element name="doctor" type="tns:doctorEntity" minOccurs="0"/>
 <xs:element name="isConfirmed" type="xs:boolean" minOccurs="0"/>
 <xs:element name="patient" type="tns:patientEntity" minOccurs="0"/>
 </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="localDateTime" final="extension restriction">
+<xs:sequence/>
 </xs:complexType>
 
 <xs:complexType name="doctorEntity">

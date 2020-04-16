@@ -11,6 +11,7 @@ import java.util.List;
 import javax.ejb.Local;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import util.exception.AppointmentAlreadyCancelledException;
@@ -66,10 +67,16 @@ public class AppointmentEntityController implements AppointmentEntityControllerL
      @Override
     public List<String> retrieveAppointmentByPatientId(Long patientId)
     {
-        Query query = entityManager.createQuery("SELECT a FROM AppointmentEntity a , PatientEntity p WHERE p.patientId = :searchId AND p.patientId = a.patient ").setParameter("searchId", patientId);
+        Query query = entityManager.createQuery("SELECT a FROM AppointmentEntity a , PatientEntity p WHERE p.patientId = :searchId AND p = a.patient ").setParameter("searchId", patientId);
         
         List<AppointmentEntity> patientAppointmentList = query.getResultList();
-        
+         for (AppointmentEntity appointment : patientAppointmentList)
+        {
+            if (appointment.getIsCancelled())
+            {
+                patientAppointmentList.remove(appointment);
+            }
+        }
         
         ArrayList<String> appointmentDetails = new ArrayList<>();
 
@@ -83,6 +90,33 @@ public class AppointmentEntityController implements AppointmentEntityControllerL
         return appointmentDetails;
     }
     
+    
+    @Override
+    public List<String> retrieveAppointmentByPatientIdentityNo(String patientId)
+    {
+        
+        List<AppointmentEntity> patientAppointmentList = new ArrayList<>();
+        try {
+        Query query = entityManager.createQuery("SELECT a FROM AppointmentEntity a , PatientEntity p WHERE p.identityNumber = :searchId AND p = a.patient ").setParameter("searchId", patientId);
+        
+        patientAppointmentList = query.getResultList();
+        } 
+        catch (NoResultException ex)
+        {
+            
+        }
+        
+        ArrayList<String> appointmentDetails = new ArrayList<>();
+
+        for (AppointmentEntity appointment : patientAppointmentList)
+        {
+            DoctorEntity servingDoctor = entityManager.find(DoctorEntity.class, appointment.getDoctorId());
+            String appointmentLine = String.format("%s-1|%s-7|%s-3|%s", appointment.getAppointmentId(), appointment.getAppointmentTime().format(DateTimeFormatter.ISO_LOCAL_DATE), appointment.getAppointmentTime().format(DateTimeFormatter.ISO_LOCAL_TIME), servingDoctor.getFullName());
+            appointmentDetails.add(appointmentLine);
+        }
+        return appointmentDetails;
+        
+    }
     
     @Override
     public void confirmAppointment(Long patientId,Long appointmentId) throws AppointmentNotFoundException
@@ -117,12 +151,18 @@ public class AppointmentEntityController implements AppointmentEntityControllerL
         }
     } 
     
+    
     @Override
     public List<LocalTime> retrieveDoctorAvailableSlotsOnDay(Long doctorId, LocalDate date)
     {
-        Query query = entityManager.createQuery("SELECT a FROM AppointmentEntity a WHERE a.doctor= ?1 ");
-        query.setParameter(1, doctorId);
+        DoctorEntity doctor = (DoctorEntity) entityManager.createQuery("SELECT d FROM DoctorEntity d WHERE d.doctorId = :doctor").setParameter("doctor", doctorId).getSingleResult();
+        Query query = entityManager.createQuery("SELECT a FROM AppointmentEntity a WHERE a.doctor = ?1 ");
+        query.setParameter(1, doctor);
         
+        List<LocalTime> availableSlots = new ArrayList<>();
+        try 
+        {
+            
         List<AppointmentEntity> appointments = query.getResultList();
         List<LocalTime> slotsOnDate = new ArrayList<>();
         for (AppointmentEntity appointment : appointments)
@@ -134,7 +174,7 @@ public class AppointmentEntityController implements AppointmentEntityControllerL
         }
         
         query = entityManager.createQuery("SELECT c FROM ClinicEntity c WHERE c.operationDay = :searchDay");
-        query.setParameter("searchDay", date.getDayOfWeek().toString());
+        query.setParameter("searchDay", date.getDayOfWeek());
         List<ClinicEntity> clinicTimings = query.getResultList();
         
         List<LocalTime> consultationSlots = new ArrayList<>();
@@ -146,39 +186,24 @@ public class AppointmentEntityController implements AppointmentEntityControllerL
             
             while (time.isBefore(clinic.getEndOfDay()))
             {
-                time.plusMinutes(30);
+                time = time.plusMinutes(30);
                 consultationSlots.add(time);
             }
         }
         
-        List<LocalTime> availableSlots = new ArrayList<>();
+        
         for (LocalTime slot : consultationSlots) {
             if (!(slotsOnDate.contains(slot)))
             {
                 availableSlots.add(slot);
             }
         }
+        } 
+        catch (NoResultException ex) 
+        {
+            
+        }
         
         return availableSlots;
-    }
-    
-    @Override
-    public List<String> retrieveAppointmentByPatientIdentityNo(String patientId)
-    {
-        Query query = entityManager.createQuery("SELECT a FROM AppointmentEntity a , PatientEntity p WHERE p.identityNumber = :searchId AND p.patientId = a.patient ").setParameter("searchId", patientId);
-        
-        List<AppointmentEntity> patientAppointmentList = query.getResultList();
-        
-        
-        ArrayList<String> appointmentDetails = new ArrayList<>();
-
-        for (AppointmentEntity appointment : patientAppointmentList)
-        {
-            DoctorEntity servingDoctor = entityManager.find(DoctorEntity.class, appointment.getDoctorId());
-            String appointmentLine = String.format("%s-1|%s-7|%s-3|%s", appointment.getAppointmentId(), appointment.getAppointmentTime().format(DateTimeFormatter.ISO_LOCAL_DATE), appointment.getAppointmentTime().format(DateTimeFormatter.ISO_LOCAL_TIME), servingDoctor.getFullName());
-            appointmentDetails.add(appointmentLine);
-        }
-        return appointmentDetails;
-        
     }
 }

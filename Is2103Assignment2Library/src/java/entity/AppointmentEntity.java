@@ -10,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 @Entity
 public class AppointmentEntity implements Serializable, Comparable<AppointmentEntity>  
@@ -74,7 +75,7 @@ public class AppointmentEntity implements Serializable, Comparable<AppointmentEn
         
         AppointmentEntity other = (AppointmentEntity) object;
         
-        if ((this.appointmentId == null && other.appointmentId != null) || (this.appointmentId != null && !this.appointmentId.equals(other.appointmentId))) 
+        if ((this.appointmentId == null && other.getAppointmentId() != null) || (this.appointmentId != null && !this.appointmentId.equals(other.getAppointmentId()))) 
         {
             return false;
         }

@@ -37,18 +37,6 @@
 <message name="PatientNotFoundException">
 <part name="fault" element="tns:PatientNotFoundException"/>
 </message>
-<message name="retrieveDoctorByDoctorId">
-<part name="parameters" element="tns:retrieveDoctorByDoctorId"/>
-</message>
-<message name="retrieveDoctorByDoctorIdResponse">
-<part name="parameters" element="tns:retrieveDoctorByDoctorIdResponse"/>
-</message>
-<message name="retrieveDoctorsAvailableOnDate">
-<part name="parameters" element="tns:retrieveDoctorsAvailableOnDate"/>
-</message>
-<message name="retrieveDoctorsAvailableOnDateResponse">
-<part name="parameters" element="tns:retrieveDoctorsAvailableOnDateResponse"/>
-</message>
 <message name="cancelAppointment">
 <part name="parameters" element="tns:cancelAppointment"/>
 </message>
@@ -63,6 +51,18 @@
 </message>
 <message name="EntityMismatchException">
 <part name="fault" element="tns:EntityMismatchException"/>
+</message>
+<message name="retrieveDoctorByDoctorId">
+<part name="parameters" element="tns:retrieveDoctorByDoctorId"/>
+</message>
+<message name="retrieveDoctorByDoctorIdResponse">
+<part name="parameters" element="tns:retrieveDoctorByDoctorIdResponse"/>
+</message>
+<message name="retrieveDoctorsAvailableOnDate">
+<part name="parameters" element="tns:retrieveDoctorsAvailableOnDate"/>
+</message>
+<message name="retrieveDoctorsAvailableOnDateResponse">
+<part name="parameters" element="tns:retrieveDoctorsAvailableOnDateResponse"/>
 </message>
 <message name="retrieveAppointmentByPatientIdentityNo">
 <part name="parameters" element="tns:retrieveAppointmentByPatientIdentityNo"/>
@@ -95,6 +95,14 @@
 <fault message="tns:DoctorNotFoundException" name="DoctorNotFoundException" wsam:Action="http://ws.session.ejb/IS2103Assignment2WebService/createNewAppointment/Fault/DoctorNotFoundException"/>
 <fault message="tns:PatientNotFoundException" name="PatientNotFoundException" wsam:Action="http://ws.session.ejb/IS2103Assignment2WebService/createNewAppointment/Fault/PatientNotFoundException"/>
 </operation>
+<operation name="cancelAppointment">
+<input wsam:Action="http://ws.session.ejb/IS2103Assignment2WebService/cancelAppointmentRequest" message="tns:cancelAppointment"/>
+<output wsam:Action="http://ws.session.ejb/IS2103Assignment2WebService/cancelAppointmentResponse" message="tns:cancelAppointmentResponse"/>
+<fault message="tns:AppointmentNotFoundException" name="AppointmentNotFoundException" wsam:Action="http://ws.session.ejb/IS2103Assignment2WebService/cancelAppointment/Fault/AppointmentNotFoundException"/>
+<fault message="tns:AppointmentAlreadyCancelledException" name="AppointmentAlreadyCancelledException" wsam:Action="http://ws.session.ejb/IS2103Assignment2WebService/cancelAppointment/Fault/AppointmentAlreadyCancelledException"/>
+<fault message="tns:DoctorNotFoundException" name="DoctorNotFoundException" wsam:Action="http://ws.session.ejb/IS2103Assignment2WebService/cancelAppointment/Fault/DoctorNotFoundException"/>
+<fault message="tns:EntityMismatchException" name="EntityMismatchException" wsam:Action="http://ws.session.ejb/IS2103Assignment2WebService/cancelAppointment/Fault/EntityMismatchException"/>
+</operation>
 <operation name="retrieveDoctorByDoctorId">
 <input wsam:Action="http://ws.session.ejb/IS2103Assignment2WebService/retrieveDoctorByDoctorIdRequest" message="tns:retrieveDoctorByDoctorId"/>
 <output wsam:Action="http://ws.session.ejb/IS2103Assignment2WebService/retrieveDoctorByDoctorIdResponse" message="tns:retrieveDoctorByDoctorIdResponse"/>
@@ -104,14 +112,6 @@
 <input wsam:Action="http://ws.session.ejb/IS2103Assignment2WebService/retrieveDoctorsAvailableOnDateRequest" message="tns:retrieveDoctorsAvailableOnDate"/>
 <output wsam:Action="http://ws.session.ejb/IS2103Assignment2WebService/retrieveDoctorsAvailableOnDateResponse" message="tns:retrieveDoctorsAvailableOnDateResponse"/>
 <fault message="tns:DoctorNotFoundException" name="DoctorNotFoundException" wsam:Action="http://ws.session.ejb/IS2103Assignment2WebService/retrieveDoctorsAvailableOnDate/Fault/DoctorNotFoundException"/>
-</operation>
-<operation name="cancelAppointment">
-<input wsam:Action="http://ws.session.ejb/IS2103Assignment2WebService/cancelAppointmentRequest" message="tns:cancelAppointment"/>
-<output wsam:Action="http://ws.session.ejb/IS2103Assignment2WebService/cancelAppointmentResponse" message="tns:cancelAppointmentResponse"/>
-<fault message="tns:AppointmentNotFoundException" name="AppointmentNotFoundException" wsam:Action="http://ws.session.ejb/IS2103Assignment2WebService/cancelAppointment/Fault/AppointmentNotFoundException"/>
-<fault message="tns:AppointmentAlreadyCancelledException" name="AppointmentAlreadyCancelledException" wsam:Action="http://ws.session.ejb/IS2103Assignment2WebService/cancelAppointment/Fault/AppointmentAlreadyCancelledException"/>
-<fault message="tns:DoctorNotFoundException" name="DoctorNotFoundException" wsam:Action="http://ws.session.ejb/IS2103Assignment2WebService/cancelAppointment/Fault/DoctorNotFoundException"/>
-<fault message="tns:EntityMismatchException" name="EntityMismatchException" wsam:Action="http://ws.session.ejb/IS2103Assignment2WebService/cancelAppointment/Fault/EntityMismatchException"/>
 </operation>
 <operation name="retrieveAppointmentByPatientIdentityNo">
 <input wsam:Action="http://ws.session.ejb/IS2103Assignment2WebService/retrieveAppointmentByPatientIdentityNoRequest" message="tns:retrieveAppointmentByPatientIdentityNo"/>
@@ -169,6 +169,27 @@
 <soap:fault name="PatientNotFoundException" use="literal"/>
 </fault>
 </operation>
+<operation name="cancelAppointment">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+<fault name="AppointmentNotFoundException">
+<soap:fault name="AppointmentNotFoundException" use="literal"/>
+</fault>
+<fault name="AppointmentAlreadyCancelledException">
+<soap:fault name="AppointmentAlreadyCancelledException" use="literal"/>
+</fault>
+<fault name="DoctorNotFoundException">
+<soap:fault name="DoctorNotFoundException" use="literal"/>
+</fault>
+<fault name="EntityMismatchException">
+<soap:fault name="EntityMismatchException" use="literal"/>
+</fault>
+</operation>
 <operation name="retrieveDoctorByDoctorId">
 <soap:operation soapAction=""/>
 <input>
@@ -191,27 +212,6 @@
 </output>
 <fault name="DoctorNotFoundException">
 <soap:fault name="DoctorNotFoundException" use="literal"/>
-</fault>
-</operation>
-<operation name="cancelAppointment">
-<soap:operation soapAction=""/>
-<input>
-<soap:body use="literal"/>
-</input>
-<output>
-<soap:body use="literal"/>
-</output>
-<fault name="AppointmentNotFoundException">
-<soap:fault name="AppointmentNotFoundException" use="literal"/>
-</fault>
-<fault name="AppointmentAlreadyCancelledException">
-<soap:fault name="AppointmentAlreadyCancelledException" use="literal"/>
-</fault>
-<fault name="DoctorNotFoundException">
-<soap:fault name="DoctorNotFoundException" use="literal"/>
-</fault>
-<fault name="EntityMismatchException">
-<soap:fault name="EntityMismatchException" use="literal"/>
 </fault>
 </operation>
 <operation name="retrieveAppointmentByPatientIdentityNo">
