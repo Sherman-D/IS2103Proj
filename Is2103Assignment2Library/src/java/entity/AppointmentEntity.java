@@ -2,6 +2,7 @@ package entity;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -31,6 +32,10 @@ public class AppointmentEntity implements Serializable, Comparable<AppointmentEn
     @Column(nullable = false)
     private LocalDateTime appointmentTime;
     
+    @Column(nullable = false)
+    private String dateTime;
+
+    
     private Boolean isCancelled = false;
     private Boolean isConfirmed = false;
     
@@ -42,6 +47,9 @@ public class AppointmentEntity implements Serializable, Comparable<AppointmentEn
         this.patient = patient;
         this.doctor = doctor;
         this.appointmentTime = appointmentTime;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        dateTime = appointmentTime.format(formatter);
+
     }
     
     
@@ -108,8 +116,15 @@ public class AppointmentEntity implements Serializable, Comparable<AppointmentEn
         return doctor.getDoctorId();
     }
 
+
     public LocalDateTime getAppointmentTime() {
         return appointmentTime;
+    }
+
+    public void setAppointmentTime(LocalDateTime appointmentTime) {
+        this.appointmentTime = appointmentTime;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        this.dateTime = appointmentTime.format(formatter);
     }
 
     public Boolean getIsCancelled() {
@@ -122,6 +137,14 @@ public class AppointmentEntity implements Serializable, Comparable<AppointmentEn
 
     public void setIsConfirmed(Boolean isConfirmed) {
         this.isConfirmed = isConfirmed;
+    }
+    
+    public String getDateTime() {
+        return dateTime;
+    }
+
+    public void setDateTime(String dateTime) {
+        this.dateTime = dateTime;
     }
    
     
