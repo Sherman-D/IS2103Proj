@@ -16,14 +16,6 @@
                     <path-in-war>/</path-in-war>
                 </library>
                 <library>
-                    <file>${reference.Is2103Assignment1-CARSClient.j2ee-module-car}</file>
-                    <path-in-war>/</path-in-war>
-                </library>
-                <library>
-                    <file>${reference.IS2103Assignment1-SSKClient.j2ee-module-car}</file>
-                    <path-in-war>/</path-in-war>
-                </library>
-                <library>
                     <file>${reference.Is2103Assignment2CatClient.j2ee-module-car}</file>
                     <path-in-war>/</path-in-war>
                 </library>
@@ -39,23 +31,7 @@
         </data>
         <references xmlns="http://www.netbeans.org/ns/ant-project-references/1">
             <reference>
-                <foreign-project>IS2103Assignment1-SSKClient</foreign-project>
-                <artifact-type>j2ee_ear_archive</artifact-type>
-                <script>build.xml</script>
-                <target>dist-ear</target>
-                <clean-target>clean-ear</clean-target>
-                <id>j2ee-module-car</id>
-            </reference>
-            <reference>
                 <foreign-project>IS2103Assignment2AMSClient</foreign-project>
-                <artifact-type>j2ee_ear_archive</artifact-type>
-                <script>build.xml</script>
-                <target>dist-ear</target>
-                <clean-target>clean-ear</clean-target>
-                <id>j2ee-module-car</id>
-            </reference>
-            <reference>
-                <foreign-project>Is2103Assignment1-CARSClient</foreign-project>
                 <artifact-type>j2ee_ear_archive</artifact-type>
                 <script>build.xml</script>
                 <target>dist-ear</target>

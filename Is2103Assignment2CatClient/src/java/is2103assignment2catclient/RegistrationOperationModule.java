@@ -361,7 +361,7 @@ public class RegistrationOperationModule
             int queueNumber = queueGeneratorSessionBeanRemote.getNextQueueNumber();
             
             
-            System.out.printf("%s%s appointment is confirmed with Dr. %s at %d:%d", pe.getFirstName(), pe.getLastName(), doctor.getFullName(), confirmedAppointment.getAppointmentTime().getHour(), confirmedAppointment.getAppointmentTime().getMinute());
+            System.out.printf("%s %s appointment is confirmed with Dr. %s at %02d:%02d", pe.getFirstName(), pe.getLastName(), doctor.getFullName(), confirmedAppointment.getAppointmentTime().getHour(), confirmedAppointment.getAppointmentTime().getMinute());
             System.out.printf("Queue Number is %d. \n", queueNumber);
          } 
          catch (PatientNotFoundException | DoctorNotFoundException | AppointmentNotFoundException ex) 

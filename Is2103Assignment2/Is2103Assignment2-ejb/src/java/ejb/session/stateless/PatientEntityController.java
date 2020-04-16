@@ -7,6 +7,7 @@ import javax.ejb.Local;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
+import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import util.exception.EntityInstanceExistsInCollectionException;
@@ -75,15 +76,16 @@ public class PatientEntityController implements PatientEntityControllerLocal
      @Override
     public PatientEntity retrievePatientByPatientIdentityNumber(String identityNumber) throws PatientNotFoundException
     {
-        PatientEntity patientEntity = entityManager.find(PatientEntity.class, identityNumber);
+        Query query = entityManager.createQuery("SELECT p FROM PatientEntity p WHERE p.identityNumber = :identityNo");
+        query.setParameter("identityNo",  identityNumber);
         
-        if (patientEntity != null)
+        try
         {
-            return patientEntity;
+            return (PatientEntity)query.getSingleResult();
         }
-        else
+        catch(NoResultException | NonUniqueResultException ex)
         {
-            throw new PatientNotFoundException("No record exists with the given identity number!");
+            throw new PatientNotFoundException("No patient record with given identity number exists!");
         }
     }
     

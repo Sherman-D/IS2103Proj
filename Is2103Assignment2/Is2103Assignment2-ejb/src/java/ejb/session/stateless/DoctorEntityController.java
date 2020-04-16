@@ -8,10 +8,12 @@ package ejb.session.stateless;
 import entity.DoctorEntity;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.Local;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import util.exception.DoctorNotFoundException;
@@ -88,8 +90,26 @@ public class DoctorEntityController implements DoctorEntityControllerLocal
     @Override
     public List<DoctorEntity> retrieveDoctorsAvailableOnDate(LocalDate searchDate) throws DoctorNotFoundException
     {
-        Query query = entityManager.createQuery("select d from DoctorEntity d where not exists (select l.doctorId from LeaveEntity l where l.leaveDate = :searchDate) ").setParameter("searchDate", searchDate);
-        List<DoctorEntity> availableDoctorList = query.getResultList();
+        Query query1 = entityManager.createQuery("select d from DoctorEntity d");
+        Query query2 = entityManager.createQuery("select d from DoctorEntity d, LeaveEntity l where l.leaveDate = :searchDate").setParameter("searchDate", searchDate);
+        
+        List<DoctorEntity> availableDoctorList = new ArrayList<>();
+        try {
+          List<DoctorEntity> fullDoctorList = query1.getResultList();
+          List<DoctorEntity> doctorLeaveList = query2.getResultList();
+          
+          for (DoctorEntity doctor : fullDoctorList)
+          {
+              if (!doctorLeaveList.contains(doctor)) {
+                  availableDoctorList.add(doctor);
+              }
+          }
+        } 
+        catch (NoResultException ex)
+        {
+            
+        }
+ 
         
         if(!availableDoctorList.isEmpty())
         {

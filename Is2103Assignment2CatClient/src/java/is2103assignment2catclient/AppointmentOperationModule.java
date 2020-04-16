@@ -185,7 +185,7 @@ public class AppointmentOperationModule {
         
             appointmentEntitySessionBeanRemote.createNewAppointment(new AppointmentEntity(patient, de, date.atTime(time)));
         
-            System.out.printf("%s %s appointment with Dr. %s at %01d:%01d on %d-%01d-%01d has been added. \n", patient.getFirstName(), patient.getLastName(), de.getFullName(), time.getHour(), time.getMinute(), date.getYear(), date.getMonthValue(), date.getDayOfMonth());
+            System.out.printf("%s %s appointment with Dr. %s at %02d:%02d on %d-%02d-%02d has been added. \n", patient.getFirstName(), patient.getLastName(), de.getFullName(), time.getHour(), time.getMinute(), date.getYear(), date.getMonthValue(), date.getDayOfMonth());
             }
         catch(PatientNotFoundException | DoctorNotFoundException ex)
         {
@@ -227,7 +227,7 @@ public class AppointmentOperationModule {
             
             appointmentEntitySessionBeanRemote.cancelAppointment(appointment);
             //Send cancel status to database entry. 
-           System.out.printf("%s %s appointment with Dr. %s at %01d:%01d on %d-%01d-%01d has been cancelled. \n", patient.getFirstName(), patient.getLastName(), de.getFullName(), appointmentTime.getHour(), appointmentTime.getMinute(), appointmentTime.getYear(), appointmentTime.getMonthValue(), appointmentTime.getDayOfMonth());
+           System.out.printf("%s %s appointment with Dr. %s at %02d:%02d on %d-%02d-%02d has been cancelled. \n", patient.getFirstName(), patient.getLastName(), de.getFullName(), appointmentTime.getHour(), appointmentTime.getMinute(), appointmentTime.getYear(), appointmentTime.getMonthValue(), appointmentTime.getDayOfMonth());
         } catch(AppointmentNotFoundException | AppointmentAlreadyCancelledException |EntityMismatchException | PatientNotFoundException |DoctorNotFoundException ex)
         {
             System.out.println("Error: " + ex.getMessage());

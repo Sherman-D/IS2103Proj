@@ -425,7 +425,7 @@ public class MainApp {
         {
             System.out.println("*** Self-Service Kiosk :: View Appointments ***\n");
             System.out.println("Appointments:");
-            System.out.printf("%-1s|%-7s|%-3s|%s", "Id", "Date", "Time", "Doctor");
+            System.out.printf("%-1s|%-7s|%-3s|%s\n", "Id", "Date", "Time", "Doctor");
             List<String> ls = appointmentEntitySessionBeanRemote.retrieveAppointmentByPatientIdentityNo(currentPatientEntity.getIdentityNumber());
             for(String each: ls){
                 System.out.println(each);

@@ -4,6 +4,7 @@ import entity.AppointmentEntity;
 import entity.ClinicEntity;
 import entity.DoctorEntity;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -41,7 +42,8 @@ public class AppointmentEntityController implements AppointmentEntityControllerL
     @Override
     public AppointmentEntity createNewAppointment(AppointmentEntity newAppointmentEntity)
     {
- 
+
+            newAppointmentEntity.setDateTime(newAppointmentEntity.getAppointmentTime().toString());
             entityManager.persist(newAppointmentEntity);
             entityManager.flush();
 
@@ -80,11 +82,13 @@ public class AppointmentEntityController implements AppointmentEntityControllerL
         
         ArrayList<String> appointmentDetails = new ArrayList<>();
 
-        for (AppointmentEntity appointment : patientAppointmentList)
-        {
-            DoctorEntity servingDoctor = entityManager.find(DoctorEntity.class, appointment.getDoctorId());
-            String appointmentLine = String.format("%s-1|%s-7|%s-3|%s", appointment.getAppointmentId(), appointment.getAppointmentTime().format(DateTimeFormatter.ISO_LOCAL_DATE), appointment.getAppointmentTime().format(DateTimeFormatter.ISO_LOCAL_TIME), servingDoctor.getFullName());
-            appointmentDetails.add(appointmentLine);
+        for (AppointmentEntity appointment : patientAppointmentList) {
+            if (!appointment.getIsCancelled()) {
+                DoctorEntity servingDoctor = entityManager.find(DoctorEntity.class, appointment.getDoctorId());
+                LocalDateTime appointmentTime = LocalDateTime.parse(appointment.getDateTime(), DateTimeFormatter.ofPattern("yyyy-mm-dd hh:mm:ss"));
+                String appointmentLine = String.format("%-1s|%-7s|%-3s|%s\n", appointment.getAppointmentId(), appointment.getAppointmentTime().format(DateTimeFormatter.ISO_LOCAL_DATE), appointmentTime.toLocalTime().format(DateTimeFormatter.ISO_LOCAL_TIME), servingDoctor.getFullName());
+                appointmentDetails.add(appointmentLine);
+            }
         }
         
         return appointmentDetails;
@@ -108,11 +112,12 @@ public class AppointmentEntityController implements AppointmentEntityControllerL
         
         ArrayList<String> appointmentDetails = new ArrayList<>();
 
-        for (AppointmentEntity appointment : patientAppointmentList)
-        {
+        for (AppointmentEntity appointment : patientAppointmentList) {
             DoctorEntity servingDoctor = entityManager.find(DoctorEntity.class, appointment.getDoctorId());
-            String appointmentLine = String.format("%s-1|%s-7|%s-3|%s", appointment.getAppointmentId(), appointment.getAppointmentTime().format(DateTimeFormatter.ISO_LOCAL_DATE), appointment.getAppointmentTime().format(DateTimeFormatter.ISO_LOCAL_TIME), servingDoctor.getFullName());
+            LocalDateTime appointmentTime = appointment.getAppointmentTime(); //LocalDateTime.parse(appointment.getDateTime(), DateTimeFormatter.ofPattern("yyyy mm dd hh mm ss"));
+            String appointmentLine = String.format("%-1s|%-7s|%-3s|%s\n", appointment.getAppointmentId(), appointment.getAppointmentTime().format(DateTimeFormatter.ISO_LOCAL_DATE), appointmentTime.toLocalTime().format(DateTimeFormatter.ISO_LOCAL_TIME), servingDoctor.getFullName());
             appointmentDetails.add(appointmentLine);
+            
         }
         return appointmentDetails;
         

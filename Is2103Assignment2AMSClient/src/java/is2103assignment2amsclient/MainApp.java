@@ -203,6 +203,7 @@ public class MainApp {
         for (String appointment : appts) {
             System.out.println(appointment);
         }
+        System.out.println();
     }
 
     private void doAddAppointment() {
@@ -218,7 +219,7 @@ public class MainApp {
             List<DoctorEntity> deList = (List<DoctorEntity>) retrieveDoctorsAvailableOnDate(now.toString());
             for (DoctorEntity doctor : deList) 
             { //print list of doctors
-                System.out.println(doctor.getDoctorId() + " | " + doctor);
+                System.out.println(doctor.getDoctorId() + " | " + doctor.getFirstName() + " " + doctor.getLastName());
             }
             System.out.println();
 
@@ -269,6 +270,7 @@ public class MainApp {
                     System.out.println("That timing is not available. Please choose another time slot. Otherwise, enter \" cancel \" to cancel.");
                     continue;
                 }
+                time = LocalTime.parse(selectedTime);
                 break;
             }
         
